@@ -17,80 +17,85 @@
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     body{background:var(--bg);color:var(--text);font-family:var(--ui);min-height:100vh}
 
-    /* header */
     header{background:var(--bg2);border-bottom:var(--border);padding:10px 16px;
       display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
     .logo{font-size:20px;font-weight:900;letter-spacing:2px;text-transform:uppercase}
     .logo em{font-style:normal;color:var(--c4)}
     .badge{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;
       border:2px solid;text-transform:uppercase;letter-spacing:1px}
-    .badge.build{border-color:var(--c3);color:var(--c3)}
-    .badge.admin{border-color:var(--c1);color:var(--c1)}
+    .badge.build {border-color:var(--c3);color:var(--c3)}
+    .badge.admin {border-color:var(--c1);color:var(--c1)}
     .badge.viewer{border-color:var(--c5);color:var(--c5)}
-    .spacer{flex:1}
+    .badge.setup {border-color:var(--c7);color:var(--c7)}
+    .hspacer{flex:1}
     .live-dot{width:7px;height:7px;border-radius:50%;background:var(--c4);animation:pulse 2s infinite}
     .live-dot.err{background:var(--c1);animation:none}
     .live-lbl{font-family:var(--mono);font-size:10px;color:var(--dim)}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
     main{max-width:640px;margin:0 auto;padding:18px 14px 40px;display:flex;flex-direction:column;gap:14px}
+    .section{display:flex;flex-direction:column;gap:14px}
 
-    /* cards */
     .card{background:var(--bg2);border:var(--border);border-radius:var(--radius);overflow:hidden}
     .card-hd{padding:8px 14px;background:var(--bg3);border-bottom:2px solid #000;
       font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--dim)}
     .card-bd{padding:14px;display:flex;flex-direction:column;gap:10px}
 
-    /* inputs */
     input[type=text]{width:100%;background:var(--bg);border:2px solid #444;border-radius:6px;
       color:var(--text);font-family:var(--mono);font-size:13px;padding:8px 11px;outline:none;transition:border-color .15s}
     input[type=text]:focus{border-color:var(--c5)}
     .row{display:flex;gap:8px}
     .row input{flex:1}
 
-    /* buttons */
     .btn{font-family:var(--ui);font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;
       padding:9px 16px;border:var(--border);border-radius:var(--radius);cursor:pointer;
       transition:filter .1s,transform .1s;white-space:nowrap}
     .btn:active{transform:scale(.97)}
     .btn:hover{filter:brightness(1.1)}
-    .btn.green{background:var(--c4);color:#000}
-    .btn.blue{background:var(--c5);color:#000}
+    .btn.green {background:var(--c4);color:#000}
+    .btn.blue  {background:var(--c5);color:#000}
     .btn.yellow{background:var(--c3);color:#000}
-    .btn.red{background:var(--c1);color:#000}
-    .btn.dim{background:var(--bg3);color:var(--dim);border-color:#444}
-    .btn.sm{font-size:11px;padding:6px 10px}
+    .btn.red   {background:var(--c1);color:#000}
+    .btn.purple{background:var(--c7);color:#000}
+    .btn.dim   {background:var(--bg3);color:var(--dim);border-color:#444}
+    .btn.sm    {font-size:11px;padding:6px 10px}
     .btn:disabled{opacity:.5;cursor:not-allowed}
 
-    /* draft items */
-    .draft-item{display:flex;align-items:center;gap:8px;padding:8px 10px;
+    /* draft list */
+    .draft-item{display:flex;align-items:center;gap:8px;padding:8px 10px;margin-bottom:6px;
       background:var(--bg3);border:2px solid #333;border-radius:6px}
+    .draft-item:last-child{margin-bottom:0}
     .drag-handle{color:var(--dim);font-size:15px;user-select:none}
     .draft-text{flex:1;font-family:var(--mono);font-size:13px}
-    .del-btn{background:none;border:none;color:var(--c1);cursor:pointer;font-size:16px;padding:0 4px;line-height:1}
+    .del-btn{background:none;border:none;color:var(--c1);cursor:pointer;font-size:18px;
+      padding:0 4px;line-height:1;flex-shrink:0}
 
-    /* share urls */
+    /* url boxes */
     .url-block{display:flex;flex-direction:column;gap:6px}
-    .url-label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:1px}
-    .url-label.admin-lbl{color:var(--c1)}
-    .url-label.share-lbl{color:var(--c4)}
+    .url-lbl{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:1px}
+    .url-lbl.red{color:var(--c1)} .url-lbl.green{color:var(--c4)}
     .url-box{font-family:var(--mono);font-size:11px;padding:9px 12px;background:var(--bg);
-      border:2px solid;border-radius:6px;word-break:break-all}
-    .url-box.admin-url{border-color:var(--c1);color:var(--c1)}
-    .url-box.share-url{border-color:var(--c4);color:var(--c4)}
+      border:2px solid;border-radius:6px;word-break:break-all;line-height:1.5}
+    .url-box.red  {border-color:var(--c1);color:var(--c1)}
+    .url-box.green{border-color:var(--c4);color:var(--c4)}
+    hr.div{border:none;border-top:2px solid #333;margin:4px 0}
 
-    /* checklist viewer */
+    /* checklist items */
     .list-title{font-size:28px;font-weight:900;letter-spacing:1px}
     .cl-item{display:flex;align-items:flex-start;gap:11px;padding:12px;background:var(--bg3);
-      border:2px solid #333;border-radius:6px;cursor:pointer;transition:border-color .15s,background .15s;user-select:none}
+      border:2px solid #333;border-radius:6px;cursor:pointer;
+      transition:border-color .15s,background .15s;user-select:none;margin-bottom:6px}
+    .cl-item:last-child{margin-bottom:0}
     .cl-item:hover{border-color:#555}
     .cl-item.mine{border-color:var(--c4);background:rgba(105,219,124,.07)}
-    .checkmark{width:22px;height:22px;border:2px solid #555;border-radius:5px;flex-shrink:0;
-      display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .15s}
-    .mine .checkmark{border-color:var(--c4);background:var(--c4);color:#000}
-    .cl-content{flex:1;min-width:0}
-    .cl-text{font-size:16px;font-weight:700;letter-spacing:.5px}
-    .mine .cl-text{text-decoration:line-through;opacity:.55}
+    .cl-item.others{border-color:#555;background:rgba(255,255,255,.03)}
+    .ckbox{width:22px;height:22px;border:2px solid #555;border-radius:5px;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .15s;margin-top:1px}
+    .mine .ckbox{border-color:var(--c4);background:var(--c4);color:#000}
+    .others .ckbox{border-color:#777;background:rgba(255,255,255,.08)}
+    .cl-body{flex:1;min-width:0}
+    .cl-text{font-size:16px;font-weight:700;letter-spacing:.3px;line-height:1.3}
+    .mine .cl-text{text-decoration:line-through;opacity:.5}
     .chips{margin-top:5px;display:flex;flex-wrap:wrap;gap:4px}
     .chip{font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:10px;border:1.5px solid}
     .chip:nth-child(8n+1){border-color:var(--c1);color:var(--c1)}
@@ -102,35 +107,45 @@
     .chip:nth-child(8n+7){border-color:var(--c7);color:var(--c7)}
     .chip:nth-child(8n+0){border-color:var(--c8);color:var(--c8)}
 
-    /* admin item row */
-    .admin-item{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg3);
-      border:2px solid #333;border-radius:6px}
-    .admin-item .checkmark{cursor:default;pointer-events:none}
-    .admin-item .cl-content{flex:1;min-width:0}
-    .admin-item .cl-text{font-size:15px;font-weight:700}
-    .admin-item .chips{margin-top:4px}
+    /* admin items */
+    .ad-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);
+      border:2px solid #333;border-radius:6px;margin-bottom:6px}
+    .ad-item:last-child{margin-bottom:0}
+    .ad-ck{width:22px;height:22px;border:2px solid #555;border-radius:5px;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;font-size:13px}
+    .ad-body{flex:1;min-width:0}
+    .ad-text{font-size:15px;font-weight:700}
+    .ad-text.done{opacity:.45;text-decoration:line-through}
 
     /* progress */
+    .prog-row{display:flex;justify-content:space-between;align-items:center}
     .prog-track{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden}
     .prog-fill{height:100%;background:var(--c4);transition:width .4s}
 
-    .footer-strip{display:flex;align-items:center;gap:8px;padding:2px}
+    /* footer */
+    .footer{display:flex;align-items:center;gap:8px;padding:2px}
+
+    /* setup steps */
+    .steps{display:flex;flex-direction:column;gap:10px}
+    .step{display:flex;gap:10px;align-items:flex-start}
+    .stepn{font-family:var(--mono);font-size:11px;background:var(--c7);color:#000;
+      width:20px;height:20px;border-radius:50%;display:flex;align-items:center;
+      justify-content:center;flex-shrink:0;font-weight:700;margin-top:2px}
+    .stept{font-size:14px;line-height:1.5;color:var(--dim)}
+    .stept strong{color:var(--text)}
+    .stept a{color:var(--c5)}
 
     /* modal */
     .overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;
       align-items:center;justify-content:center;z-index:100;padding:20px}
     .modal{background:var(--bg2);border:var(--border);border-radius:var(--radius);
-      padding:24px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:14px}
+      padding:24px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px}
     .modal h2{font-size:22px;font-weight:900;letter-spacing:1px}
     .modal p{font-size:14px;color:var(--dim);line-height:1.5}
 
     .note{font-family:var(--mono);font-size:11px;color:var(--dim);line-height:1.6}
     .note a{color:var(--c5)}
     .hidden{display:none!important}
-    .section{display:flex;flex-direction:column;gap:14px}
-
-    /* divider */
-    .divider{border:none;border-top:2px solid #333;margin:2px 0}
   </style>
 </head>
 <body>
@@ -138,24 +153,47 @@
 <header>
   <div class="logo">Check<em>&#10003;</em>List</div>
   <div class="badge build" id="mode-badge">Builder</div>
-  <div class="spacer"></div>
-  <div class="live-dot hidden" id="live-dot"></div>
-  <div class="live-lbl hidden" id="live-lbl">live</div>
+  <div class="hspacer"></div>
+  <div class="live-dot hidden" id="hdr-dot"></div>
+  <div class="live-lbl hidden" id="hdr-lbl">live</div>
 </header>
 
 <main>
 
-  <!-- ═══════════════ BUILD SECTION ═══════════════ -->
-  <div class="section" id="build-section">
+  <!-- ══════════ SETUP ══════════ -->
+  <div class="section hidden" id="setup-section">
+    <div class="card">
+      <div class="card-hd">&#128296; One-Time Setup</div>
+      <div class="card-bd">
+        <div class="steps">
+          <div class="step"><div class="stepn">1</div>
+            <div class="stept">Go to <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> and sign in with Google</div></div>
+          <div class="step"><div class="stepn">2</div>
+            <div class="stept">Click <strong>Add project</strong> &rarr; name it anything &rarr; skip Analytics &rarr; <strong>Create project</strong></div></div>
+          <div class="step"><div class="stepn">3</div>
+            <div class="stept">Left sidebar: <strong>Build</strong> &rarr; <strong>Realtime Database</strong> &rarr; <strong>Create database</strong> &rarr; any location &rarr; <strong>Start in test mode</strong> &rarr; Enable</div></div>
+          <div class="step"><div class="stepn">4</div>
+            <div class="stept">Copy the URL at the top of the database page — looks like <strong>https://yourproject-default-rtdb.firebaseio.com</strong></div></div>
+        </div>
+        <div class="row" style="margin-top:4px">
+          <input type="text" id="fb-input" placeholder="https://yourproject-default-rtdb.firebaseio.com" />
+          <button class="btn purple" onclick="saveFirebase()">Save</button>
+        </div>
+        <div id="setup-msg" class="note"></div>
+      </div>
+    </div>
+  </div>
 
+  <!-- ══════════ BUILD ══════════ -->
+  <div class="section hidden" id="build-section">
     <div class="card">
       <div class="card-hd">&#9998; Build Your Checklist</div>
       <div class="card-bd">
         <input type="text" id="list-title" placeholder="Give your list a title..." />
         <div class="row">
           <input type="text" id="new-item" placeholder="Type an item, press Enter..."
-                 onkeydown="if(event.key==='Enter')addItem()" />
-          <button class="btn blue" onclick="addItem()">+ Add</button>
+                 onkeydown="if(event.key==='Enter')addDraftItem()" />
+          <button class="btn blue" onclick="addDraftItem()">+ Add</button>
         </div>
         <div id="draft-list"></div>
         <div id="draft-count" class="note"></div>
@@ -166,113 +204,100 @@
     <div class="card hidden" id="links-card">
       <div class="card-hd">&#127881; Your Two Links</div>
       <div class="card-bd">
-
         <div class="url-block">
-          <div class="url-label admin-lbl">&#128274; Your Admin Link — keep this for yourself</div>
-          <div class="url-box admin-url" id="admin-url-text"></div>
-          <button class="btn red sm" onclick="copyUrl('admin-url-text', event)">&#128203; Copy Admin Link</button>
+          <div class="url-lbl red">&#128274; Admin link — save this for yourself</div>
+          <div class="url-box red" id="out-admin"></div>
+          <button class="btn red sm" onclick="copyEl('out-admin',event)">&#128203; Copy Admin Link</button>
         </div>
-
-        <hr class="divider" />
-
+        <hr class="div"/>
         <div class="url-block">
-          <div class="url-label share-lbl">&#128279; Share Link — send this to everyone else</div>
-          <div class="url-box share-url" id="share-url-text"></div>
-          <button class="btn yellow sm" onclick="copyUrl('share-url-text', event)">&#128203; Copy Share Link</button>
+          <div class="url-lbl green">&#128279; Share link — send this to everyone</div>
+          <div class="url-box green" id="out-share"></div>
+          <button class="btn yellow sm" onclick="copyEl('out-share',event)">&#128203; Copy Share Link</button>
         </div>
-
-        <p class="note">The admin link lets you add and remove items. The share link lets people check things off only.</p>
-        <button class="btn dim sm" onclick="openAdmin()">&#128065; Open as Admin</button>
+        <p class="note">Admin link lets you add &amp; remove items. Share link lets people check things off only. Both work from any device.</p>
+        <button class="btn dim sm" onclick="goAdmin()">&#128065; Open as Admin</button>
       </div>
     </div>
 
+    <div style="text-align:right">
+      <button class="btn dim sm" onclick="resetFirebase()">&#9881; Change Firebase URL</button>
+    </div>
   </div>
 
-  <!-- ═══════════════ ADMIN SECTION ═══════════════ -->
+  <!-- ══════════ ADMIN ══════════ -->
   <div class="section hidden" id="admin-section">
-
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
       <div class="list-title" id="admin-title">Loading...</div>
-      <button class="btn dim sm" onclick="newList()">+ New List</button>
+      <button class="btn dim sm" onclick="goHome()">+ New List</button>
     </div>
 
-    <!-- progress -->
     <div class="card">
       <div class="card-bd" style="gap:8px">
-        <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="prog-row">
           <span style="font-size:13px;font-weight:700;letter-spacing:1px">PROGRESS</span>
-          <span id="admin-prog-label" class="note"></span>
+          <span id="admin-prog-lbl" class="note"></span>
         </div>
         <div class="prog-track"><div class="prog-fill" id="admin-prog-fill" style="width:0%"></div></div>
       </div>
     </div>
 
-    <!-- add items while live -->
     <div class="card">
-      <div class="card-hd">&#9998; Edit Items</div>
+      <div class="card-hd">&#9998; Add Item</div>
       <div class="card-bd">
         <div class="row">
           <input type="text" id="admin-new-item" placeholder="Add another item..."
-                 onkeydown="if(event.key==='Enter')adminAddItem()" />
-          <button class="btn blue" onclick="adminAddItem()">+ Add</button>
+                 onkeydown="if(event.key==='Enter')adminAdd()" />
+          <button class="btn blue" onclick="adminAdd()">+ Add</button>
         </div>
       </div>
     </div>
 
-    <!-- live items -->
     <div class="card">
       <div class="card-hd">&#128203; Items</div>
       <div class="card-bd" id="admin-items"><div class="note">Loading...</div></div>
     </div>
 
-    <!-- share link reminder -->
     <div class="card">
       <div class="card-hd">&#128279; Share Link</div>
       <div class="card-bd">
-        <div class="url-box share-url" id="admin-share-url-text"></div>
-        <button class="btn yellow sm" onclick="copyUrl('admin-share-url-text', event)">&#128203; Copy Share Link</button>
+        <div class="url-box green" id="admin-share-url"></div>
+        <button class="btn yellow sm" onclick="copyEl('admin-share-url',event)">&#128203; Copy Share Link</button>
       </div>
     </div>
 
-    <div class="footer-strip">
+    <div class="footer">
       <div class="live-dot" id="admin-dot"></div>
       <span class="note" id="admin-status">syncing...</span>
     </div>
-
   </div>
 
-  <!-- ═══════════════ VIEWER SECTION ═══════════════ -->
+  <!-- ══════════ VIEWER ══════════ -->
   <div class="section hidden" id="viewer-section">
+    <div class="list-title" id="view-title">Loading...</div>
 
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-      <div class="list-title" id="view-title">Loading...</div>
-    </div>
-
-    <!-- progress -->
     <div class="card">
       <div class="card-bd" style="gap:8px">
-        <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="prog-row">
           <span style="font-size:13px;font-weight:700;letter-spacing:1px">PROGRESS</span>
-          <span id="prog-label" class="note"></span>
+          <span id="view-prog-lbl" class="note"></span>
         </div>
-        <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+        <div class="prog-track"><div class="prog-fill" id="view-prog-fill" style="width:0%"></div></div>
       </div>
     </div>
 
-    <!-- items -->
     <div class="card">
       <div class="card-hd">&#128203; Items &mdash; tap to check off</div>
       <div class="card-bd" id="view-items"><div class="note">Loading...</div></div>
     </div>
 
-    <div class="footer-strip">
+    <div class="footer">
       <div class="live-dot" id="view-dot"></div>
       <span class="note" id="view-status">syncing...</span>
       <div style="flex:1"></div>
       <span class="note" id="name-display"></span>
-      <button class="btn dim sm" onclick="changeName()">rename</button>
+      <button class="btn dim sm" onclick="changeName()" style="margin-left:6px">rename</button>
     </div>
-
   </div>
 
 </main>
@@ -281,7 +306,7 @@
 <div class="overlay hidden" id="name-modal">
   <div class="modal">
     <h2>What's your name?</h2>
-    <p>Your name appears on items you check off. Others sharing this list will see it.</p>
+    <p>It shows up on items you check off so others know who did what.</p>
     <input type="text" id="name-input" placeholder="Enter your name..." maxlength="30"
            onkeydown="if(event.key==='Enter')submitName()" />
     <button class="btn green" onclick="submitName()">Let's Go &#8594;</button>
@@ -289,291 +314,378 @@
 </div>
 
 <script>
-// ── Constants ──────────────────────────────────────────────────────────────
-const API        = 'https://jsonblob.com/api/jsonBlob';
-const CORS_PROXY = 'https://corsproxy.io/?';
+// ─────────────────────────────────────────────────────────────────────────────
+// !! PASTE YOUR FIREBASE URL HERE BEFORE UPLOADING TO GITHUB !!
+https://listpro-9e56e-default-rtdb.firebaseio.com/
+// Example: 'https://myproject-default-rtdb.firebaseio.com'
+// Once filled in, no one who opens any link will ever see the setup screen.
+// ─────────────────────────────────────────────────────────────────────────────
 
-// ── State ──────────────────────────────────────────────────────────────────
+let FB      = null;   // Firebase DB base URL, no trailing slash
 let draftItems = [];
-let blobId     = null;
-let isAdmin    = false;
-let myName     = null;
-let listData   = null;
-let pollTimer  = null;
+let listId  = null;
+let isAdmin = false;
+let myName  = null;
+let cache   = null;   // local copy of list data
+let polling = null;
 
-// ── Boot ───────────────────────────────────────────────────────────────────
+// ── Firebase REST ─────────────────────────────────────────────────────────
+// Data model:
+//   /lists/{id}/title        string
+//   /lists/{id}/order        array of item IDs (defines display order)
+//   /lists/{id}/items/{iid}/text       string
+//   /lists/{id}/items/{iid}/checkedBy  object  {name: true}  (null = unchecked)
+//
+// Checks use PATCH on a specific path so two people can never overwrite each other.
+
+function ep(path) { return FB + path + '.json'; }
+
+async function fbGet(path) {
+  const r = await fetch(ep(path));
+  if (!r.ok) throw new Error('Read failed (' + r.status + ')');
+  return r.json();
+}
+async function fbSet(path, data) {
+  const r = await fetch(ep(path), {
+    method: 'PUT', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(data)
+  });
+  if (!r.ok) throw new Error('Write failed (' + r.status + ')');
+}
+async function fbPatch(path, data) {
+  const r = await fetch(ep(path), {
+    method: 'PATCH', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(data)
+  });
+  if (!r.ok) throw new Error('Patch failed (' + r.status + ')');
+}
+async function fbPush(path, data) {
+  const r = await fetch(ep(path), {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(data)
+  });
+  if (!r.ok) throw new Error('Push failed (' + r.status + ')');
+  return (await r.json()).name; // Firebase push ID
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────
 window.addEventListener('load', () => {
-  const p      = new URLSearchParams(location.search);
-  const urlId  = p.get('id');
-  const urlAdm = p.get('admin');
+  FB = (HARDCODED_FB_URL || localStorage.getItem('cl_fb')||'').replace(/\/$/,'');
 
-  if (urlId) {
-    blobId  = urlId;
-    // Admin if URL param present OR previously granted on this device
-    if (urlAdm) localStorage.setItem('cl_admin_' + urlId, '1');
-    isAdmin = !!urlAdm || localStorage.getItem('cl_admin_' + urlId) === '1';
+  const p   = new URLSearchParams(location.search);
+  const id  = p.get('id');
+  const adm = p.get('admin');
 
-    // hide build section
-    document.getElementById('build-section').classList.add('hidden');
-    document.getElementById('live-dot').classList.remove('hidden');
-    document.getElementById('live-lbl').classList.remove('hidden');
+  if (id) {
+    listId  = id;
+    if (adm) localStorage.setItem('cl_adm_'+id, '1');
+    isAdmin = !!(adm || localStorage.getItem('cl_adm_'+id));
 
-    if (isAdmin) {
-      document.getElementById('admin-section').classList.remove('hidden');
-      document.getElementById('mode-badge').textContent = 'Admin';
-      document.getElementById('mode-badge').classList.replace('build','admin');
-      // pre-fill share url in admin panel
-      const shareUrl = makeShareUrl(blobId);
-      document.getElementById('admin-share-url-text').textContent = shareUrl;
-      fetchAdmin();
-    } else {
-      document.getElementById('viewer-section').classList.remove('hidden');
-      document.getElementById('mode-badge').textContent = 'Viewer';
-      document.getElementById('mode-badge').classList.replace('build','viewer');
-      myName = localStorage.getItem('cl_name');
-      if (!myName) showNameModal();
-      else { document.getElementById('name-display').textContent = 'you: ' + myName; fetchViewer(); }
+    if (!FB) {
+      // Need Firebase URL before we can do anything — ask for it then redirect back
+      localStorage.setItem('cl_after', location.href);
+      showSetup('Enter your Firebase URL to view this list.');
+      return;
     }
+    startView();
+  } else {
+    if (!FB) { showSetup(''); return; }
+    showBuild();
   }
-  // else: build mode, nothing to load
 });
 
-// ── URL helpers ────────────────────────────────────────────────────────────
-function makeAdminUrl(id) {
-  return location.origin + location.pathname + '?id=' + id + '&admin=1';
-}
-function makeShareUrl(id) {
-  return location.origin + location.pathname + '?id=' + id;
+// ── Setup ─────────────────────────────────────────────────────────────────
+function showSetup(msg) {
+  show('setup-section');
+  badge('setup', 'Setup');
+  if (msg) setMsg('setup-msg', msg, 'var(--c2)');
 }
 
-// ── BUILD ──────────────────────────────────────────────────────────────────
-function addItem() {
-  const inp = document.getElementById('new-item');
+async function saveFirebase() {
+  let url = document.getElementById('fb-input').value.trim().replace(/\/$/,'');
+  if (!url.startsWith('https://') || !url.includes('firebaseio.com')) {
+    setMsg('setup-msg','That URL doesn\'t look right — should end in .firebaseio.com','var(--c1)'); return;
+  }
+  setMsg('setup-msg','Testing...','var(--c3)');
+  try {
+    const r = await fetch(url + '/.json?shallow=true');
+    if (!r.ok) throw new Error('HTTP '+r.status);
+    FB = url;
+    localStorage.setItem('cl_fb', url);
+    setMsg('setup-msg','&#10003; Connected!','var(--c4)');
+    setTimeout(() => {
+      const after = localStorage.getItem('cl_after');
+      localStorage.removeItem('cl_after');
+      if (after) location.href = after;
+      else showBuild();
+    }, 600);
+  } catch(e) {
+    setMsg('setup-msg','Could not connect — double-check the URL: '+e.message,'var(--c1)');
+  }
+}
+
+function resetFirebase() {
+  localStorage.removeItem('cl_fb'); FB = null; showSetup('');
+}
+
+// ── Build ─────────────────────────────────────────────────────────────────
+function showBuild() {
+  show('build-section'); badge('build','Builder');
+}
+
+function addDraftItem() {
+  const inp = el('new-item');
   const txt = inp.value.trim(); if (!txt) return;
-  draftItems.push({ id: uid(), text: txt, checkedBy: [] });
+  draftItems.push({id: uid(), text: txt});
   inp.value = ''; renderDraft(); inp.focus();
 }
-function removeItem(id) { draftItems = draftItems.filter(i => i.id !== id); renderDraft(); }
+function removeDraft(id) { draftItems = draftItems.filter(i=>i.id!==id); renderDraft(); }
 function renderDraft() {
-  document.getElementById('draft-list').innerHTML = draftItems.map(it => `
+  el('draft-list').innerHTML = draftItems.map(it=>`
     <div class="draft-item">
       <span class="drag-handle">&#11039;</span>
       <span class="draft-text">${esc(it.text)}</span>
-      <button class="del-btn" onclick="removeItem('${it.id}')">&#10005;</button>
+      <button class="del-btn" onclick="removeDraft('${it.id}')">&#10005;</button>
     </div>`).join('');
   const n = draftItems.length;
-  document.getElementById('draft-count').textContent = n ? n + ' item' + (n !== 1 ? 's' : '') : '';
+  el('draft-count').textContent = n ? n+' item'+(n!==1?'s':'') : '';
 }
 
 async function createList() {
   if (!draftItems.length) { alert('Add at least one item first.'); return; }
-  const title = document.getElementById('list-title').value.trim() || 'My Checklist';
-  const btn   = document.getElementById('create-btn');
+  const title = el('list-title').value.trim() || 'My Checklist';
+  const btn   = el('create-btn');
   btn.textContent = 'Creating...'; btn.disabled = true;
-
-  const payload = { title, items: draftItems.map(i => ({ ...i, checkedBy: [] })) };
-
   try {
-    // Use CORS proxy for create so the Location response header is readable cross-origin
-    const res = await fetch(CORS_PROXY + API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify(payload)
+    // Build item map and order array
+    const items = {}, order = [];
+    draftItems.forEach(it => {
+      items[it.id] = {text: it.text, checkedBy: {}};
+      order.push(it.id);
     });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const loc = res.headers.get('Location') || res.headers.get('location') || '';
-    const id  = loc.split('/').pop();
-    if (!id) throw new Error('No ID — check console for details');
-
-    // Save admin rights for this blob to localStorage
-    localStorage.setItem('cl_admin_' + id, '1');
-
-    document.getElementById('admin-url-text').textContent = makeAdminUrl(id);
-    document.getElementById('share-url-text').textContent = makeShareUrl(id);
-    document.getElementById('links-card').classList.remove('hidden');
-    btn.textContent = '&#10003; Created!';
+    const id = await fbPush('/lists', {title, order, items});
+    localStorage.setItem('cl_adm_'+id, '1');
+    el('out-admin').textContent = makeUrl(id, true);
+    el('out-share').textContent = makeUrl(id, false);
+    el('links-card').classList.remove('hidden');
+    btn.innerHTML = '&#10003; Created!';
   } catch(e) {
-    btn.textContent = 'Error: ' + e.message;
+    btn.textContent = 'Error: '+e.message;
     btn.disabled = false;
-    setTimeout(() => { btn.textContent = '&#128279; Create & Get Links'; }, 2500);
+    setTimeout(()=>{ btn.innerHTML='&#128279; Create &amp; Get Links'; btn.disabled=false; },2500);
   }
 }
 
-function copyUrl(elId, e) {
-  navigator.clipboard.writeText(document.getElementById(elId).textContent)
-    .then(() => flash(e.target, '&#10003; Copied!'));
-}
-function openAdmin() { location.href = document.getElementById('admin-url-text').textContent; }
-function newList()   { location.href = location.pathname; }
+function goAdmin() { location.href = el('out-admin').textContent; }
+function goHome()  { location.href = location.pathname; }
 
-// ── ADMIN ──────────────────────────────────────────────────────────────────
-async function fetchAdmin(silent = false) {
-  if (!silent) setAdminStatus('syncing...', false);
+// ── Shared view startup ───────────────────────────────────────────────────
+function startView() {
+  hide('build-section'); hide('setup-section');
+  el('hdr-dot').classList.remove('hidden');
+  el('hdr-lbl').classList.remove('hidden');
+  if (isAdmin) {
+    show('admin-section'); badge('admin','Admin');
+    el('admin-share-url').textContent = makeUrl(listId, false);
+    loadAdmin();
+  } else {
+    show('viewer-section'); badge('viewer','Viewer');
+    myName = localStorage.getItem('cl_name');
+    if (!myName) showNameModal();
+    else { el('name-display').textContent = 'you: '+myName; loadViewer(); }
+  }
+}
+
+// ── Admin ─────────────────────────────────────────────────────────────────
+async function loadAdmin(silent=false) {
+  if (!silent) adminSt('syncing...', false);
   try {
-    const res  = await fetch(API + '/' + blobId, { headers: { 'Accept': 'application/json' } });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    listData = await res.json();
+    cache = await fbGet('/lists/'+listId);
+    if (!cache) throw new Error('List not found');
     renderAdmin();
-    setAdminStatus('live', false);
-  } catch(e) { setAdminStatus('error: ' + e.message, true); }
-  if (!pollTimer) pollTimer = setInterval(() => fetchAdmin(true), 7000);
+    adminSt('live', false);
+  } catch(e) { adminSt('error: '+e.message, true); }
+  if (!polling) polling = setInterval(()=>loadAdmin(true), 7000);
 }
 
 function renderAdmin() {
-  if (!listData) return;
-  document.getElementById('admin-title').textContent = listData.title || 'Checklist';
-  document.title = (listData.title || 'Checklist') + ' [admin]';
-
-  const items = listData.items || [];
-  const done  = items.filter(i => i.checkedBy?.length > 0).length;
-  const pct   = items.length ? Math.round(done / items.length * 100) : 0;
-  document.getElementById('admin-prog-label').textContent = done + ' / ' + items.length + ' (' + pct + '%)';
-  document.getElementById('admin-prog-fill').style.width = pct + '%';
-
-  document.getElementById('admin-items').innerHTML = items.map(it => {
-    const chips = (it.checkedBy || []).map(n => `<span class="chip">${esc(n)}</span>`).join('');
-    const isChecked = it.checkedBy?.length > 0;
-    return `
-      <div class="admin-item">
-        <div class="checkmark" style="${isChecked ? 'border-color:var(--c4);background:var(--c4);color:#000' : ''}">
-          ${isChecked ? '&#10003;' : ''}
-        </div>
-        <div class="cl-content">
-          <div class="cl-text" style="${isChecked ? 'opacity:.55' : ''}">${esc(it.text)}</div>
-          ${chips ? `<div class="chips">${chips}</div>` : ''}
-        </div>
-        <button class="del-btn" title="Remove item" onclick="adminRemoveItem('${it.id}')">&#10005;</button>
-      </div>`;
-  }).join('') || '<div class="note">No items yet.</div>';
+  if (!cache) return;
+  el('admin-title').textContent = cache.title||'Checklist';
+  document.title = (cache.title||'Checklist')+' [admin]';
+  const order = cache.order||[];
+  const items = cache.items||{};
+  const done  = order.filter(id=>Object.keys(items[id]?.checkedBy||{}).length>0).length;
+  const pct   = order.length ? Math.round(done/order.length*100) : 0;
+  el('admin-prog-lbl').textContent = done+' / '+order.length+' ('+pct+'%)';
+  el('admin-prog-fill').style.width = pct+'%';
+  el('admin-items').innerHTML = order.map(id=>{
+    const it  = items[id]; if (!it) return '';
+    const who = Object.keys(it.checkedBy||{});
+    const done= who.length > 0;
+    const chips = who.map(n=>`<span class="chip">${esc(n)}</span>`).join('');
+    return `<div class="ad-item">
+      <div class="ad-ck" style="${done?'border-color:var(--c4);background:var(--c4);color:#000':''}">
+        ${done?'&#10003;':''}</div>
+      <div class="ad-body">
+        <div class="ad-text${done?' done':''}">${esc(it.text)}</div>
+        ${chips?`<div class="chips" style="margin-top:4px">${chips}</div>`:''}
+      </div>
+      <button class="del-btn" title="Remove" onclick="adminRemove('${id}')">&#10005;</button>
+    </div>`;
+  }).join('')||'<div class="note">No items.</div>';
 }
 
-async function adminAddItem() {
-  const inp = document.getElementById('admin-new-item');
-  const txt = inp.value.trim(); if (!txt || !listData) return;
+async function adminAdd() {
+  const inp = el('admin-new-item');
+  const txt = inp.value.trim(); if (!txt||!cache) return;
   inp.value = '';
-  listData.items.push({ id: uid(), text: txt, checkedBy: [] });
+  const id = uid();
+  if (!cache.items) cache.items = {};
+  if (!cache.order) cache.order = [];
+  cache.items[id] = {text: txt, checkedBy: {}};
+  cache.order.push(id);
   renderAdmin();
-  await saveData(true);
-}
-
-async function adminRemoveItem(id) {
-  if (!listData) return;
-  listData.items = listData.items.filter(i => i.id !== id);
-  renderAdmin();
-  await saveData(true);
-}
-
-async function saveData(fromAdmin = false) {
-  const statusFn = fromAdmin ? setAdminStatus : setViewerStatus;
   try {
-    statusFn('saving...', false);
-    const res = await fetch(API + '/' + blobId, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify(listData)
+    adminSt('saving...', false);
+    await fbPatch('/lists/'+listId, {
+      order: cache.order,
+      items: {[id]: {text: txt, checkedBy: {}}}
     });
-    if (!res.ok) throw new Error('Save failed');
-    statusFn('saved &#10003;', false);
-    setTimeout(() => statusFn('live', false), 1200);
-  } catch(e) { statusFn('save error', true); }
+    adminSt('saved &#10003;', false);
+    setTimeout(()=>adminSt('live',false), 1200);
+  } catch(e) { adminSt('save error',true); }
 }
 
-function setAdminStatus(t, err) {
-  document.getElementById('admin-status').textContent = t;
-  const c = 'live-dot' + (err ? ' err' : '');
-  document.getElementById('admin-dot').className = c;
-  document.getElementById('live-dot').className  = c;
+async function adminRemove(itemId) {
+  if (!cache) return;
+  cache.order = (cache.order||[]).filter(id=>id!==itemId);
+  if (cache.items) cache.items[itemId] = null;
+  renderAdmin();
+  try {
+    adminSt('saving...', false);
+    // Set item to null (deletes it in Firebase) and update order
+    await fbSet('/lists/'+listId+'/items/'+itemId, null);
+    await fbSet('/lists/'+listId+'/order', cache.order);
+    adminSt('saved &#10003;', false);
+    setTimeout(()=>adminSt('live',false), 1200);
+  } catch(e) { adminSt('save error',true); }
 }
 
-// ── VIEWER ─────────────────────────────────────────────────────────────────
+function adminSt(t, err) {
+  el('admin-status').innerHTML = t;
+  const c = 'live-dot'+(err?' err':'');
+  el('admin-dot').className = c;
+  el('hdr-dot').className   = c;
+}
+
+// ── Viewer ────────────────────────────────────────────────────────────────
 function showNameModal() {
-  document.getElementById('name-modal').classList.remove('hidden');
-  setTimeout(() => document.getElementById('name-input').focus(), 80);
+  el('name-modal').classList.remove('hidden');
+  setTimeout(()=>el('name-input').focus(), 80);
 }
 function submitName() {
-  const n = document.getElementById('name-input').value.trim(); if (!n) return;
+  const n = el('name-input').value.trim(); if (!n) return;
   myName = n; localStorage.setItem('cl_name', n);
-  document.getElementById('name-modal').classList.add('hidden');
-  document.getElementById('name-display').textContent = 'you: ' + myName;
-  fetchViewer();
+  el('name-modal').classList.add('hidden');
+  el('name-display').textContent = 'you: '+myName;
+  loadViewer();
 }
-function changeName() { document.getElementById('name-input').value = myName || ''; showNameModal(); }
+function changeName() { el('name-input').value=myName||''; showNameModal(); }
 
-async function fetchViewer(silent = false) {
-  if (!silent) setViewerStatus('syncing...', false);
+async function loadViewer(silent=false) {
+  if (!silent) viewSt('syncing...', false);
   try {
-    const res = await fetch(API + '/' + blobId, { headers: { 'Accept': 'application/json' } });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    listData = await res.json();
+    cache = await fbGet('/lists/'+listId);
+    if (!cache) throw new Error('List not found');
     renderViewer();
-    setViewerStatus('live', false);
-  } catch(e) { setViewerStatus('error: ' + e.message, true); }
-  if (!pollTimer) pollTimer = setInterval(() => fetchViewer(true), 7000);
+    viewSt('live', false);
+  } catch(e) { viewSt('error: '+e.message, true); }
+  if (!polling) polling = setInterval(()=>loadViewer(true), 7000);
 }
 
 function renderViewer() {
-  if (!listData) return;
-  document.getElementById('view-title').textContent = listData.title || 'Checklist';
-  document.title = listData.title || 'Checklist';
-
-  const items = listData.items || [];
-  const done  = items.filter(i => i.checkedBy?.length > 0).length;
-  const pct   = items.length ? Math.round(done / items.length * 100) : 0;
-  document.getElementById('prog-label').textContent = done + ' / ' + items.length + ' (' + pct + '%)';
-  document.getElementById('prog-fill').style.width  = pct + '%';
-
-  document.getElementById('view-items').innerHTML = items.map(it => {
-    const isMine = it.checkedBy?.includes(myName);
-    const chips  = (it.checkedBy || []).map(n => `<span class="chip">${esc(n)}</span>`).join('');
-    return `
-      <div class="cl-item${isMine ? ' mine' : ''}" onclick="toggleItem('${it.id}')">
-        <div class="checkmark">${isMine ? '&#10003;' : ''}</div>
-        <div class="cl-content">
-          <div class="cl-text">${esc(it.text)}</div>
-          ${chips ? `<div class="chips">${chips}</div>` : ''}
-        </div>
-      </div>`;
-  }).join('') || '<div class="note">No items on this list.</div>';
+  if (!cache) return;
+  el('view-title').textContent = cache.title||'Checklist';
+  document.title = cache.title||'Checklist';
+  const order = cache.order||[];
+  const items = cache.items||{};
+  const done  = order.filter(id=>Object.keys(items[id]?.checkedBy||{}).length>0).length;
+  const pct   = order.length ? Math.round(done/order.length*100) : 0;
+  el('view-prog-lbl').textContent = done+' / '+order.length+' ('+pct+'%)';
+  el('view-prog-fill').style.width = pct+'%';
+  el('view-items').innerHTML = order.map(id=>{
+    const it    = items[id]; if (!it) return '';
+    const who   = Object.keys(it.checkedBy||{});
+    const isMine= who.includes(myName);
+    const chips = who.map(n=>`<span class="chip">${esc(n)}</span>`).join('');
+    const cls   = isMine ? 'mine' : who.length ? 'others' : '';
+    return `<div class="cl-item ${cls}" onclick="toggle('${id}')">
+      <div class="ckbox">${isMine?'&#10003;':who.length?'&#10003;':''}</div>
+      <div class="cl-body">
+        <div class="cl-text">${esc(it.text)}</div>
+        ${chips?`<div class="chips">${chips}</div>`:''}
+      </div></div>`;
+  }).join('')||'<div class="note">No items on this list.</div>';
 }
 
-async function toggleItem(itemId) {
-  if (!listData || !myName) return;
-  const item = listData.items.find(i => i.id === itemId); if (!item) return;
-  const was  = item.checkedBy.includes(myName);
-  item.checkedBy = was ? item.checkedBy.filter(n => n !== myName) : [...item.checkedBy, myName];
+async function toggle(itemId) {
+  if (!cache||!myName) return;
+  const it  = cache.items?.[itemId]; if (!it) return;
+  const was = !!(it.checkedBy||{})[myName];
+  // Optimistic UI
+  if (!it.checkedBy) it.checkedBy = {};
+  it.checkedBy[myName] = was ? null : true;
+  if (was) delete it.checkedBy[myName];
   renderViewer();
   try {
-    setViewerStatus('saving...', false);
-    const res = await fetch(API + '/' + blobId, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify(listData)
-    });
-    if (!res.ok) throw new Error('Save failed');
-    setViewerStatus('saved &#10003;', false);
-    setTimeout(() => setViewerStatus('live', false), 1200);
+    viewSt('saving...', false);
+    // PATCH only this one name — completely atomic, no race condition
+    await fbPatch('/lists/'+listId+'/items/'+itemId+'/checkedBy',
+      {[myName]: was ? null : true}
+    );
+    viewSt('saved &#10003;', false);
+    setTimeout(()=>viewSt('live',false), 1200);
   } catch(e) {
     // revert
-    item.checkedBy = was ? [...item.checkedBy, myName] : item.checkedBy.filter(n => n !== myName);
+    if (was) it.checkedBy[myName] = true;
+    else delete it.checkedBy[myName];
     renderViewer();
-    setViewerStatus('save error', true);
+    viewSt('save error', true);
   }
 }
 
-function setViewerStatus(t, err) {
-  document.getElementById('view-status').textContent = t;
-  const c = 'live-dot' + (err ? ' err' : '');
-  document.getElementById('view-dot').className = c;
-  document.getElementById('live-dot').className = c;
+function viewSt(t, err) {
+  el('view-status').innerHTML = t;
+  const c = 'live-dot'+(err?' err':'');
+  el('view-dot').className = c;
+  el('hdr-dot').className  = c;
 }
 
-// ── Utils ──────────────────────────────────────────────────────────────────
-function uid() { return 'i_' + Date.now() + '_' + Math.random().toString(36).slice(2,6); }
-function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+// ── Helpers ───────────────────────────────────────────────────────────────
+function makeUrl(id, admin) {
+  return location.origin + location.pathname + '?id=' + id + (admin ? '&admin=1' : '');
+}
+function el(id)       { return document.getElementById(id); }
+function show(id)     { el(id).classList.remove('hidden'); }
+function hide(id)     { el(id).classList.add('hidden'); }
+function badge(cls,t) {
+  const b = el('mode-badge');
+  b.className = 'badge '+cls;
+  b.textContent = t;
+}
+function setMsg(id, msg, color) {
+  const e = el(id); e.innerHTML = msg; e.style.color = color;
+}
+function copyEl(id, e) {
+  navigator.clipboard.writeText(el(id).textContent)
+    .then(()=>flash(e.target,'&#10003; Copied!'));
+}
 function flash(btn, msg) {
   const o = btn.innerHTML; btn.innerHTML = msg;
-  setTimeout(() => btn.innerHTML = o, 1500);
+  setTimeout(()=>btn.innerHTML=o, 1500);
 }
+function uid()  { return 'i'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
 </body>
 </html>
