@@ -274,6 +274,17 @@
 
   <!-- ══════════ VIEWER ══════════ -->
   <div class="section hidden" id="viewer-section">
+
+    <!-- admin toggle strip — only visible when viewer has admin rights -->
+    <div class="hidden" id="admin-toggle-bar">
+      <div class="card">
+        <div class="card-bd" style="flex-direction:row;align-items:center;gap:10px;padding:10px 14px">
+          <span class="note" style="flex:1">&#128274; You have admin access to this list.</span>
+          <button class="btn red sm" onclick="enterAdminMode()">Enter Admin Mode</button>
+        </div>
+      </div>
+    </div>
+
     <div class="list-title" id="view-title">Loading...</div>
 
     <div class="card">
@@ -374,6 +385,9 @@ window.addEventListener('load', async () => {
 
   // Fall back to locally saved URL if firebase.txt wasn't found
   if (!FB) FB = (localStorage.getItem('cl_fb')||'').replace(/\/$/,'');
+
+  // If we have a URL already, hide setup immediately so it never flashes
+  if (FB) hide('setup-section');
 
   const p   = new URLSearchParams(location.search);
   const id  = p.get('id');
@@ -493,10 +507,24 @@ function startView() {
     loadAdmin();
   } else {
     show('viewer-section'); badge('viewer','Viewer');
+    // Show admin toggle bar if this device has admin rights for this list
+    if (localStorage.getItem('cl_adm_'+listId)) {
+      el('admin-toggle-bar').classList.remove('hidden');
+    }
     myName = localStorage.getItem('cl_name');
     if (!myName) showNameModal();
     else { el('name-display').textContent = 'you: '+myName; loadViewer(); }
   }
+}
+
+function enterAdminMode() {
+  // Stop viewer polling, switch to admin view
+  if (polling) { clearInterval(polling); polling = null; }
+  hide('viewer-section');
+  isAdmin = true;
+  show('admin-section'); badge('admin','Admin');
+  el('admin-share-url').textContent = makeUrl(listId, false);
+  loadAdmin();
 }
 
 // ── Admin ─────────────────────────────────────────────────────────────────
