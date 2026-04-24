@@ -375,15 +375,15 @@ async function createList() {
 
   try {
     // Use CORS proxy for create so the Location response header is readable cross-origin
-    const res = await fetch(CORS_PROXY + encodeURIComponent(API), {
+    const res = await fetch(CORS_PROXY + API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    const loc = res.headers.get('Location') || '';
+    const loc = res.headers.get('Location') || res.headers.get('location') || '';
     const id  = loc.split('/').pop();
-    if (!id) throw new Error('No ID returned — try again');
+    if (!id) throw new Error('No ID — check console for details');
 
     // Save admin rights for this blob to localStorage
     localStorage.setItem('cl_admin_' + id, '1');
