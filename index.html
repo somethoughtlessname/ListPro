@@ -290,7 +290,8 @@
 
 <script>
 // ── Constants ──────────────────────────────────────────────────────────────
-const API = 'https://jsonblob.com/api/jsonBlob';
+const API        = 'https://jsonblob.com/api/jsonBlob';
+const CORS_PROXY = 'https://corsproxy.io/?';
 
 // ── State ──────────────────────────────────────────────────────────────────
 let draftItems = [];
@@ -373,7 +374,8 @@ async function createList() {
   const payload = { title, items: draftItems.map(i => ({ ...i, checkedBy: [] })) };
 
   try {
-    const res = await fetch(API, {
+    // Use CORS proxy for create so the Location response header is readable cross-origin
+    const res = await fetch(CORS_PROXY + encodeURIComponent(API), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify(payload)
@@ -381,7 +383,7 @@ async function createList() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const loc = res.headers.get('Location') || '';
     const id  = loc.split('/').pop();
-    if (!id) throw new Error('No ID returned');
+    if (!id) throw new Error('No ID returned — try again');
 
     // Save admin rights for this blob to localStorage
     localStorage.setItem('cl_admin_' + id, '1');
