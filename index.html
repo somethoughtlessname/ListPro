@@ -314,13 +314,6 @@
 </div>
 
 <script>
-// ─────────────────────────────────────────────────────────────────────────────
-// !! PASTE YOUR FIREBASE URL HERE BEFORE UPLOADING TO GITHUB !!
-const HARDCODED_FB_URL = 'https://listpro-9e56e-default-rtdb.firebaseio.com/';
-// Example: 'https://myproject-default-rtdb.firebaseio.com'
-// Once filled in, no one who opens any link will ever see the setup screen.
-// ─────────────────────────────────────────────────────────────────────────────
-
 let FB      = null;   // Firebase DB base URL, no trailing slash
 let draftItems = [];
 let listId  = null;
@@ -369,8 +362,18 @@ async function fbPush(path, data) {
 }
 
 // ── Boot ──────────────────────────────────────────────────────────────────
-window.addEventListener('load', () => {
-  FB = (HARDCODED_FB_URL || localStorage.getItem('cl_fb')||'').replace(/\/$/,'');
+window.addEventListener('load', async () => {
+  // Try to load Firebase URL from firebase.txt in the same directory
+  try {
+    const r = await fetch('firebase.txt');
+    if (r.ok) {
+      const txt = (await r.text()).trim();
+      if (txt.startsWith('https://')) FB = txt.replace(/\/$/,'');
+    }
+  } catch(e) { /* file missing, fall through to localStorage or setup */ }
+
+  // Fall back to locally saved URL if firebase.txt wasn't found
+  if (!FB) FB = (localStorage.getItem('cl_fb')||'').replace(/\/$/,'');
 
   const p   = new URLSearchParams(location.search);
   const id  = p.get('id');
