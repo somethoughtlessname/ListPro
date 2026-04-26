@@ -719,44 +719,40 @@ function setDashTab(tab) {
   if (tab === 'dash')    renderDashOverview();
 }
 
+function getAdminHubs() {
+  if (typeof _testMode !== 'undefined' && _testMode === 'admin' && typeof TEST_HUBS !== 'undefined')
+    return TEST_HUBS;
+  return window._adminHubsFull || {};
+}
+
 function renderDashOverview() {
-  const list  = el('dash-overview-list'); if (!list) return;
-  const empty = el('dash-overview-empty');
+  const list = el('dash-overview-list'); if (!list) return;
   list.innerHTML = '';
-  // In test mode use TEST_HUBS; in production use dashCache hubs (need full hub data)
-  // Pull from hubCache if available, otherwise use dashCache keys + fetch
-  const hubs = (typeof _testMode !== 'undefined' && _testMode === 'admin' && typeof TEST_HUBS !== 'undefined')
-    ? TEST_HUBS
-    : (window._adminHubsFull || {});
+  const hubs = getAdminHubs();
   const hids = Object.keys(hubs);
   if (!hids.length) { show('dash-overview-empty'); return; }
   hide('dash-overview-empty');
-
   hids.forEach(hid => {
     const hub   = hubs[hid];
-    const cards = hub.cards || [];
+    const cards = Array.isArray(hub.cards) ? hub.cards : Object.values(hub.cards||{});
     const c     = HUB_COLORS[(hub.colorIdx||0) % HUB_COLORS.length];
-
-    const clCards = cards.filter(c=>c.type==='checklist');
-    const prCards = cards.filter(c=>c.type==='progress');
-    const prTotal = prCards.reduce((s,c)=>s+(c.total||0),0);
-    // Each checklist card = 1 unit; each progress unit = 1
-    const clTotal = clCards.length;
-    const clDone  = clCards.filter(c=>Object.keys(c.checkedBy||{}).length>0).length;
-    const prDone  = prCards.reduce((s,c)=>s+(c.current||0),0);
-    const total   = clTotal + prTotal;
-    const done    = clDone  + prDone;
+    const clCards = cards.filter(x=>x&&x.type==='checklist');
+    const prCards = cards.filter(x=>x&&x.type==='progress');
+    const prTotal = prCards.reduce((s,x)=>s+(x.total||0),0);
+    const clDone  = clCards.filter(x=>Object.keys(x.checkedBy||{}).length>0).length;
+    const prDone  = prCards.reduce((s,x)=>s+(x.current||0),0);
+    const total   = clCards.length + prTotal;
+    const done    = clDone + prDone;
     const pct     = total > 0 ? Math.round(done/total*100) : 0;
-
     const card = document.createElement('div');
     card.className = 'gc';
-    card.style.cssText = `cursor:pointer;margin-bottom:var(--margin);background:var(--bg2);`;
+    card.style.cssText = 'cursor:pointer;background:var(--bg2);';
     card.onclick = () => showHubActivity(hid);
     card.innerHTML = `
       <div class="fill" style="background:var(--bg2);">
         <div class="fill-bar" style="width:${pct}%;background:${c};opacity:.5;transition:width .3s;"></div>
         <div class="fill-in">
-          <div class="fill-t" style="font-size:15px;font-weight:900;">${esc(hub.title)}</div>
+          <div class="fill-t" style="font-size:15px;font-weight:900;">${esc(hub.title||'Hub')}</div>
           <div class="fill-s" style="font-size:11px;font-weight:700;opacity:.7;">${pct}%</div>
         </div>
       </div>`;
@@ -765,81 +761,70 @@ function renderDashOverview() {
 }
 
 function showHubActivity(hid) {
-  const hub = (typeof TEST_HUBS !== 'undefined' ? TEST_HUBS : {})[hid];
-  if (!hub) return;
-
+  const hubs = getAdminHubs();
+  const hub  = hubs[hid];
+  if (!hub) { alert('Hub data not loaded — switch to Hubs tab first.'); return; }
   showSection('admin-hub-activity-section');
-  badge('admin','Admin');
-  show('back-btn');
-  hide('tab-bar');
-
-  // Header color
-  const c = HUB_COLORS[(hub.colorIdx||0) % HUB_COLORS.length];
+  badge('admin','Admin'); show('back-btn'); hide('tab-bar');
+  const c   = HUB_COLORS[(hub.colorIdx||0) % HUB_COLORS.length];
   const hdr = el('activity-hdr');
-  if (hdr) hdr.style.background = c.bg;
-  el('activity-hub-title').textContent = hub.title;
-
-  const cont = el('activity-card-list');
+  if (hdr) hdr.style.background = c;
+  el('activity-hub-title').textContent = hub.title || 'Hub';
+  const cont  = el('activity-card-list');
   cont.innerHTML = '';
-  const cards = hub.cards || [];
-
-  if (!cards.length) {
-    cont.innerHTML = '<div class="empty-state">No cards in this hub yet</div>'; return;
-  }
-
+  const cards = Array.isArray(hub.cards) ? hub.cards : Object.values(hub.cards||{});
+  const tagC  = ['--c1','--c2','--c3','--c4','--c5','--c6','--c7'];
+  if (!cards.filter(Boolean).length) { cont.innerHTML = '<div class="empty-state">No cards yet</div>'; return; }
   cards.forEach(card => {
+    if (!card) return;
     if (card.type === 'divider') {
-      // Divider rendered as a section label
       const dv = document.createElement('div');
-      dv.style.cssText = `height:var(--ch);display:flex;align-items:center;justify-content:center;
-        position:relative;margin-bottom:var(--margin);`;
-      dv.innerHTML = `
-        <div style="position:absolute;top:50%;left:0;right:0;height:var(--bw);background:var(--bc);transform:translateY(-50%);z-index:1;"></div>
-        <div style="background:var(--bg3);padding:0 12px;font-size:11px;font-weight:700;color:var(--white);
-          text-transform:uppercase;letter-spacing:.5px;position:relative;z-index:2;">${esc(card.title||'')}</div>`;
-      cont.appendChild(dv);
-      return;
+      dv.style.cssText = 'height:var(--ch);display:flex;align-items:center;justify-content:center;position:relative;margin:0 var(--margin) var(--margin);';
+      dv.innerHTML = `<div style="position:absolute;top:50%;left:0;right:0;height:var(--bw);background:var(--bc);transform:translateY(-50%);z-index:1;"></div><div style="background:var(--bg3);padding:0 12px;font-size:11px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:.5px;position:relative;z-index:2;">${esc(card.title||'')}</div>`;
+      cont.appendChild(dv); return;
     }
     if (card.type === 'note') {
       const nv = document.createElement('div');
-      nv.className = 'gc';
-      nv.style.cssText = 'background:var(--white);margin-bottom:var(--margin);';
-      nv.innerHTML = `<div style="flex:1;display:flex;align-items:center;justify-content:center;
-        font-size:13px;font-weight:900;color:var(--c2d);text-align:center;padding:0 10px;">${esc(card.title||'Note')}</div>`;
-      cont.appendChild(nv);
-      return;
+      nv.className = 'gc'; nv.style.background = '#fff';
+      nv.innerHTML = `<div style="flex:1;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:var(--c2d);text-align:center;padding:0 10px;">${esc(card.title||'Note')}</div>`;
+      cont.appendChild(nv); return;
     }
     if (card.type === 'checklist') {
-      const checkers = Object.values(card.checkedBy||{});
+      const checkers  = Object.values(card.checkedBy||{}).filter(Boolean);
       const isChecked = checkers.length > 0;
-      const chips = checkers.map((n,i) => {
-        const colors=['--c1','--c2','--c3','--c4','--c5','--c6','--c7','--c8'];
-        const col = colors[i%colors.length];
-        return `<span style="font-size:9px;padding:1px 6px;border-radius:8px;border:1.5px solid var(${col});color:var(${col});margin-right:3px;">${esc(n)}</span>`;
-      }).join('');
-      // Open-top if chips need space below
+      const flaggers  = Object.entries(card.flags||{}).filter(([,f])=>f&&f.note);
+      const chips = checkers.map((n,i)=>`<span style="font-size:9px;padding:1px 6px;border-radius:8px;background:var(${tagC[i%tagC.length]});color:#fff;margin-right:3px;">${esc(n)}</span>`).join('');
+      const fchips = flaggers.map(([n,f])=>`<span style="font-size:9px;padding:1px 6px;border-radius:8px;background:var(--c1);color:#fff;margin-right:3px;" title="${esc(f.note)}">&#9873; ${esc(n)}</span>`).join('');
+      const hasExtra = !!(chips||fchips);
       const row = document.createElement('div');
-      row.className = 'gc' + (chips?'':' ');
-      row.style.cssText = `background:${isChecked?'var(--c1d)':'var(--bg2)'};margin-bottom:var(--margin);`;
+      row.className = 'gc' + (hasExtra ? ' open-top' : '');
+      row.style.cssText = `background:${isChecked?'var(--c1d)':'var(--bg2)'};`;
       row.innerHTML = `
         <div class="sq sq-l" style="background:${isChecked?'var(--c4)':'var(--bg4)'};">
-          <span style="font-size:14px;font-weight:900;color:#fff;">${isChecked?'&#10003;':''}</span>
+          <span style="font-size:14px;color:#fff;">${isChecked?'&#10003;':''}</span>
         </div>
         <div class="fill" style="background:${isChecked?'var(--c1d)':'var(--bg2)'};">
-          <div class="fill-in" style="align-items:flex-start;padding:0 10px;flex-direction:column;gap:3px;">
+          <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
             <div class="fill-t" style="font-size:13px;${isChecked?'text-decoration:line-through;opacity:.5;':''}">${esc(card.title||'Item')}</div>
-            ${chips?`<div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:2px;">${chips}</div>`:'<div class="fill-s" style="font-size:9px;opacity:.5;">Unchecked</div>'}
+            ${hasExtra?`<div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:3px;">${chips}${fchips}</div>`:'<div style="font-size:9px;color:var(--dim);margin-top:2px;">Not checked</div>'}
           </div>
         </div>`;
       cont.appendChild(row);
+      if (hasExtra) {
+        const dd = document.createElement('div');
+        dd.className = 'gdd';
+        dd.innerHTML = chips ? '' : '';
+        // Actually the chips are inside the card, not in a dropdown — skip dd
+      }
       return;
     }
     if (card.type === 'progress') {
       const pct  = card.total>0 ? Math.round((card.current||0)/card.total*100) : 0;
-      const done = card.total>0 && card.current>=card.total;
+      const done = card.total>0 && (card.current||0)>=card.total;
       const barC = done ? '#8a7530' : c;
-      const row  = document.createElement('div');
-      row.style.cssText = `display:flex;gap:var(--margin);margin-bottom:var(--margin);`;
+      const compBg = done ? '#8a7530' : 'var(--bg2)';
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:var(--margin);';
       row.innerHTML = `
         <div class="gc" style="flex:2;min-width:0;">
           <div class="fill" style="background:var(--bg4);">
@@ -850,8 +835,8 @@ function showHubActivity(hid) {
             </div>
           </div>
         </div>
-        <div class="gc" style="flex:1;min-width:0;background:${done?'#8a7530':'var(--bg2)'};">
-          <div class="fill" style="background:${done?'#8a7530':'var(--bg2)'};">
+        <div class="gc" style="flex:1;min-width:0;background:${compBg};">
+          <div class="fill" style="background:${compBg};">
             <div class="fill-in">
               <div class="fill-t" style="font-size:${done?'12px':'18px'};font-weight:900;">${done?'Complete!':Math.max(0,(card.total||0)-(card.current||0))}</div>
               ${done?'':'<div class="fill-s" style="font-size:9px;text-transform:uppercase;letter-spacing:1px;opacity:.6;">left</div>'}
@@ -862,6 +847,7 @@ function showHubActivity(hid) {
     }
   });
 }
+
 
 function renderDashFlags() {
   const list  = el('dash-flags-list'); if (!list) return;
