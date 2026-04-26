@@ -502,7 +502,7 @@ body{background:var(--bg3);color:var(--white);font-family:system-ui,-apple-syste
       <!-- Member tags card -->
       <div style="background:#fff;border:var(--bw) solid var(--bc);border-radius:8px;
         min-height:var(--ch);display:flex;align-items:center;justify-content:center;
-        padding:10px 12px;margin-bottom:var(--margin);">
+        padding:10px 12px;margin:0 var(--margin) var(--margin);">
         <div id="viewer-member-tags" style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center;"></div>
       </div>
       <!-- Lists -->
@@ -1724,7 +1724,7 @@ function viewProgressCard(wrap, card, c) {
   const flagged   = !!(card.flags||{})[name];
   const done      = card.total > 0 && (card.current||0) >= card.total;
   const pct       = card.total>0 ? Math.round((card.current||0)/card.total*100) : 0;
-  const barColor  = done ? '#8a7530' : c.bg;   // charcoal gold when complete
+  const barColor  = done ? '#8a7530' : c;   // charcoal gold when complete
   const remaining = Math.max(0, (card.total||0)-(card.current||0));
   const draft     = _vNoteInputs[card.id] !== undefined ? _vNoteInputs[card.id] : ((card.flags||{})[name]?.note||'');
   const saved     = !!_vSavedNotes[card.id];
@@ -1798,9 +1798,9 @@ function viewProgressCard(wrap, card, c) {
 
 function viewDividerCard(wrap, card) {
   const div = document.createElement('div');
-  div.style.cssText = `height:var(--ch);display:flex;align-items:center;justify-content:center;position:relative;margin-bottom:var(--margin);`;
+  div.style.cssText = `height:var(--ch);display:flex;align-items:center;justify-content:center;position:relative;margin:0 var(--margin) var(--margin);`;
   div.innerHTML = `
-    <div style="position:absolute;top:50%;left:0;right:0;height:var(--bw);background:var(--bc);transform:translateY(-50%);z-index:1;"></div>
+    <div style="position:absolute;top:50%;left:var(--margin);right:var(--margin);height:var(--bw);background:var(--bc);transform:translateY(-50%);z-index:1;"></div>
     <div style="background:var(--bg3);padding:0 12px;font-size:12px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:.5px;position:relative;z-index:2;">${esc(card.title||'')}</div>`;
   wrap.appendChild(div);
 }
