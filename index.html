@@ -1531,7 +1531,7 @@ async function renderViewerHubSelection() {
     hubIds = Object.keys(memberData?.hubs || {});
     // Fetch all hub titles in parallel
     await Promise.all(hubIds.map(async hid => {
-      const hub = await fbGet('/hubs/' + hid);
+      const hub = normalizeHub(await fbGet('/hubs/' + hid));
       hubDataMap[hid] = hub;
     }));
   } catch(e) {
@@ -1616,7 +1616,7 @@ async function openRealViewerHub(hid, hubData) {
   _joinedHubs.add(hid);
   _saveJoinedHubs();
   curHubId  = hid;
-  hubCache  = hubData || await fbGet('/hubs/' + hid);
+  hubCache  = normalizeHub(hubData || await fbGet('/hubs/' + hid));
   showSection('hub-viewer-section');
   el('hdr-title').textContent = hubCache.title || 'Hub';
   hide('mode-badge');
@@ -1631,7 +1631,7 @@ async function openRealViewerHub(hid, hubData) {
   polling = setInterval(async () => {
     if (Date.now() - _lastInteraction < 8000) return;
     try {
-      const fresh = await fbGet('/hubs/' + curHubId);
+      const fresh = normalizeHub(await fbGet('/hubs/' + curHubId));
       if (Date.now() - _lastInteraction < 8000) return;
       hubCache = fresh; renderHubViewer();
     } catch(e) {}
@@ -1871,7 +1871,7 @@ async function adjustProgress(cid, delta) {
   if (typeof _testMode === 'undefined' || _testMode === 'app') {
     try {
       const idx = hubCache.cards.findIndex(c=>c.id===cid);
-      await fbPatch('/hubs/'+curHubId+'/cards/'+idx+'/current', card.current);
+      await fbSet('/hubs/'+curHubId+'/cards/'+idx+'/current', card.current);
     } catch(e){}
   }
 }
@@ -2059,7 +2059,15 @@ let addItemTargetList = null, pendingAdminId = null;
 
 // ── Firebase REST ─────────────────────────────────────────────────────────
 function ep(path) { return FB + path + '.json'; }
-async function fbGet(path) { const r=await fetch(ep(path)); if(!r.ok) throw new Error('Read error '+r.status); return r.json(); }
+async function fbGet(path) { const r=await fetch(ep(path)); if(!r.ok) throw new Error('Read error '+r.status); const d=await r.json(); return d; }
+function normalizeHub(h) {
+  if (!h) return h;
+  // Firebase returns arrays as objects with numeric string keys — convert back
+  if (h.cards && !Array.isArray(h.cards)) {
+    h.cards = Object.values(h.cards).filter(Boolean);
+  }
+  return h;
+}
 async function fbSet(path,val) { const r=await fetch(ep(path),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(val)}); if(!r.ok) throw new Error('Write error '+r.status); }
 async function fbPatch(path,val) { const r=await fetch(ep(path),{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(val)}); if(!r.ok) throw new Error('Patch error '+r.status); }
 async function fbPush(path,val) { const r=await fetch(ep(path),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(val)}); if(!r.ok) throw new Error('Push error '+r.status); return (await r.json()).name; }
@@ -2314,7 +2322,7 @@ async function loadHubAdmin(silent=false) {
   const ck='cl_hub_'+curHubId;
   if (!silent){const raw=localStorage.getItem(ck);if(raw){try{hubCache=JSON.parse(raw);renderHubAdmin();hubAdminSt('cached','off');}catch(e){}}}
   try {
-    const fresh=await fbGet('/hubs/'+curHubId); if(!fresh) throw new Error('Hub not found');
+    const fresh=normalizeHub(await fbGet('/hubs/'+curHubId)); if(!fresh) throw new Error('Hub not found');
     hubCache=fresh; localStorage.setItem(ck,JSON.stringify(hubCache)); renderHubAdmin(); hubAdminSt('live','');
   } catch(e){hubAdminSt('error: '+e.message,'err');}
   if (!polling) polling=setInterval(()=>loadHubAdmin(true),8000);
@@ -2458,7 +2466,7 @@ async function startHubViewer() {
   viewerName=localStorage.getItem('cl_name');
   if(viewerName) el('viewer-name-lbl').textContent='you: '+viewerName;
   try {
-    hubCache=await fbGet('/hubs/'+curHubId); if(!hubCache) throw new Error('Hub not found');
+    hubCache=normalizeHub(await fbGet('/hubs/'+curHubId)); if(!hubCache) throw new Error('Hub not found');
     const myAdminId=localStorage.getItem('cl_admin_id');
     if(myAdminId&&hubCache.ownerId===myAdminId) show('viewer-admin-bar');
     const ownerAdminId=hubCache.ownerId;
@@ -2484,8 +2492,8 @@ async function startHubViewer() {
 async function refreshViewer() {
   if (Date.now() - _lastInteraction < 8000) return; // cooldown after user write
   try {
-    const fresh = await fbGet('/hubs/'+curHubId); if(!fresh) return;
-    if (Date.now() - _lastInteraction < 8000) return; // recheck after await
+    const fresh = normalizeHub(await fbGet('/hubs/'+curHubId)); if(!fresh) return;
+    if (Date.now() - _lastInteraction < 8000) return;
     hubCache = fresh;
     const hm=memberCode?hubCache.members?.[memberCode]:null;
     if(hm){
