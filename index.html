@@ -1006,7 +1006,7 @@ function renderDash() {
     const div = document.createElement('div');
     div.className = 'gc gc-hub';
     div.innerHTML = `
-      <div class="fill" style="cursor:pointer;background:var(--bg2);" onclick="goHubAdmin('${hid}')">
+      <div class="fill" style="cursor:pointer;background:var(--bg2);" onclick="openAdminHub('${hid}')">
         <div class="fill-bar" style="width:${pct}%;background:${col};opacity:.5;"></div>
         <div class="fill-in">
           <div class="fill-t" style="font-size:15px;font-weight:900;">${esc(h.title||'Hub')}</div>
@@ -1629,10 +1629,10 @@ async function openRealViewerHub(hid, hubData) {
   el('viewer-name-lbl').textContent = 'you: ' + viewerName;
   renderHubViewer();
   polling = setInterval(async () => {
-    if (_pendingWrite) return;
+    if (Date.now() - _lastInteraction < 8000) return;
     try {
       const fresh = await fbGet('/hubs/' + curHubId);
-      if (_pendingWrite) return;
+      if (Date.now() - _lastInteraction < 8000) return;
       hubCache = fresh; renderHubViewer();
     } catch(e) {}
   }, 10000);
@@ -1858,7 +1858,7 @@ function viewNoteCard(wrap, card) {
   wrap.appendChild(div);
 }
 
-let _pendingWrite = false;
+let _lastInteraction = 0; // timestamp of last user write
 
 async function adjustProgress(cid, delta) {
   const card = hubCache?.cards?.find(c=>c.id===cid); if(!card) return;
@@ -1866,17 +1866,13 @@ async function adjustProgress(cid, delta) {
   if (typeof _testMode !== 'undefined' && _testMode === 'shared' && TEST_HUBS[curHubId]) {
     TEST_HUBS[curHubId].cards = hubCache.cards;
   }
+  _lastInteraction = Date.now(); // block polls for 8s
   renderHubViewer();
   if (typeof _testMode === 'undefined' || _testMode === 'app') {
-    _pendingWrite = true;
     try {
       const idx = hubCache.cards.findIndex(c=>c.id===cid);
       await fbPatch('/hubs/'+curHubId+'/cards/'+idx+'/current', card.current);
     } catch(e){}
-    finally {
-      // Keep guard up for 3s so poll can't overwrite right after write
-      setTimeout(() => { _pendingWrite = false; }, 3000);
-    }
   }
 }
 
@@ -1888,6 +1884,7 @@ async function viewerToggleCard(cid) {
   const was = !!card.checkedBy[viewerName];
   if (was) delete card.checkedBy[viewerName];
   else card.checkedBy[viewerName] = viewerName;
+  _lastInteraction = Date.now();
   renderHubViewer();
   try {
     viewerSt('saving...','');
@@ -2485,10 +2482,10 @@ async function startHubViewer() {
 }
 
 async function refreshViewer() {
-  if (_pendingWrite) return; // user is mid-write, skip this poll
+  if (Date.now() - _lastInteraction < 8000) return; // cooldown after user write
   try {
     const fresh = await fbGet('/hubs/'+curHubId); if(!fresh) return;
-    if (_pendingWrite) return; // check again after await
+    if (Date.now() - _lastInteraction < 8000) return; // recheck after await
     hubCache = fresh;
     const hm=memberCode?hubCache.members?.[memberCode]:null;
     if(hm){
@@ -2898,6 +2895,9 @@ function _hist(method) {
     try { history[method](...args); } catch(e) { /* iframe/srcdoc — ignore */ }
   };
 }
+
+// Wrapper so onclick strings don't fail if goHubAdmin is overridden
+function openAdminHub(hid) { goHubAdmin(hid); }
 </script>
 </body>
 </html>
