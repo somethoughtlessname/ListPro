@@ -693,7 +693,11 @@ let dashTab = 'hubs'; // 'hubs' | 'members'
 
 function updateFlagBadge() {
   let count = 0;
-  const hubs = typeof TEST_HUBS !== 'undefined' ? TEST_HUBS : {};
+  // In test mode use TEST_HUBS; in production use dashCache hubs (need full hub data)
+  // Pull from hubCache if available, otherwise use dashCache keys + fetch
+  const hubs = (typeof _testMode !== 'undefined' && _testMode === 'admin' && typeof TEST_HUBS !== 'undefined')
+    ? TEST_HUBS
+    : (window._adminHubsFull || {});
   Object.values(hubs).forEach(hub =>
     (hub.cards||[]).forEach(card =>
       Object.values(card.flags||{}).forEach(f => { if (f?.note) count++; })
@@ -719,7 +723,11 @@ function renderDashOverview() {
   const list  = el('dash-overview-list'); if (!list) return;
   const empty = el('dash-overview-empty');
   list.innerHTML = '';
-  const hubs = typeof TEST_HUBS !== 'undefined' ? TEST_HUBS : {};
+  // In test mode use TEST_HUBS; in production use dashCache hubs (need full hub data)
+  // Pull from hubCache if available, otherwise use dashCache keys + fetch
+  const hubs = (typeof _testMode !== 'undefined' && _testMode === 'admin' && typeof TEST_HUBS !== 'undefined')
+    ? TEST_HUBS
+    : (window._adminHubsFull || {});
   const hids = Object.keys(hubs);
   if (!hids.length) { show('dash-overview-empty'); return; }
   hide('dash-overview-empty');
@@ -1498,6 +1506,15 @@ function renderMembersPanel(){}
 function toggleAccordion(){}
 
 // ─── Override renderViewerHubSelection to use GT50 ────────────────────────
+// Persist hub activation per calendar day
+function _todayKey() { return 'cl_active_' + new Date().toISOString().slice(0,10); }
+function _loadActiveHubs() {
+  try { const s=localStorage.getItem(_todayKey()); if(s) JSON.parse(s).forEach(h=>_activeHubs.add(h)); } catch(e){}
+}
+function _saveActiveHubs() {
+  try { localStorage.setItem(_todayKey(), JSON.stringify([..._activeHubs])); } catch(e){}
+}
+
 async function renderViewerHubSelection() {
   const container = el('viewer-hub-cards');
 
@@ -1558,8 +1575,22 @@ async function renderViewerHubSelection() {
 }
 
 function promptRealHubActivation(hid, hub, col) {
-  _activeHubs.add(hid);
-  openRealViewerHub(hid, hub); // activate goes straight in
+  // Show activation modal
+  _pendingActivateHid = hid;
+  window._pendingActivateHub = hub;
+  const c = col || HUB_COLORS[(hub.colorIdx||0) % HUB_COLORS.length];
+  el('activate-modal-title').textContent = hub.title || 'Hub';
+  el('activate-modal-hd').style.background = c;
+  // Override confirm to handle real mode
+  window._confirmActivateReal = () => {
+    _activeHubs.add(hid);
+    _saveActiveHubs();
+    _pendingActivateHid = null;
+    closeModal('activate-hub-modal');
+    openRealViewerHub(hid, window._pendingActivateHub);
+    window._pendingActivateHub = null;
+  };
+  show('activate-hub-modal');
 }
 
 function promptRealHubJoin(hid, hub, col) {
@@ -2131,6 +2162,12 @@ async function loadDash(silent=false) {
     localStorage.setItem(ck,JSON.stringify(dashCache));
     if (codeEntry){localStorage.setItem('cl_room_code_'+adminId,codeEntry);showRoomCode(codeEntry);}
     renderDash(); renderDashMembers();
+    // Cache full hub data for flags tab
+    if (!window._adminHubsFull) window._adminHubsFull = {};
+    const hkeys = Object.keys(dashCache||{});
+    await Promise.all(hkeys.map(async hid => {
+      try { window._adminHubsFull[hid] = await fbGet('/hubs/'+hid); } catch(e){}
+    }));
   } catch(e){if(!silent&&!dashCache)el('hub-list-empty').textContent='Error: '+e.message;}
   if (!polling) polling=setInterval(()=>loadDash(true),8000);
 }
@@ -2362,6 +2399,7 @@ async function denyMember(code) {
 
 // ── VIEWER HOME ───────────────────────────────────────────────────────────
 async function startViewerHome() {
+  _loadActiveHubs();
   showSection('hub-selection-section'); badge('viewer','Viewer'); hide('back-btn');
   viewerName=localStorage.getItem('cl_name');
   el('hub-sel-name').textContent=viewerName?'you: '+viewerName:'';
@@ -2459,13 +2497,25 @@ function navPush(fn) { _navStack.push(fn); }
 function goBack() {
   if (polling) { clearInterval(polling); polling = null; }
   if (_navStack.length) { _navStack.pop()(); return; }
-  // Real viewer inside a hub → back to hub list
-  if (!_testMode || _testMode === 'app') {
-    const p = new URLSearchParams(location.search);
-    if (p.get('hub') && !p.get('manage')) { curHubId=null; hubCache=null; startViewerHome(); return; }
-    if (p.get('manage')) { _hist('replaceState')({},'',location.pathname+'?admin='+adminId); startAdminDash(); return; }
+  // Determine where we are by which section is active
+  const active = document.querySelector('.sec.active')?.id;
+  if (active === 'hub-viewer-section') {
+    curHubId = null; hubCache = null;
+    if (curAdminId || localStorage.getItem('cl_viewer_admin')) startViewerHome();
+    else showLanding();
+    return;
   }
-  _hist('replaceState')({},'',location.pathname); showLanding();
+  if (active === 'hub-admin-section') {
+    _hist('replaceState')({},'',location.pathname+'?admin='+adminId); startAdminDash(); return;
+  }
+  if (active === 'admin-setup-section') { showLanding(); return; }
+  if (active === 'open-hub-section') { showLanding(); return; }
+  // Fallback
+  const sa = localStorage.getItem('cl_admin_id');
+  if (sa) { adminId=sa; startAdminDash(); return; }
+  const ka = localStorage.getItem('cl_viewer_admin');
+  if (ka) { curAdminId=ka; startViewerHome(); return; }
+  showLanding();
 }
 function requestAccessAgain(){clearSavedMember(curAdminId);memberCode=null;memberStatus=null;showSection('open-hub-section');badge('viewer','Viewer');show('back-btn');el('room-code-input').value='';hide('join-name-card');}
 
@@ -2639,6 +2689,9 @@ function promptHubActivation(hid) {
 }
 
 function confirmHubActivation() {
+  // Real mode override
+  if (window._confirmActivateReal) { const fn=window._confirmActivateReal; window._confirmActivateReal=null; fn(); return; }
+  // Test mode
   if (!_pendingActivateHid) return;
   _activeHubs.add(_pendingActivateHid);
   const hid = _pendingActivateHid;
