@@ -33,7 +33,7 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 *{-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;}
 input,textarea{user-select:text;-webkit-user-select:text;}
-input:focus{outline:2px solid var(--c4);outline-offset:2px;}
+input:focus:not(.note-inp){outline:2px solid var(--c4);outline-offset:2px;}
 button:focus{outline:none;}
 input[type=number]{-moz-appearance:textfield;}
 input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
@@ -43,9 +43,9 @@ body{background:var(--bg3);color:var(--white);font-family:system-ui,-apple-syste
 #chrome{position:sticky;top:0;z-index:50;}
 .hdr{background:var(--bg2);border-bottom:var(--bw) solid var(--bc);height:var(--ch);display:flex;align-items:center;overflow:hidden;position:relative;}
 .hdr-back{width:var(--sq);min-width:var(--sq);height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg4);border-right:var(--bw) solid var(--bc);cursor:pointer;flex-shrink:0;font-size:14px;z-index:1;}
-.hdr-fill{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:8px;pointer-events:none;}
+.hdr-fill{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;pointer-events:none;}
 .hdr-title{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);}
-.hdr-badge{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:3px;border:2px solid;}
+.hdr-badge{font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:1px 6px;border-radius:3px;border:2px solid;}
 .hdr-badge.admin{border-color:var(--c1);color:var(--c1);}
 .hdr-badge.viewer{border-color:var(--c5);color:var(--c5);}
 .hdr-badge.setup{border-color:var(--c6);color:var(--c6);}
@@ -178,9 +178,69 @@ body{background:var(--bg3);color:var(--white);font-family:system-ui,-apple-syste
 .hub-check-row:last-child{margin-bottom:0;}
 
 .hidden{display:none!important;}
+
+/* ── CARD BUILDER ────────────────────────────────────────────────────── */
+.type-row{display:flex;gap:var(--margin);margin-bottom:var(--margin);}
+.type-btn{flex:1;height:var(--ch);border:var(--bw) solid var(--bc);border-radius:8px;font-family:inherit;letter-spacing:1px;text-transform:uppercase;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;}
+.type-btn span:first-child{font-size:11px;font-weight:900;}
+.type-btn span:last-child{font-size:9px;font-weight:700;opacity:.75;}
+.type-cl{background:var(--c1d);color:var(--white);}
+.type-pr{background:var(--c6d);color:var(--white);}
+.type-dv{background:var(--bg4);color:var(--white);}
+.type-nt{background:var(--c2d);color:var(--white);}
+
+/* insert bar slot */
+.ins-slot{cursor:pointer;transition:background .15s;}
+.ins-slot:hover{background:var(--c4d) !important;}
+
+/* card-builder card input */
+.cb-input{background:transparent;border:none;color:var(--white);font-family:inherit;font-size:15px;font-weight:600;outline:none;width:100%;height:100%;padding:0 4px;}
+.cb-num{background:transparent;border:none;color:var(--white);font-family:inherit;font-size:15px;font-weight:600;outline:none;width:100%;height:100%;padding:0 4px;-moz-appearance:textfield;}
+.cb-num::-webkit-inner-spin-button,.cb-num::-webkit-outer-spin-button{-webkit-appearance:none;}
+/* Placeholders: same hue as card, 50% darker
+   --c1d = #783636 → 50% = #3c1b1b   (checklist)
+   --c6d = #534a65 → 50% = #2a2532   (progress)
+   --c2d = #774e2c → 50% = #3c2716   (note)
+   divider = white card, black text  → 50% = #888888 */
+.ph-cl::placeholder { color:#3c1b1b; opacity:1; }
+.ph-pr::placeholder { color:#2a2532; opacity:1; }
+.ph-nt::placeholder { color:#3c2716; opacity:1; }
+.ph-dv::placeholder { color:#888888; opacity:1; }
+.ph-pr.cb-num::placeholder { color:#2a2532; opacity:1; }
+
+/* =====================================================================
+   TEST BAR — REMOVE THIS BLOCK BEFORE PRODUCTION
+   ===================================================================== */
+#test-bar{
+  position:sticky;top:0;z-index:100;
+  display:flex;height:32px;
+  background:repeating-linear-gradient(45deg,#2a1a00,#2a1a00 5px,#1a0e00 5px,#1a0e00 14px);
+  border-bottom:var(--bw) solid var(--bc);
+}
+.test-tab{
+  flex:1;height:100%;border:none;border-right:var(--bw) solid var(--bc);
+  font-family:inherit;font-size:9px;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;color:#c7824a;background:transparent;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+}
+.test-tab:last-child{border-right:none;}
+.test-tab.t-on{background:#4f341d;color:#f5c87a;}
+.test-tab .t-dot{width:6px;height:6px;border-radius:50%;background:#c7824a;flex-shrink:0;}
+.test-tab.t-on .t-dot{background:#f5c87a;}
+/* ===================================================================== */
 </style>
 </head>
 <body>
+
+<!-- =====================================================================
+     TEST BAR — REMOVE THIS BLOCK (and #test-bar CSS) BEFORE PRODUCTION
+     ===================================================================== -->
+<div id="test-bar">
+  <button class="test-tab t-on" id="tt-app"    onclick="testTab('app')">   <div class="t-dot"></div>App</button>
+  <button class="test-tab"      id="tt-admin"  onclick="testTab('admin')"> <div class="t-dot"></div>Admin</button>
+  <button class="test-tab"      id="tt-shared" onclick="testTab('shared')"><div class="t-dot"></div>Shared</button>
+</div>
+<!-- ===================================================================== -->
 
 <!-- ── CHROME ────────────────────────────────────────────────────────── -->
 <div id="chrome">
@@ -193,8 +253,10 @@ body{background:var(--bg3);color:var(--white);font-family:system-ui,-apple-syste
     </div>
   </div>
   <div id="tab-bar" class="hidden">
+    <button class="tab-btn"        id="stab-dash"    onclick="setDashTab('dash')">Dashboard</button>
     <button class="tab-btn active" id="stab-hubs"    onclick="setDashTab('hubs')">Hubs</button>
     <button class="tab-btn"        id="stab-members" onclick="setDashTab('members')">Members <span class="fbadge hidden" id="pending-tab-badge">0</span></button>
+    <button class="tab-btn"        id="stab-flags"   onclick="setDashTab('flags')">Flags <span class="fbadge hidden" id="flag-tab-badge">0</span></button>
   </div>
 </div>
 
@@ -224,14 +286,18 @@ body{background:var(--bg3);color:var(--white);font-family:system-ui,-apple-syste
   <div class="sec" id="landing-section">
     <div style="height:var(--margin)"></div>
     <div class="land-card" id="land-admin-card" onclick="landAdmin()">
-      <div class="land-icon">&#128274;</div>
-      <div class="land-title">I&#39;m an Admin</div>
-      <div class="land-desc">Create hubs, build lists, share room codes, and approve members. Your admin access is stored on this device.</div>
+      <div style="font-size:26px;font-weight:900;letter-spacing:1px;text-align:center;color:var(--white);">Become an Administrator</div>
+      <div style="font-size:13px;color:var(--dim);line-height:1.7;text-align:center;margin-top:6px;">Create and manage hubs for your team. Build card lists, set progress trackers, generate a room code to share, and control who gets access. Your admin identity is saved to this device so you can return anytime.</div>
+      <div style="background:var(--c1d);border:var(--bw) solid var(--bc);border-radius:8px;height:var(--ch);display:flex;align-items:center;justify-content:center;margin-top:4px;">
+        <span style="font-size:12px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--white);">Create Admin Account</span>
+      </div>
     </div>
     <div class="land-card" onclick="landViewer()">
-      <div class="land-icon">&#127922;</div>
-      <div class="land-title">Enter a Room Code</div>
-      <div class="land-desc">Got a 4-letter code from an admin? Enter it to request access to their hubs.</div>
+      <div style="font-size:26px;font-weight:900;letter-spacing:1px;text-align:center;color:var(--white);">Join a Room</div>
+      <div style="font-size:13px;color:var(--dim);line-height:1.7;text-align:center;margin-top:6px;">Have a 4-letter room code from an admin? Enter it to send a join request. Once approved, you'll have access to your assigned hubs where you can check off items, track progress, and flag anything that needs attention.</div>
+      <div style="background:var(--c5d);border:var(--bw) solid var(--bc);border-radius:8px;height:var(--ch);display:flex;align-items:center;justify-content:center;margin-top:4px;">
+        <span style="font-size:12px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--white);">Enter Room Code</span>
+      </div>
     </div>
   </div>
 
@@ -253,30 +319,64 @@ body{background:var(--bg3);color:var(--white);font-family:system-ui,-apple-syste
   <!-- ADMIN DASHBOARD -->
   <div class="sec" id="admin-dash-section">
     <div style="height:var(--margin)"></div>
-
-    <!-- Sub-title -->
-    <div class="gc" style="background:var(--bg2);margin-bottom:var(--margin);">
-      <div class="fill" style="background:var(--bg2);">
-        <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
-          <div class="fill-t" style="font-size:13px;">Dashboard</div>
-          <div class="fill-s" id="dash-sub" style="font-size:10px;">Loading...</div>
-        </div>
-      </div>
-    </div>
+    <span id="dash-sub" style="display:none;"></span>
 
     <!-- HUBS TAB -->
     <div id="dash-hubs-tab">
       <!-- Room code -->
-      <div class="gc" style="background:var(--bg2);margin-bottom:var(--margin);">
-        <div class="fill" style="background:var(--bg3);">
-          <div class="fill-in">
-            <div class="code-big" id="room-code-letters" style="background:transparent;border:none;font-size:28px;letter-spacing:8px;padding:0;">----</div>
+      <style>
+        @keyframes setblink{0%,100%{filter:brightness(1)}50%{filter:brightness(0.8)}}
+        @keyframes slotblink{0%,100%{opacity:1}50%{opacity:.2}}
+        .set-blink{animation:setblink 800ms infinite;}
+        .rc-slot{
+          font-size:26px;font-weight:900;font-family:monospace;
+          width:24px;text-align:center;line-height:1;
+        }
+        .rc-slot.filled{color:var(--c1);}
+        .rc-slot.empty{color:var(--c1);opacity:.35;position:relative;top:5px;}
+        .rc-slot.set{color:var(--c4);}
+        .rc-slot.will-delete{animation:slotblink 500ms infinite;}
+        #room-code-input-admin::placeholder{color:var(--c1);opacity:1;}
+      </style>
+      <div class="gc" style="background:var(--bg2);margin-bottom:var(--margin);overflow:hidden;">
+        <!-- Left third: Random -->
+        <div id="rc-random-zone" onclick="generateRoomCode()"
+          style="flex:1;height:100%;background:var(--bg4);border-right:var(--bw) solid var(--bc);
+          cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+          transition:filter .15s;">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);">Random</div>
+          <div style="font-size:11px;font-weight:900;letter-spacing:1px;color:var(--white);font-family:monospace;">Code</div>
+        </div>
+        <!-- Center: editable code input -->
+        <div style="flex:2;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:text;position:relative;" onclick="el('room-code-input-admin').focus()">
+          <!-- Hidden real input captures keyboard -->
+          <input id="room-code-input-admin" maxlength="4"
+            autocomplete="off" autocorrect="off" autocapitalize="characters"
+            spellcheck="false"
+            style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:text;"
+            oninput="onRoomCodeInput(this)"
+            onfocus="rcFocus(this)"
+            onblur="rcBlur(this)"
+            onclick="rcFocus(this)"
+            onkeydown="this.setSelectionRange(this.value.length,this.value.length);rcKeyDown(event)"
+            onpaste="event.preventDefault();const t=(event.clipboardData||window.clipboardData).getData('text').replace(/[^a-zA-Z]/g,'').slice(0,4).toUpperCase();this.value=t;onRoomCodeInput(this);"
+            value=""/>
+          <!-- Visual display -->
+          <div id="rc-display" style="display:flex;gap:8px;pointer-events:none;">
+            <span class="rc-slot">*</span>
+            <span class="rc-slot">*</span>
+            <span class="rc-slot">*</span>
+            <span class="rc-slot">*</span>
           </div>
         </div>
-        <button class="ctrl btn-g" id="copy-code-btn" onclick="copyRoomCode(event)" disabled style="width:auto;padding:0 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;">Copy</button>
-        <button class="ctrl btn-b" onclick="generateRoomCode()" style="width:auto;padding:0 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;">&#9851; Gen</button>
+        <!-- Right third: Set Code -->
+        <div id="rc-set-zone" onclick="saveCustomRoomCode()"
+          style="flex:1;height:100%;background:var(--bg4);border-left:var(--bw) solid var(--bc);
+          cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);">Set</div>
+          <div style="font-size:11px;font-weight:900;letter-spacing:1px;color:var(--white);font-family:monospace;">Code</div>
+        </div>
       </div>
-      <div style="font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--dim);padding:2px 4px 4px;opacity:.7;">Hubs</div>
 
       <!-- Add hub -->
       <div class="add-row">
@@ -301,51 +401,58 @@ body{background:var(--bg3);color:var(--white);font-family:system-ui,-apple-syste
       <div class="empty-state" id="dash-members-empty">No member requests yet</div>
     </div>
 
+    <!-- FLAGS TAB -->
+    <div id="dash-flags-tab" class="hidden">
+      <div id="dash-flags-list"></div>
+      <div class="empty-state hidden" id="dash-flags-empty">All clear — no flags</div>
+    </div>
+
+    <!-- DASHBOARD TAB -->
+    <div id="dash-overview-tab" class="hidden">
+      <div id="dash-overview-list"></div>
+      <div class="empty-state hidden" id="dash-overview-empty">No hubs yet</div>
+    </div>
+
   </div>
 
   <!-- HUB ADMIN -->
   <div class="sec" id="hub-admin-section">
     <div style="height:var(--margin)"></div>
 
-    <!-- Hub title card -->
-    <div class="gc" style="background:var(--c1dd);margin-bottom:var(--margin);">
-      <div class="fill" style="background:var(--c1dd);">
-        <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
-          <div class="fill-t" id="hub-admin-title" style="font-size:15px;font-weight:900;">Hub</div>
-        </div>
-      </div>
-      <button class="ctrl btn-r" onclick="openNewListModal()" style="width:auto;padding:0 12px;font-size:10px;letter-spacing:1px;text-transform:uppercase;">+ List</button>
-      <button class="ctrl" style="background:var(--bg4);" onclick="deleteHub()">&#128465;</button>
-    </div>
-
-    <!-- Status -->
-    <div class="gc" style="height:32px;background:var(--bg3);margin-bottom:var(--margin);">
-      <div class="sq sq-l" style="background:var(--bg3);">
-        <span class="hdr-dot off" id="hub-admin-dot"></span>
-      </div>
-      <div class="fill" style="background:var(--bg3);">
-        <div class="fill-in" style="align-items:flex-start;padding:0 8px;">
-          <div class="fill-t" id="hub-admin-status" style="font-size:10px;color:var(--dim);">loading...</div>
+    <!-- Color picker -->
+    <div class="gc" id="hub-color-card" style="margin-bottom:var(--margin);cursor:pointer;" onclick="cycleHubColor()">
+      <div class="fill" style="pointer-events:none;">
+        <div class="fill-in">
+          <div class="fill-s" style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;opacity:.8;">Tap to change color</div>
         </div>
       </div>
     </div>
 
-    <!-- Lists container -->
-    <div id="hub-admin-lists"></div>
-    <div class="empty-state hidden" id="hub-admin-lists-empty">No lists — add one above</div>
+    <!-- Reset timer -->
+    <div class="gc" id="hub-reset-card" style="background:var(--bg2);margin-bottom:var(--margin);cursor:pointer;" onclick="cycleResetTimer()">
+      <div class="fill" style="background:var(--bg2);">
+        <div class="fill-in">
+          <div class="fill-t" style="font-size:12px;font-weight:700;">Resets</div>
+          <div class="fill-s" id="hub-reset-label" style="font-size:10px;opacity:.7;letter-spacing:1px;text-transform:uppercase;">Daily at Midnight</div>
+        </div>
+      </div>
+    </div>
+    <!-- Hidden refs for JS -->
+    <span id="hub-admin-title"  style="display:none;"></span>
+    <span id="hub-admin-dot"    style="display:none;"></span>
+    <span id="hub-admin-status" style="display:none;"></span>
 
-    <!-- Hub members -->
-    <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);padding:2px 4px 4px;opacity:.7;margin-top:4px;">Hub Members</div>
-    <span class="hidden" id="pending-badge"></span>
-    <div id="members-approved-section" class="hidden">
-      <div style="font-size:9px;color:var(--c4);font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 4px 3px;opacity:.8;">Has Access</div>
-      <div id="members-approved-list"></div>
+    <!-- Type buttons -->
+    <div class="type-row" id="hub-type-row">
+      <button class="type-btn type-cl" onclick="addCard('checklist')"><span>Add</span><span>Checklist</span></button>
+      <button class="type-btn type-pr" onclick="addCard('progress')"><span>Add</span><span>Progress</span></button>
+      <button class="type-btn type-dv" onclick="addCard('divider')"><span>Add</span><span>Divider</span></button>
+      <button class="type-btn type-nt" onclick="addCard('note')"><span>Add</span><span>Note</span></button>
     </div>
-    <div id="members-revoked-section" class="hidden">
-      <div style="font-size:9px;color:var(--dim);font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 4px 3px;opacity:.8;">Revoked</div>
-      <div id="members-revoked-list"></div>
-    </div>
-    <div class="empty-state" id="members-empty">No members for this hub yet</div>
+
+    <!-- Cards area: insert bar + cards column -->
+    <div id="hub-cards-area" style="display:flex;gap:var(--margin);align-items:flex-start;"></div>
+    <div class="empty-state" id="hub-cards-empty">No cards yet — add one above</div>
   </div>
 
   <!-- HUB VIEWER -->
@@ -392,55 +499,70 @@ body{background:var(--bg3);color:var(--white);font-family:system-ui,-apple-syste
 
     <!-- Approved view -->
     <div class="hidden" id="viewer-approved-state">
-      <!-- Hub title + progress -->
-      <div class="gc" style="background:var(--bg2);margin-bottom:var(--margin);">
-        <div class="fill" style="background:var(--bg2);">
-          <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
-            <div class="fill-t" id="hub-viewer-title" style="font-size:14px;font-weight:900;">Hub</div>
-            <div class="fill-s" id="hub-viewer-sub" style="font-size:10px;opacity:.7;"></div>
-          </div>
-        </div>
+      <!-- Member tags card -->
+      <div style="background:#fff;border:var(--bw) solid var(--bc);border-radius:8px;
+        min-height:var(--ch);display:flex;align-items:center;justify-content:center;
+        padding:10px 12px;margin-bottom:var(--margin);">
+        <div id="viewer-member-tags" style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center;"></div>
       </div>
       <!-- Lists -->
       <div id="hub-viewer-lists"></div>
       <div class="empty-state hidden" id="hub-viewer-lists-empty">No lists in this hub yet</div>
     </div>
 
-    <!-- Footer -->
-    <div class="gc" style="height:32px;background:var(--bg3);margin-bottom:var(--margin);">
-      <div class="sq sq-l" style="background:var(--bg3);"><span class="hdr-dot off" id="hub-viewer-dot"></span></div>
-      <div class="fill" style="background:var(--bg3);">
-        <div class="fill-in" style="align-items:flex-start;padding:0 8px;">
-          <div class="fill-t" id="hub-viewer-status" style="font-size:10px;color:var(--dim);">loading...</div>
+    <!-- Hidden status/name elements kept for JS references -->
+    <span id="hub-viewer-title" style="display:none"></span>
+    <span id="hub-viewer-sub" style="display:none"></span>
+    <span id="hub-viewer-status" style="display:none"></span>
+    <span id="hub-viewer-dot" style="display:none"></span>
+    <span id="viewer-name-lbl" style="display:none"></span>
+  </div>
+
+  <!-- HUB ACTIVITY DETAIL -->
+  <div class="sec" id="admin-hub-activity-section">
+    <div style="height:var(--margin)"></div>
+    <div class="gc" id="activity-hdr" style="background:var(--c1d);margin-bottom:var(--margin);">
+      <div class="fill">
+        <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
+          <div class="fill-t" id="activity-hub-title" style="font-size:15px;font-weight:900;">Hub</div>
+          <div class="fill-s" style="font-size:9px;opacity:.6;text-transform:uppercase;letter-spacing:1px;">Activity</div>
         </div>
       </div>
-      <div class="fill" style="background:var(--bg3);">
-        <div class="fill-in" style="align-items:flex-end;padding:0 8px;">
-          <div class="fill-t" id="viewer-name-lbl" style="font-size:10px;color:var(--dim);"></div>
-        </div>
-      </div>
-      <button class="ctrl" style="background:var(--bg4);font-size:9px;letter-spacing:1px;text-transform:uppercase;width:auto;padding:0 10px;" onclick="changeViewerName()">Rename</button>
     </div>
+    <div id="activity-card-list"></div>
+  </div>
+
+  <!-- MEMBER DETAIL -->
+  <div class="sec" id="admin-member-section">
+    <div style="height:var(--margin)"></div>
+    <!-- Member header — colored by status, set dynamically -->
+    <div class="gc" id="member-detail-hdr" style="background:var(--c4d);margin-bottom:var(--margin);">
+      <div class="fill">
+        <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
+          <div class="fill-t" id="member-detail-name" style="font-size:17px;font-weight:900;">Member</div>
+          <div class="fill-s" id="member-detail-status" style="font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:1px;">approved</div>
+        </div>
+      </div>
+      <div id="member-action-btns" style="display:flex;height:100%;"></div>
+    </div>
+    <!-- Hub access -->
+    <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);padding:2px 4px 4px;opacity:.7;">Hub Access</div>
+    <div id="member-hub-access"></div>
+    <!-- Checked items -->
+    <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);padding:6px 4px 4px;opacity:.7;">Checked Items</div>
+    <div id="member-checked-list"></div>
+    <div class="empty-state hidden" id="member-checked-empty">Nothing checked yet</div>
+    <!-- Flags -->
+    <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);padding:6px 4px 4px;opacity:.7;">Flags</div>
+    <div id="member-flags-list"></div>
+    <div class="empty-state hidden" id="member-flags-empty">No flags raised</div>
   </div>
 
   <!-- HUB SELECTION (viewer home) -->
   <div class="sec" id="hub-selection-section">
     <div style="height:var(--margin)"></div>
-    <!-- Viewer header -->
-    <div class="gc" style="background:var(--bg2);margin-bottom:var(--margin);">
-      <div class="fill" style="background:var(--bg2);">
-        <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
-          <div class="fill-t" style="font-size:13px;">My Hubs</div>
-          <div class="fill-s" id="hub-sel-sub" style="font-size:10px;opacity:.7;"></div>
-        </div>
-      </div>
-      <div class="fill" style="background:var(--bg2);">
-        <div class="fill-in" style="align-items:flex-end;padding:0 10px;">
-          <div class="fill-s" id="hub-sel-name" style="font-size:10px;opacity:.7;"></div>
-        </div>
-      </div>
-      <button class="ctrl btn-b" onclick="joinAnotherHub()" style="width:auto;padding:0 10px;font-size:9px;letter-spacing:1px;text-transform:uppercase;">+ Join</button>
-    </div>
+    <span id="hub-sel-sub" style="display:none;"></span>
+    <span id="hub-sel-name" style="display:none;"></span>
     <div id="viewer-hub-cards"></div>
   </div>
 
@@ -521,6 +643,36 @@ body{background:var(--bg3);color:var(--white);font-family:system-ui,-apple-syste
   </div>
 </div>
 
+<!-- Hub Activation Modal -->
+<div class="overlay hidden" id="activate-hub-modal">
+  <div class="modal-box" style="max-width:340px;">
+    <div class="modal-hd" id="activate-modal-hd" style="background:var(--c5d);">Activate Hub</div>
+    <div class="modal-bd" style="padding:16px 12px;display:flex;flex-direction:column;gap:8px;">
+      <div style="font-size:15px;font-weight:900;" id="activate-modal-title"></div>
+      <div style="font-size:12px;color:var(--dim);line-height:1.6;">Activate this hub for today? You and other members will be able to check off items and log progress.</div>
+    </div>
+    <div class="modal-ft">
+      <button class="modal-btn" onclick="closeModal('activate-hub-modal')">Not Now</button>
+      <button class="modal-btn ok" onclick="confirmHubActivation()">Activate &#8594;</button>
+    </div>
+  </div>
+</div>
+
+<!-- Hub Join Modal -->
+<div class="overlay hidden" id="join-hub-modal">
+  <div class="modal-box" style="max-width:340px;">
+    <div class="modal-hd" id="join-modal-hd" style="background:var(--c5d);">Join Hub</div>
+    <div class="modal-bd" style="padding:16px 12px;display:flex;flex-direction:column;gap:8px;">
+      <div style="font-size:15px;font-weight:900;" id="join-modal-title"></div>
+      <div style="font-size:12px;color:var(--dim);line-height:1.6;">Ready to join this hub and start checking off items?</div>
+    </div>
+    <div class="modal-ft">
+      <button class="modal-btn" onclick="closeModal('join-hub-modal')">Cancel</button>
+      <button class="modal-btn ok" onclick="confirmHubJoin()">Join &#8594;</button>
+    </div>
+  </div>
+</div>
+
 <!-- Name Modal -->
 <div class="overlay hidden" id="name-modal">
   <div class="modal-box">
@@ -539,24 +691,265 @@ body{background:var(--bg3);color:var(--white);font-family:system-ui,-apple-syste
 // ─── Dashboard tab state ───────────────────────────────────────────────────
 let dashTab = 'hubs'; // 'hubs' | 'members'
 
+function updateFlagBadge() {
+  let count = 0;
+  const hubs = typeof TEST_HUBS !== 'undefined' ? TEST_HUBS : {};
+  Object.values(hubs).forEach(hub =>
+    (hub.cards||[]).forEach(card =>
+      Object.values(card.flags||{}).forEach(f => { if (f?.note) count++; })
+    )
+  );
+  const b = el('flag-tab-badge');
+  if (b) { b.textContent = count; b.classList.toggle('hidden', count === 0); }
+}
+
 function setDashTab(tab) {
   dashTab = tab;
-  const hEl = document.getElementById('dash-hubs-tab');
-  const mEl = document.getElementById('dash-members-tab');
-  const hBtn = document.getElementById('stab-hubs');
-  const mBtn = document.getElementById('stab-members');
-  if (hEl) hEl.classList.toggle('hidden', tab !== 'hubs');
-  if (mEl) mEl.classList.toggle('hidden', tab !== 'members');
-  if (hBtn) hBtn.classList.toggle('active', tab === 'hubs');
-  if (mBtn) mBtn.classList.toggle('active', tab === 'members');
+  const tabs = ['dash','hubs','members','flags'];
+  tabs.forEach(t => {
+    const btn = el('stab-'+t); if (btn) btn.classList.toggle('active', t===tab);
+  });
+  const divs = { dash:'dash-overview-tab', hubs:'dash-hubs-tab', members:'dash-members-tab', flags:'dash-flags-tab' };
+  Object.entries(divs).forEach(([t, id]) => { const d=el(id); if(d) d.classList.toggle('hidden', t!==tab); });
+  if (tab === 'flags')   renderDashFlags();
+  if (tab === 'dash')    renderDashOverview();
 }
+
+function renderDashOverview() {
+  const list  = el('dash-overview-list'); if (!list) return;
+  const empty = el('dash-overview-empty');
+  list.innerHTML = '';
+  const hubs = typeof TEST_HUBS !== 'undefined' ? TEST_HUBS : {};
+  const hids = Object.keys(hubs);
+  if (!hids.length) { show('dash-overview-empty'); return; }
+  hide('dash-overview-empty');
+
+  hids.forEach(hid => {
+    const hub   = hubs[hid];
+    const cards = hub.cards || [];
+    const c     = HUB_COLORS[(hub.colorIdx||0) % HUB_COLORS.length];
+
+    const clCards = cards.filter(c=>c.type==='checklist');
+    const prCards = cards.filter(c=>c.type==='progress');
+    const prTotal = prCards.reduce((s,c)=>s+(c.total||0),0);
+    // Each checklist card = 1 unit; each progress unit = 1
+    const clTotal = clCards.length;
+    const clDone  = clCards.filter(c=>Object.keys(c.checkedBy||{}).length>0).length;
+    const prDone  = prCards.reduce((s,c)=>s+(c.current||0),0);
+    const total   = clTotal + prTotal;
+    const done    = clDone  + prDone;
+    const pct     = total > 0 ? Math.round(done/total*100) : 0;
+
+    const card = document.createElement('div');
+    card.className = 'gc';
+    card.style.cssText = `cursor:pointer;margin-bottom:var(--margin);background:var(--bg2);`;
+    card.onclick = () => showHubActivity(hid);
+    card.innerHTML = `
+      <div class="fill" style="background:var(--bg2);">
+        <div class="fill-bar" style="width:${pct}%;background:${c};opacity:.5;transition:width .3s;"></div>
+        <div class="fill-in">
+          <div class="fill-t" style="font-size:15px;font-weight:900;">${esc(hub.title)}</div>
+          <div class="fill-s" style="font-size:11px;font-weight:700;opacity:.7;">${pct}%</div>
+        </div>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+
+function showHubActivity(hid) {
+  const hub = (typeof TEST_HUBS !== 'undefined' ? TEST_HUBS : {})[hid];
+  if (!hub) return;
+
+  showSection('admin-hub-activity-section');
+  badge('admin','Admin');
+  show('back-btn');
+  hide('tab-bar');
+
+  // Header color
+  const c = HUB_COLORS[(hub.colorIdx||0) % HUB_COLORS.length];
+  const hdr = el('activity-hdr');
+  if (hdr) hdr.style.background = c.bg;
+  el('activity-hub-title').textContent = hub.title;
+
+  const cont = el('activity-card-list');
+  cont.innerHTML = '';
+  const cards = hub.cards || [];
+
+  if (!cards.length) {
+    cont.innerHTML = '<div class="empty-state">No cards in this hub yet</div>'; return;
+  }
+
+  cards.forEach(card => {
+    if (card.type === 'divider') {
+      // Divider rendered as a section label
+      const dv = document.createElement('div');
+      dv.style.cssText = `height:var(--ch);display:flex;align-items:center;justify-content:center;
+        position:relative;margin-bottom:var(--margin);`;
+      dv.innerHTML = `
+        <div style="position:absolute;top:50%;left:0;right:0;height:var(--bw);background:var(--bc);transform:translateY(-50%);z-index:1;"></div>
+        <div style="background:var(--bg3);padding:0 12px;font-size:11px;font-weight:700;color:var(--white);
+          text-transform:uppercase;letter-spacing:.5px;position:relative;z-index:2;">${esc(card.title||'')}</div>`;
+      cont.appendChild(dv);
+      return;
+    }
+    if (card.type === 'note') {
+      const nv = document.createElement('div');
+      nv.className = 'gc';
+      nv.style.cssText = 'background:var(--white);margin-bottom:var(--margin);';
+      nv.innerHTML = `<div style="flex:1;display:flex;align-items:center;justify-content:center;
+        font-size:13px;font-weight:900;color:var(--c2d);text-align:center;padding:0 10px;">${esc(card.title||'Note')}</div>`;
+      cont.appendChild(nv);
+      return;
+    }
+    if (card.type === 'checklist') {
+      const checkers = Object.values(card.checkedBy||{});
+      const isChecked = checkers.length > 0;
+      const chips = checkers.map((n,i) => {
+        const colors=['--c1','--c2','--c3','--c4','--c5','--c6','--c7','--c8'];
+        const col = colors[i%colors.length];
+        return `<span style="font-size:9px;padding:1px 6px;border-radius:8px;border:1.5px solid var(${col});color:var(${col});margin-right:3px;">${esc(n)}</span>`;
+      }).join('');
+      // Open-top if chips need space below
+      const row = document.createElement('div');
+      row.className = 'gc' + (chips?'':' ');
+      row.style.cssText = `background:${isChecked?'var(--c1d)':'var(--bg2)'};margin-bottom:var(--margin);`;
+      row.innerHTML = `
+        <div class="sq sq-l" style="background:${isChecked?'var(--c4)':'var(--bg4)'};">
+          <span style="font-size:14px;font-weight:900;color:#fff;">${isChecked?'&#10003;':''}</span>
+        </div>
+        <div class="fill" style="background:${isChecked?'var(--c1d)':'var(--bg2)'};">
+          <div class="fill-in" style="align-items:flex-start;padding:0 10px;flex-direction:column;gap:3px;">
+            <div class="fill-t" style="font-size:13px;${isChecked?'text-decoration:line-through;opacity:.5;':''}">${esc(card.title||'Item')}</div>
+            ${chips?`<div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:2px;">${chips}</div>`:'<div class="fill-s" style="font-size:9px;opacity:.5;">Unchecked</div>'}
+          </div>
+        </div>`;
+      cont.appendChild(row);
+      return;
+    }
+    if (card.type === 'progress') {
+      const pct  = card.total>0 ? Math.round((card.current||0)/card.total*100) : 0;
+      const done = card.total>0 && card.current>=card.total;
+      const barC = done ? '#8a7530' : c;
+      const row  = document.createElement('div');
+      row.style.cssText = `display:flex;gap:var(--margin);margin-bottom:var(--margin);`;
+      row.innerHTML = `
+        <div class="gc" style="flex:2;min-width:0;">
+          <div class="fill" style="background:var(--bg4);">
+            <div class="fill-bar" style="width:${pct}%;background:${barC};opacity:.9;"></div>
+            <div class="fill-in">
+              <div class="fill-t">${esc(card.title||'Progress')}</div>
+              <div class="fill-s">${card.current||0} / ${card.total||0}</div>
+            </div>
+          </div>
+        </div>
+        <div class="gc" style="flex:1;min-width:0;background:${done?'#8a7530':'var(--bg2)'};">
+          <div class="fill" style="background:${done?'#8a7530':'var(--bg2)'};">
+            <div class="fill-in">
+              <div class="fill-t" style="font-size:${done?'12px':'18px'};font-weight:900;">${done?'Complete!':Math.max(0,(card.total||0)-(card.current||0))}</div>
+              ${done?'':'<div class="fill-s" style="font-size:9px;text-transform:uppercase;letter-spacing:1px;opacity:.6;">left</div>'}
+            </div>
+          </div>
+        </div>`;
+      cont.appendChild(row);
+    }
+  });
+}
+
+function renderDashFlags() {
+  const list  = el('dash-flags-list'); if (!list) return;
+  const empty = el('dash-flags-empty');
+  list.innerHTML = '';
+
+  // Collect all flags across all hubs
+  const flags = [];
+  const hubs  = typeof TEST_HUBS !== 'undefined' ? TEST_HUBS : {};
+  Object.entries(hubs).forEach(([hid, hub]) => {
+    (hub.cards||[]).forEach(card => {
+      Object.entries(card.flags||{}).forEach(([name, f]) => {
+        if (f && f.note) flags.push({
+          hubTitle:  hub.title,
+          cardTitle: card.title,
+          cardType:  card.type,
+          current:   card.current,
+          total:     card.total,
+          name, note: f.note,
+          colorIdx:  hub.colorIdx||0
+        });
+      });
+    });
+  });
+
+  // Update flag badge
+  const badge = el('flag-tab-badge');
+  if (badge) { badge.textContent = flags.length; badge.classList.toggle('hidden', flags.length===0); }
+
+  if (!flags.length) { show('dash-flags-empty'); return; }
+  hide('dash-flags-empty');
+
+  const cardBg = { checklist:'var(--c1d)', progress:'var(--c6d)', divider:'var(--bg4)', note:'var(--c2d)' };
+
+  flags.forEach(f => {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = `background:var(--bg2);border:var(--bw) solid var(--bc);border-radius:8px;
+      padding:var(--margin);margin-bottom:var(--margin);display:flex;flex-direction:column;gap:var(--margin);`;
+
+    // 1. Hub › Card path row
+    const pathRow = document.createElement('div');
+    pathRow.className = 'gi';
+    pathRow.style.background = 'var(--bg2)';
+    pathRow.innerHTML = `
+      <div style="flex:1;padding:0 8px;font-size:10px;font-weight:600;color:var(--dim);
+        overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">
+        ${esc(f.hubTitle)} &#8250; ${esc(f.cardTitle)}
+      </div>
+      <div class="sq sq-r" style="background:var(--c1dd);font-size:11px;color:var(--c1);">&#9873;</div>`;
+    wrap.appendChild(pathRow);
+
+    // 2. Card type row — coloured to match card type
+    const bg = cardBg[f.cardType]||'var(--bg4)';
+    const itemRow = document.createElement('div');
+    itemRow.className = 'gi';
+    itemRow.style.background = bg;
+    const xyHtml = f.cardType==='progress'
+      ? `<div style="min-width:52px;height:100%;border-left:var(--bw) solid var(--bc);
+           display:flex;align-items:center;justify-content:center;flex-shrink:0;
+           font-size:10px;font-weight:700;color:var(--white);padding:0 6px;">
+           ${f.current??0}&thinsp;/&thinsp;${f.total??0}</div>` : '';
+    itemRow.innerHTML = `
+      <div style="flex:1;padding:0 10px;font-size:11px;font-weight:700;color:var(--white);
+        overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(f.cardTitle)}</div>
+      ${xyHtml}`;
+    wrap.appendChild(itemRow);
+
+    // 3. "name" says row
+    const saysRow = document.createElement('div');
+    saysRow.className = 'gi';
+    saysRow.style.background = 'var(--c2dd)';
+    saysRow.innerHTML = `
+      <div style="padding:0 10px;font-size:10px;font-weight:700;
+        color:var(--c2);white-space:nowrap;">"${esc(f.name)}" says:</div>`;
+    wrap.appendChild(saysRow);
+
+    // 4. Note text
+    const noteRow = document.createElement('div');
+    noteRow.style.cssText = `background:var(--bg3);border:var(--bw) solid var(--bc);
+      border-radius:8px;min-height:32px;display:flex;align-items:center;padding:8px 10px;`;
+    noteRow.innerHTML = `
+      <div style="font-size:11px;font-weight:600;color:var(--white);
+        font-style:italic;line-height:1.5;word-break:break-word;">"${esc(f.note)}"</div>`;
+    wrap.appendChild(noteRow);
+
+    list.appendChild(wrap);
+  });
+}
+
+
 
 // ─── Override showSection to use .sec.active pattern ──────────────────────
 function showSection(id) {
   document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
   const t = document.getElementById(id);
   if (t) t.classList.add('active');
-  // Show/hide tab bar only on admin dash
   const tabBar = document.getElementById('tab-bar');
   if (tabBar) tabBar.classList.toggle('hidden', id !== 'admin-dash-section');
 }
@@ -584,18 +977,22 @@ function renderDash() {
   if (!keys.length) { show('hub-list-empty'); return; }
   hide('hub-list-empty');
   keys.reverse().forEach(hid => {
-    const h   = dashCache[hid];
-    const lc  = h.listCount || 0;
+    const h     = dashCache[hid];
+    // Count checklist + progress cards from TEST_HUBS if available, else listCount
+    const hub   = typeof TEST_HUBS !== 'undefined' ? TEST_HUBS[hid] : null;
+    const cards = hub?.cards || [];
+    const count = hub
+      ? cards.filter(c => c.type === 'checklist' || c.type === 'progress').length
+      : (h.listCount || 0);
     const div = document.createElement('div');
     div.className = 'gc gc-hub';
     div.innerHTML = `
       <div class="sq sq-l" style="background:var(--c1d);cursor:pointer;" onclick="goHubAdmin('${hid}')">
-        <span style="font-size:13px;font-weight:900;">${lc}</span>
+        <span style="font-size:13px;font-weight:900;">${count}</span>
       </div>
       <div class="fill" style="cursor:pointer;" onclick="goHubAdmin('${hid}')">
-        <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
-          <div class="fill-t" style="font-size:14px;font-weight:900;">${esc(h.title||'Hub')}</div>
-          <div class="fill-s" style="font-size:10px;opacity:.7;">${lc} list${lc!==1?'s':''}</div>
+        <div class="fill-in">
+          <div class="fill-t" style="font-size:15px;font-weight:900;">${esc(h.title||'Hub')}</div>
         </div>
       </div>
       <button class="ctrl" style="background:var(--c1dd);color:var(--c1);font-size:16px;" onclick="deleteHubFromDash('${hid}')">&#10005;</button>`;
@@ -608,62 +1005,222 @@ function deleteHubFromDash(hid) {
   deleteHub();
 }
 
-// ─── Override renderDashMembers to use GT50 ───────────────────────────────
+// ─── Override renderDashMembers to use GT50 tap-able cards ───────────────
 function renderDashMembers() {
-  const members  = dashMembers || {};
-  const keys     = Object.keys(members);
+  const members = dashMembers || {};
+  const keys    = Object.keys(members);
   const pending  = keys.filter(k => members[k].status === 'pending');
   const approved = keys.filter(k => members[k].status === 'approved');
+  const revoked  = keys.filter(k => members[k].status === 'revoked');
 
-  // Update pending badge on tab
   const badge = el('pending-tab-badge');
   if (badge) { badge.textContent = pending.length; badge.classList.toggle('hidden', pending.length === 0); }
 
-  if (!keys.length) {
-    show('dash-members-empty'); hide('dash-members-pending-section'); hide('dash-members-approved-section'); return;
-  }
   hide('dash-members-empty');
+  hide('dash-members-pending-section');
+  hide('dash-members-approved-section');
 
-  const mkRow = (code, m, rightHtml) => {
+  if (!keys.length) { show('dash-members-empty'); return; }
+
+  show('dash-members-pending-section');
+  const list = el('dash-members-pending-list');
+  list.innerHTML = '';
+
+  const STATUS_STYLE = {
+    pending:  { bg:'var(--c2d)',  label:'Pending' },
+    approved: { bg:'var(--c4d)', label:'Approved' },
+    revoked:  { bg:'var(--c1d)', label:'Revoked'  },
+  };
+
+  const mkDivider = text => {
     const d = document.createElement('div');
-    d.className = 'gi';
-    d.style.cssText = 'background:var(--bg2);margin-bottom:var(--margin);';
+    d.style.cssText = `height:var(--ch);display:flex;align-items:center;justify-content:center;
+      position:relative;margin-bottom:var(--margin);`;
     d.innerHTML = `
-      <div class="sq sq-l" style="background:var(--bg4);font-size:10px;">&#128100;</div>
-      <div class="fill" style="background:var(--bg2);">
-        <div class="fill-in" style="align-items:flex-start;padding:0 8px;">
-          <div class="fill-t" style="font-size:12px;font-weight:700;">${esc(m.name||'Unknown')}</div>
-          <div class="fill-s" style="font-size:9px;opacity:.6;">${code}</div>
-        </div>
-      </div>
-      ${rightHtml}`;
+      <div style="position:absolute;top:50%;left:0;right:0;height:var(--bw);background:var(--bc);transform:translateY(-50%);z-index:1;"></div>
+      <div style="background:var(--bg3);padding:0 12px;font-size:11px;font-weight:700;color:var(--white);
+        text-transform:uppercase;letter-spacing:1px;position:relative;z-index:2;">${text}</div>`;
     return d;
   };
 
-  if (pending.length) {
-    show('dash-members-pending-section');
-    const list = el('dash-members-pending-list');
-    list.innerHTML = '';
-    pending.forEach(code => {
-      const row = mkRow(code, members[code], `
-        <button class="ctrl btn-g" onclick="openApproveMemberModal('${code}')" style="width:auto;padding:0 10px;font-size:9px;letter-spacing:1px;text-transform:uppercase;">Approve</button>
-        <button class="ctrl" style="background:var(--c1d);color:var(--c1);font-size:16px;" onclick="denyMember('${code}')">&#10005;</button>`);
-      list.appendChild(row);
-    });
-  } else hide('dash-members-pending-section');
+  const mkCard = (code, m) => {
+    const st  = STATUS_STYLE[m.status] || STATUS_STYLE.pending;
+    const hc  = Object.keys(m.hubs||{}).length;
+    const div = document.createElement('div');
+    div.className = 'gc';
+    div.style.cssText = `background:${st.bg};cursor:pointer;margin-bottom:var(--margin);`;
+    div.onclick = () => showMemberDetail(code);
+    div.innerHTML = `
+      <div class="fill" style="background:${st.bg};">
+        <div class="fill-in">
+          <div class="fill-t" style="font-size:15px;font-weight:900;">${esc(m.name||'Unknown')}</div>
+        </div>
+      </div>
+      <div class="ctrl" style="background:rgba(0,0,0,.2);pointer-events:none;font-size:12px;">&#9654;</div>`;
+    return div;
+  };
 
   if (approved.length) {
-    show('dash-members-approved-section');
-    const list = el('dash-members-approved-list');
-    list.innerHTML = '';
-    approved.forEach(code => {
-      const hc = Object.keys(members[code].hubs||{}).length;
-      const row = mkRow(code, members[code], `
-        <div class="ctrl" style="background:var(--c4d);font-size:9px;letter-spacing:1px;text-transform:uppercase;pointer-events:none;width:auto;padding:0 8px;">${hc} hub${hc!==1?'s':''}</div>
-        <button class="ctrl btn-r" onclick="denyMember('${code}')" style="width:auto;padding:0 10px;font-size:9px;letter-spacing:1px;text-transform:uppercase;">Revoke</button>`);
-      list.appendChild(row);
+    list.appendChild(mkDivider('Approved'));
+    approved.forEach(code => list.appendChild(mkCard(code, members[code])));
+  }
+  if (pending.length) {
+    list.appendChild(mkDivider('Pending'));
+    pending.forEach(code => list.appendChild(mkCard(code, members[code])));
+  }
+  if (revoked.length) {
+    list.appendChild(mkDivider('Revoked'));
+    revoked.forEach(code => list.appendChild(mkCard(code, members[code])));
+  }
+}
+
+// ─── Member detail view ───────────────────────────────────────────────────
+let _curMemberCode = null;
+
+function showMemberDetail(code) {
+  _curMemberCode = code;
+  const m = (dashMembers||{})[code]; if (!m) return;
+
+  showSection('admin-member-section');
+  badge('admin','Admin');
+  show('back-btn');
+  hide('tab-bar');
+
+  // Header color by status
+  const STATUS_COLOR = { pending:'var(--c2d)', approved:'var(--c4d)', revoked:'var(--c1d)' };
+  const hdr = el('member-detail-hdr');
+  if (hdr) hdr.style.background = STATUS_COLOR[m.status]||'var(--bg2)';
+  el('member-detail-name').textContent   = m.name||'Unknown';
+  el('member-detail-status').textContent = m.status||'';
+
+  // Action buttons
+  const actBtns = el('member-action-btns');
+  actBtns.innerHTML = '';
+  if (m.status === 'pending') {
+    const appBtn = document.createElement('button');
+    appBtn.className = 'ctrl btn-g';
+    appBtn.style.cssText = 'width:auto;padding:0 12px;font-size:9px;letter-spacing:1px;text-transform:uppercase;';
+    appBtn.textContent = 'Approve';
+    appBtn.onclick = () => openApproveMemberModal(code);
+    const denyBtn = document.createElement('button');
+    denyBtn.className = 'ctrl';
+    denyBtn.style.cssText = 'background:var(--c1d);color:var(--c1);font-size:16px;';
+    denyBtn.textContent = '✕';
+    denyBtn.onclick = () => { denyMember(code); goBack(); };
+    actBtns.appendChild(appBtn);
+    actBtns.appendChild(denyBtn);
+  } else if (m.status === 'approved') {
+    const revokeBtn = document.createElement('button');
+    revokeBtn.className = 'ctrl btn-r';
+    revokeBtn.style.cssText = 'width:auto;padding:0 12px;font-size:9px;letter-spacing:1px;text-transform:uppercase;';
+    revokeBtn.textContent = 'Revoke';
+    revokeBtn.onclick = () => { denyMember(code); goBack(); };
+    actBtns.appendChild(revokeBtn);
+  } else if (m.status === 'revoked') {
+    const reBtn = document.createElement('button');
+    reBtn.className = 'ctrl btn-g';
+    reBtn.style.cssText = 'width:auto;padding:0 12px;font-size:9px;letter-spacing:1px;text-transform:uppercase;';
+    reBtn.textContent = 'Re-approve';
+    reBtn.onclick = () => openApproveMemberModal(code);
+    actBtns.appendChild(reBtn);
+  }
+
+  // Hub access — one row per hub
+  const accessContainer = el('member-hub-access');
+  accessContainer.innerHTML = '';
+  const hubs = dashCache || {};
+  Object.entries(hubs).forEach(([hid, h]) => {
+    const hasAccess = !!(m.hubs||{})[hid];
+    const hc = HUB_COLORS ? HUB_COLORS[0] : {bg:'var(--c5d)'};
+    const row = document.createElement('div');
+    row.className = 'gc';
+    row.style.cssText = `background:${hasAccess?'var(--c4d)':'var(--bg2)'};cursor:pointer;margin-bottom:var(--margin);`;
+    row.onclick = () => toggleMemberHubAccess(code, hid, row);
+    row.innerHTML = `
+      <div class="sq sq-l" style="background:${hasAccess?'var(--c4)':'var(--bg4)'};">
+        <span style="font-size:13px;font-weight:900;color:var(--white);">${hasAccess?'&#10003;':''}</span>
+      </div>
+      <div class="fill" style="background:${hasAccess?'var(--c4d)':'var(--bg2)'};">
+        <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
+          <div class="fill-t" style="font-size:13px;font-weight:900;">${esc(h.title||'Hub')}</div>
+        </div>
+      </div>`;
+    accessContainer.appendChild(row);
+  });
+
+  // Checked items across all hubs
+  const checkedList = el('member-checked-list');
+  checkedList.innerHTML = '';
+  const checkedItems = [];
+  Object.entries(TEST_HUBS||{}).forEach(([hid, hub]) => {
+    (hub.cards||[]).forEach(card => {
+      if (card.type==='checklist' && (card.checkedBy||{})[m.name]) {
+        checkedItems.push({ hubTitle: hub.title, text: card.title });
+      }
     });
-  } else hide('dash-members-approved-section');
+  });
+  if (!checkedItems.length) { show('member-checked-empty'); }
+  else {
+    hide('member-checked-empty');
+    checkedItems.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'gc';
+      row.style.cssText = 'background:var(--c4d);margin-bottom:var(--margin);';
+      row.innerHTML = `
+        <div class="sq sq-l" style="background:var(--c4);"><span style="font-size:13px;">&#10003;</span></div>
+        <div class="fill" style="background:var(--c4d);">
+          <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
+            <div class="fill-t" style="font-size:12px;">${esc(item.text)}</div>
+            <div class="fill-s" style="font-size:9px;opacity:.6;">${esc(item.hubTitle)}</div>
+          </div>
+        </div>`;
+      checkedList.appendChild(row);
+    });
+  }
+
+  // Flags
+  const flagsList = el('member-flags-list');
+  flagsList.innerHTML = '';
+  const flagItems = [];
+  Object.entries(TEST_HUBS||{}).forEach(([hid, hub]) => {
+    (hub.cards||[]).forEach(card => {
+      const f = (card.flags||{})[m.name];
+      if (f?.note) flagItems.push({ hubTitle: hub.title, text: card.title, note: f.note });
+    });
+  });
+  if (!flagItems.length) { show('member-flags-empty'); }
+  else {
+    hide('member-flags-empty');
+    flagItems.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'gc';
+      row.style.marginBottom = 'var(--margin)';
+      row.style.height = 'auto';
+      row.style.cssText += 'background:var(--c1dd);flex-direction:column;padding:8px 10px;gap:4px;';
+      row.innerHTML = `
+        <div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;">${esc(item.hubTitle)} › ${esc(item.text)}</div>
+        <div style="font-size:12px;font-weight:700;font-style:italic;color:var(--white);">"${esc(item.note)}"</div>`;
+      flagsList.appendChild(row);
+    });
+  }
+}
+
+function toggleMemberHubAccess(code, hid, rowEl) {
+  const m = (dashMembers||{})[code]; if(!m) return;
+  if (!m.hubs) m.hubs = {};
+  const had = !!m.hubs[hid];
+  if (had) delete m.hubs[hid]; else m.hubs[hid] = true;
+  // Update row appearance
+  const hasNow = !had;
+  rowEl.style.background = hasNow ? 'var(--c4d)' : 'var(--bg2)';
+  const sq  = rowEl.querySelector('.sq');
+  const fil = rowEl.querySelector('.fill');
+  if (sq)  { sq.style.background  = hasNow ? 'var(--c4)'  : 'var(--bg4)'; sq.querySelector('span').innerHTML = hasNow ? '&#10003;' : ''; }
+  if (fil) fil.style.background = hasNow ? 'var(--c4d)' : 'var(--bg2)';
+  // Persist (no-op in test mode)
+  if (_testMode !== 'admin') {
+    fbPatch('/admins/'+adminId+'/members/'+code, { hubs: m.hubs }).catch(()=>{});
+  }
 }
 
 // ─── Override openApproveMemberModal hub checkboxes styling ───────────────
@@ -675,136 +1232,260 @@ function _buildApproveCheckboxes(hkeys, hubs) {
     </div>`).join('');
 }
 
-// ─── Override renderHubAdmin to use GT50 ─────────────────────────────────
+// ─── Hub color cycling ───────────────────────────────────────────────────
+
+const RESET_TIMERS = [
+  'Daily at Midnight',
+  'Daily at 6am',
+  'Daily at 8am',
+  'Weekly — Monday',
+  'Weekly — Friday',
+  'Monthly — 1st',
+  'Never',
+];
+
+function cycleResetTimer() {
+  if (!hubCache) return;
+  hubCache.resetTimerIdx = (((hubCache.resetTimerIdx||0) + 1) % RESET_TIMERS.length);
+  el('hub-reset-label').textContent = RESET_TIMERS[hubCache.resetTimerIdx];
+  saveCards();
+}
+// 20 charcoal-tone hub colors — wide variety of hues, all dark/muted
+const HUB_COLORS = [
+  '#783636', // deep red
+  '#2b6544', // forest green
+  '#36556e', // slate blue
+  '#534a65', // muted purple
+  '#774e2c', // burnt amber
+  '#6e4556', // dark rose
+  '#7f7934', // olive gold
+  '#636b76', // grey slate
+  '#3a5c6e', // teal
+  '#5c3a6e', // plum
+  '#3e6e3a', // moss
+  '#6e3a3a', // burgundy
+  '#3a4e6e', // navy
+  '#6e5c3a', // warm brown
+  '#3a6e5c', // jade
+  '#6e3a5c', // magenta dark
+  '#4a4a6e', // indigo
+  '#6e4a3a', // terracotta
+  '#3a6e3a', // deep sage
+  '#5c6e3a', // army green
+];
+
+function cycleHubColor() {
+  if (!hubCache) return;
+  hubCache.colorIdx = ((hubCache.colorIdx||0) + 1) % HUB_COLORS.length;
+  fbPatch('/hubs/'+curHubId, {colorIdx: hubCache.colorIdx}).catch(()=>{});
+  localStorage.setItem('cl_hub_'+curHubId, JSON.stringify(hubCache));
+  applyHubColor();
+}
+function applyHubColor() {
+  const col  = HUB_COLORS[(hubCache?.colorIdx||0) % HUB_COLORS.length];
+  const card = el('hub-color-card');
+  if (!card) return;
+  card.style.background = col;
+  // The .fill inside covers the card — must match too
+  const fill = card.querySelector('.fill');
+  if (fill) fill.style.background = col;
+}
+
+// ─── renderHubAdmin — card builder ───────────────────────────────────────
 function renderHubAdmin() {
   if (!hubCache) return;
-  el('hub-admin-title').textContent = hubCache.title || 'Hub';
+  const titleEl = el('hub-admin-title');
+  if (titleEl) titleEl.textContent = hubCache.title || 'Hub';
   document.title = (hubCache.title||'Hub') + ' — Admin';
+  applyHubColor();
+  // Reset timer label
+  const resetLbl = el('hub-reset-label');
+  if (resetLbl) resetLbl.textContent = RESET_TIMERS[hubCache.resetTimerIdx||0];
 
-  const container = el('hub-admin-lists');
-  container.querySelectorAll('.list-block').forEach(b => b.remove());
-  const lists = hubCache.lists || {};
-  const lkeys = Object.keys(lists);
+  const cards = hubCache.cards || [];
+  const area  = el('hub-cards-area');
+  area.innerHTML = '';
 
-  if (!lkeys.length) { show('hub-admin-lists-empty'); renderMembersPanel(); return; }
-  hide('hub-admin-lists-empty');
+  if (!cards.length) { show('hub-cards-empty'); return; }
+  hide('hub-cards-empty');
 
-  lkeys.forEach(lid => {
-    const lst   = lists[lid];
-    const order = lst.order || [];
-    const items = lst.items || {};
-    const done  = order.filter(id => Object.keys(items[id]?.checkedBy||{}).length > 0).length;
-    const pct   = order.length ? Math.round(done / order.length * 100) : 0;
+  const selIdx = (S_insertIdx !== null && S_insertIdx <= cards.length) ? S_insertIdx : cards.length;
 
-    // List header card
-    const block = document.createElement('div');
-    block.className = 'list-block';
-    block.id = 'lb-'+lid;
+  // ── Insert bar ─────────────────────────────────────────────────────────
+  // Each card is --ch (45px) tall with --margin (4px) margin-bottom.
+  // N+1 slots:
+  //   slot[0]       = 22.5px  (sits in top-half of first card)
+  //   slot[1..N-1]  = 49px    (sits across the gap between two cards)
+  //   slot[N]       = 22.5px  (sits in bottom-half of last card)
+  // Total bar height = 22.5 + (N-1)*49 + 22.5 = N*49 - 4
+  //                  = N*45 + (N-1)*4  ← exactly the visible cards column height
+  const CH = 45, MG = 4;
 
-    const hdrDiv = document.createElement('div');
-    hdrDiv.className = 'gc';
-    hdrDiv.id = 'lhdr-'+lid;
-    hdrDiv.style.cssText = 'background:var(--bg2);margin-bottom:0;border-radius:8px 8px 0 0;';
-    hdrDiv.innerHTML = `
-      <div class="fill" style="background:var(--bg2);cursor:pointer;" onclick="toggleAccordion('lb-${lid}')">
-        <div class="fill-bar" style="width:${pct}%;background:var(--c1d);opacity:0.5;"></div>
-        <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
-          <div class="fill-t" style="font-size:13px;font-weight:900;">${esc(lst.title||'List')}</div>
-          <div class="fill-s" style="font-size:10px;opacity:.7;">${done}/${order.length} &nbsp;&#183;&nbsp; ${pct}%</div>
-        </div>
-      </div>
-      <button class="ctrl btn-b" onclick="event.stopPropagation();openAddItemModal('${lid}')" style="width:auto;padding:0 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;">+ Item</button>
-      <button class="ctrl" style="background:var(--c1dd);color:var(--c1);font-size:16px;" onclick="event.stopPropagation();adminDelList('${lid}')">&#10005;</button>`;
+  const bar = document.createElement('div');
+  bar.style.cssText = 'width:20px;flex-shrink:0;display:flex;flex-direction:column;' +
+    'background:var(--bg2);border:var(--bw) solid var(--bc);border-radius:8px;overflow:hidden;';
 
-    // Items dropdown
-    const dd = document.createElement('div');
-    dd.className = 'gdd list-body';
-    dd.id = 'body-'+lid;
-    dd.style.display = 'none';
+  for (let i = 0; i <= cards.length; i++) {
+    const edge   = i === 0 || i === cards.length;
+    const h      = edge ? CH / 2 : CH + MG;  // 22.5 or 49
+    const active = i === selIdx;
+    const slot   = document.createElement('div');
+    slot.style.cssText = [
+      `height:${h}px`, `min-height:${h}px`, `flex-shrink:0`,
+      `background:${active ? 'var(--c4)' : 'var(--bg4)'}`,
+      i < cards.length ? `border-bottom:var(--bw) solid var(--bc)` : '',
+      'cursor:pointer', 'transition:background .12s',
+    ].filter(Boolean).join(';');
+    slot.onmouseenter = () => { if (i !== selIdx) slot.style.background = 'var(--c4d)'; };
+    slot.onmouseleave = () => { if (i !== selIdx) slot.style.background = 'var(--bg4)'; };
+    slot.onclick = () => { S_insertIdx = i; renderHubAdmin(); };
+    bar.appendChild(slot);
+  }
 
-    const itemsHtml = order.map(iid => {
-      const it    = items[iid]; if (!it) return '';
-      const who   = Object.values(it.checkedBy||{});
-      const isChk = who.length > 0;
-      const chips = who.map(n => `<span style="font-size:9px;padding:1px 5px;border-radius:8px;border:1.5px solid var(--c4);color:var(--c4);margin-right:3px;">${esc(n)}</span>`).join('');
-      return `<div class="gi" style="background:var(--bg3);margin-bottom:var(--margin);">
-        <div class="sq sq-l" style="background:${isChk?'var(--c4)':'var(--bg4)'};flex-shrink:0;">
-          <span style="font-size:13px;color:var(--white);">${isChk?'&#10003;':''}</span>
-        </div>
-        <div class="fill" style="background:var(--bg3);">
-          <div class="fill-in" style="align-items:flex-start;padding:0 8px;">
-            <div class="fill-t" style="font-size:12px;${isChk?'text-decoration:line-through;opacity:.45;':''}">${esc(it.text)}</div>
-            ${chips?`<div style="margin-top:2px;">${chips}</div>`:''}
-          </div>
-        </div>
-        <button class="ctrl" style="background:var(--c1dd);color:var(--c1);font-size:16px;" onclick="adminDelItem('${lid}','${iid}')">&#10005;</button>
-      </div>`;
-    }).join('') || '<div style="font-size:11px;color:var(--dim);padding:6px 4px;">No items yet.</div>';
-
-    dd.innerHTML = itemsHtml;
-    block.appendChild(hdrDiv);
-    block.appendChild(dd);
-    container.appendChild(block);
+  // ── Cards column ────────────────────────────────────────────────────────
+  const col = document.createElement('div');
+  col.style.cssText = 'flex:1;min-width:0;';
+  cards.forEach((card, idx) => {
+    const wrap = document.createElement('div');
+    if      (card.type === 'checklist') buildChecklistCard(wrap, card, idx);
+    else if (card.type === 'progress')  buildProgressCard(wrap, card, idx);
+    else if (card.type === 'divider')   buildDividerCard(wrap, card, idx);
+    else if (card.type === 'note')      buildNoteCard(wrap, card, idx);
+    col.appendChild(wrap);
   });
 
-  renderMembersPanel();
+  // align-items:flex-start so bar height isn't stretched beyond its slots
+  area.style.cssText = 'display:flex;gap:var(--margin);align-items:flex-start;';
+  area.appendChild(bar);
+  area.appendChild(col);
 }
 
-// ─── Override toggleAccordion ─────────────────────────────────────────────
-function toggleAccordion(blockId) {
-  const lid  = blockId.replace('lb-','');
-  const body = el('body-'+lid);
-  const hdr  = el('lhdr-'+lid);
-  if (!body) return;
-  const isOpen = body.style.display !== 'none';
-  body.style.display = isOpen ? 'none' : 'block';
-  if (hdr) hdr.style.borderRadius = isOpen ? '8px 8px 0 0' : '8px';
+// ─── Card state ───────────────────────────────────────────────────────────
+let S_insertIdx = null;
+
+function addCard(type) {
+  if (!hubCache) return;
+  if (!hubCache.cards) hubCache.cards = [];
+  const idx = (S_insertIdx !== null && S_insertIdx <= hubCache.cards.length) ? S_insertIdx : hubCache.cards.length;
+  let card;
+  if      (type==='checklist') card = {id:uid(),type:'checklist',title:'',checkedBy:{},flags:{}};
+  else if (type==='progress')  card = {id:uid(),type:'progress', title:'',total:0,current:0,flags:{}};
+  else if (type==='note')      card = {id:uid(),type:'note',     title:''};
+  else                         card = {id:uid(),type:'divider',  title:''};
+  hubCache.cards.splice(idx, 0, card);
+  S_insertIdx = idx + 1;
+  saveCards();
+  renderHubAdmin();
 }
 
-// ─── Override renderMembersPanel to use GT50 ─────────────────────────────
-function renderMembersPanel() {
-  const members  = hubCache?.members || {};
-  const keys     = Object.keys(members);
-  const approved = keys.filter(k => members[k].status === 'approved');
-  const revoked  = keys.filter(k => members[k].status === 'revoked');
-
-  if (!keys.length) { show('members-empty'); hide('members-approved-section'); hide('members-revoked-section'); return; }
-  hide('members-empty');
-
-  const mkRow = (code, m, rightHtml) => {
-    const d = document.createElement('div');
-    d.className = 'gi';
-    d.style.cssText = 'background:var(--bg2);margin-bottom:var(--margin);';
-    d.innerHTML = `
-      <div class="sq sq-l" style="background:var(--bg4);font-size:10px;">&#128100;</div>
-      <div class="fill" style="background:var(--bg2);">
-        <div class="fill-in" style="align-items:flex-start;padding:0 8px;">
-          <div class="fill-t" style="font-size:12px;font-weight:700;">${esc(m.name||'?')}</div>
-        </div>
-      </div>${rightHtml}`;
-    return d;
-  };
-
-  if (approved.length) {
-    show('members-approved-section');
-    const list = el('members-approved-list');
-    list.innerHTML = '';
-    approved.forEach(c => {
-      list.appendChild(mkRow(c, members[c],
-        `<button class="ctrl btn-r" onclick="revokeFromHub('${c}')" style="width:auto;padding:0 10px;font-size:9px;letter-spacing:1px;text-transform:uppercase;">Revoke</button>`));
-    });
-  } else hide('members-approved-section');
-
-  if (revoked.length) {
-    show('members-revoked-section');
-    const list = el('members-revoked-list');
-    list.innerHTML = '';
-    revoked.forEach(c => {
-      list.appendChild(mkRow(c, members[c],
-        `<button class="ctrl btn-g" onclick="restoreToHub('${c}')" style="width:auto;padding:0 10px;font-size:9px;letter-spacing:1px;text-transform:uppercase;">Restore</button>`));
-    });
-  } else hide('members-revoked-section');
+function moveCard(cid, dir) {
+  const cards = hubCache?.cards; if (!cards) return;
+  const idx = cards.findIndex(c=>c.id===cid);
+  const ni  = idx + dir;
+  if (ni<0||ni>=cards.length) return;
+  const [c] = cards.splice(idx,1);
+  cards.splice(ni,0,c);
+  saveCards(); renderHubAdmin();
 }
+
+function removeCard(cid) {
+  if (!hubCache?.cards) return;
+  hubCache.cards = hubCache.cards.filter(c=>c.id!==cid);
+  saveCards(); renderHubAdmin();
+}
+
+function saveCards() {
+  if (!hubCache) return;
+  localStorage.setItem('cl_hub_'+curHubId, JSON.stringify(hubCache));
+  fbSet('/hubs/'+curHubId+'/cards', hubCache.cards).catch(()=>{});
+}
+
+// ─── Build: Checklist card ────────────────────────────────────────────────
+function buildChecklistCard(wrap, card, idx) {
+  const BG = 'var(--c1d)';
+  const div = document.createElement('div');
+  div.className = 'gc';
+  div.style.cssText = `background:${BG};margin-bottom:var(--margin);`;
+  div.innerHTML = `
+    <div style="flex:1;height:100%;background:${BG};position:relative;overflow:hidden;min-width:0;">
+      <input class="cb-input ph-cl" type="text" value="${esc(card.title||'')}" placeholder="Checklist item..."
+        style="padding-right:calc(var(--sq)*3 + var(--bw)*3);"
+        oninput="updateCardField('${card.id}','title',this.value)"/>
+    </div>
+    <button class="ctrl" style="background:${BG};filter:brightness(.7);" onclick="moveCard('${card.id}',-1)">&#9650;</button>
+    <button class="ctrl" style="background:${BG};filter:brightness(.7);" onclick="moveCard('${card.id}',1)">&#9660;</button>
+    <button class="ctrl" style="background:${BG};filter:brightness(.6);color:var(--c1);" onclick="removeCard('${card.id}')">&#10005;</button>`;
+  wrap.appendChild(div);
+}
+
+// ─── Build: Progress card ─────────────────────────────────────────────────
+function buildProgressCard(wrap, card, idx) {
+  const BG = 'var(--c6d)';
+  const div = document.createElement('div');
+  div.className = 'gc';
+  div.style.cssText = `background:${BG};margin-bottom:var(--margin);`;
+  div.innerHTML = `
+    <div style="flex:2;height:100%;background:${BG};overflow:hidden;min-width:0;border-right:var(--bw) solid var(--bc);">
+      <input class="cb-input ph-pr" type="text" value="${esc(card.title||'')}" placeholder="Progress label..."
+        oninput="updateCardField('${card.id}','title',this.value)"/>
+    </div>
+    <div style="flex:1;height:100%;background:${BG};overflow:hidden;min-width:0;">
+      <input class="cb-num ph-pr" type="number" value="${card.total||''}" placeholder="Total"
+        oninput="updateCardField('${card.id}','total',parseInt(this.value)||0)"/>
+    </div>
+    <button class="ctrl" style="background:${BG};filter:brightness(.7);" onclick="moveCard('${card.id}',-1)">&#9650;</button>
+    <button class="ctrl" style="background:${BG};filter:brightness(.7);" onclick="moveCard('${card.id}',1)">&#9660;</button>
+    <button class="ctrl" style="background:${BG};filter:brightness(.6);color:var(--c1);" onclick="removeCard('${card.id}')">&#10005;</button>`;
+  wrap.appendChild(div);
+}
+
+// ─── Build: Divider card ──────────────────────────────────────────────────
+function buildDividerCard(wrap, card, idx) {
+  const div = document.createElement('div');
+  div.className = 'gc';
+  div.style.cssText = 'background:var(--white);margin-bottom:var(--margin);';
+  div.innerHTML = `
+    <div style="flex:1;height:100%;background:var(--white);overflow:hidden;min-width:0;position:relative;">
+      <input class="cb-input ph-dv" type="text" value="${esc(card.title||'')}" placeholder="Divider label..."
+        style="color:#111;padding-right:calc(var(--sq)*3 + var(--bw)*3);"
+        oninput="updateCardField('${card.id}','title',this.value)"/>
+    </div>
+    <button class="ctrl" style="background:var(--bg4);color:#111;" onclick="moveCard('${card.id}',-1)">&#9650;</button>
+    <button class="ctrl" style="background:var(--bg4);color:#111;" onclick="moveCard('${card.id}',1)">&#9660;</button>
+    <button class="ctrl" style="background:var(--bg4);color:var(--c1);" onclick="removeCard('${card.id}')">&#10005;</button>`;
+  wrap.appendChild(div);
+}
+
+// ─── Build: Note card ─────────────────────────────────────────────────────
+function buildNoteCard(wrap, card, idx) {
+  const BG = 'var(--c2d)';
+  const div = document.createElement('div');
+  div.className = 'gc';
+  div.style.cssText = `background:${BG};margin-bottom:var(--margin);`;
+  div.innerHTML = `
+    <div style="flex:1;height:100%;background:${BG};overflow:hidden;min-width:0;position:relative;">
+      <input class="cb-input ph-nt" type="text" value="${esc(card.title||'')}" placeholder="Note text..."
+        style="padding-right:calc(var(--sq)*3 + var(--bw)*3);"
+        oninput="updateCardField('${card.id}','title',this.value)"/>
+    </div>
+    <button class="ctrl" style="background:${BG};filter:brightness(.7);" onclick="moveCard('${card.id}',-1)">&#9650;</button>
+    <button class="ctrl" style="background:${BG};filter:brightness(.7);" onclick="moveCard('${card.id}',1)">&#9660;</button>
+    <button class="ctrl" style="background:${BG};filter:brightness(.6);color:var(--c1);" onclick="removeCard('${card.id}')">&#10005;</button>`;
+  wrap.appendChild(div);
+}
+
+function updateCardField(cid, field, val) {
+  const card = hubCache?.cards?.find(c=>c.id===cid);
+  if (!card) return;
+  card[field] = val;
+  // Debounce save
+  clearTimeout(card._saveTimer);
+  card._saveTimer = setTimeout(() => saveCards(), 800);
+}
+
+// ─── stub out old functions that referenced member panel ──────────────────
+function renderMembersPanel(){}
+function toggleAccordion(){}
 
 // ─── Override renderViewerHubSelection to use GT50 ────────────────────────
 async function renderViewerHubSelection() {
@@ -841,104 +1522,251 @@ function renderHubViewer() {
   if (!hubCache) return;
   el('hub-viewer-title').textContent = hubCache.title || 'Hub';
   document.title = hubCache.title || 'Hub';
+  const c = HUB_COLORS[(hubCache.colorIdx||0) % HUB_COLORS.length];
 
-  const lists   = hubCache.lists || {};
-  const lkeys   = Object.keys(lists);
-  const total   = lkeys.reduce((s,lid) => s + (lists[lid].order||[]).length, 0);
-  const checked = lkeys.reduce((s,lid) => {
-    const l = lists[lid]; return s + (l.order||[]).filter(id => Object.keys(l.items?.[id]?.checkedBy||{}).length > 0).length;
-  }, 0);
-  el('hub-viewer-sub').textContent = lkeys.length + ' list' + (lkeys.length!==1?'s':'') + ' · ' + checked + '/' + total + ' checked';
+  // Collect all unique names who have interacted with this hub
+  const nameSet = new Set();
+  (hubCache.cards||[]).forEach(card => {
+    Object.values(card.checkedBy||{}).forEach(n => nameSet.add(n));
+  });
+  // Also add members from hubCache.members
+  Object.values(hubCache.members||{}).forEach(m => { if (m.name) nameSet.add(m.name); });
+  // Always include current viewer
+  if (viewerName) nameSet.add(viewerName);
+
+  const tagColors = ['--c1','--c2','--c3','--c4','--c5','--c6','--c7'];
+  const nameTags  = el('viewer-member-tags');
+  if (nameTags) {
+    nameTags.innerHTML = [...nameSet].map((name, i) => {
+      const cv = tagColors[i % tagColors.length];
+      const isMe = name === viewerName;
+      return `<span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:8px;
+        background:var(${cv});color:#fff;letter-spacing:.5px;">${esc(name)}${isMe?' ✓':''}</span>`;
+    }).join('');
+  }
+
+  const cards   = hubCache.cards || [];
+  const clCards = cards.filter(c=>c.type==='checklist');
+  const total   = clCards.length;
+  const checked = clCards.filter(c=>Object.keys(c.checkedBy||{}).length>0).length;
+  el('hub-viewer-sub').textContent = total + ' item' + (total!==1?'s':'') + ' · ' + checked + '/' + total + ' checked';
 
   const container = el('hub-viewer-lists');
-  // Preserve open state
-  const openState = {};
-  container.querySelectorAll('.vlist-block').forEach(b => {
-    const lid = b.dataset.lid;
-    openState[lid] = b.querySelector('.gdd')?.style.display !== 'none';
-  });
-  container.querySelectorAll('.vlist-block').forEach(b => b.remove());
+  container.innerHTML = '';
 
-  if (!lkeys.length) { show('hub-viewer-lists-empty'); return; }
+  if (!cards.length) { show('hub-viewer-lists-empty'); return; }
   hide('hub-viewer-lists-empty');
 
-  lkeys.forEach(lid => {
-    const lst   = lists[lid];
-    const order = lst.order || [];
-    const items = lst.items || {};
-    const done  = order.filter(id => Object.keys(items[id]?.checkedBy||{}).length > 0).length;
-    const pct   = order.length ? Math.round(done / order.length * 100) : 0;
-    const isOpen = openState[lid] !== undefined ? openState[lid] : true;
-
-    const block = document.createElement('div');
-    block.className = 'vlist-block';
-    block.dataset.lid = lid;
-
-    // List header
-    const hdr = document.createElement('div');
-    hdr.className = 'gc';
-    hdr.id = 'vlhdr-'+lid;
-    hdr.style.cssText = `background:var(--bg2);margin-bottom:0;border-radius:${isOpen?'8px 8px 0 0':'8px'};cursor:pointer;`;
-    hdr.onclick = () => toggleViewList(lid);
-    hdr.innerHTML = `
-      <div class="fill" style="background:var(--bg2);">
-        <div class="fill-bar" style="width:${pct}%;background:var(--c5d);opacity:0.6;"></div>
-        <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
-          <div class="fill-t" style="font-size:13px;font-weight:900;">${esc(lst.title||'List')}</div>
-          <div class="fill-s" style="font-size:10px;opacity:.7;">${done}/${order.length} · ${pct}%</div>
-        </div>
-      </div>
-      <div class="ctrl" style="background:var(--bg4);pointer-events:none;font-size:10px;">${isOpen?'&#9650;':'&#9660;'}</div>`;
-
-    // Items dropdown
-    const dd = document.createElement('div');
-    dd.className = 'gdd';
-    dd.id = 'vbody-'+lid;
-    dd.style.display = isOpen ? 'block' : 'none';
-
-    if (!order.length) {
-      dd.innerHTML = '<div style="font-size:11px;color:var(--dim);padding:6px 4px;">No items yet.</div>';
-    } else {
-      order.forEach(iid => {
-        const it     = items[iid]; if (!it) return;
-        const byObj  = it.checkedBy || {};
-        const who    = Object.values(byObj);
-        const isMine = viewerName && who.includes(viewerName);
-        const others = who.filter(n => n !== viewerName);
-        const chips  = others.map(n => `<span style="font-size:9px;padding:1px 5px;border-radius:8px;border:1.5px solid var(--c5);color:var(--c5);margin-right:2px;">${esc(n)}</span>`).join('');
-
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'gi';
-        itemDiv.style.marginBottom = 'var(--margin)';
-        itemDiv.innerHTML = `
-          <div class="chk ${isMine?'on':'off'}" onclick="viewerToggle('${lid}','${iid}')">&#10003;</div>
-          <div class="fill" style="background:var(--bg3);">
-            <div class="fill-in" style="align-items:flex-start;padding:0 8px;">
-              <div class="fill-t" style="font-size:12px;${isMine?'text-decoration:line-through;opacity:.4;':''}">${esc(it.text)}</div>
-              ${chips?`<div style="margin-top:2px;">${chips}</div>`:''}
-            </div>
-          </div>
-          <div class="flg ${who.length&&!isMine?'on':'off'}" style="pointer-events:none;">&#9679;</div>`;
-        dd.appendChild(itemDiv);
-      });
-    }
-
-    block.appendChild(hdr);
-    block.appendChild(dd);
-    container.appendChild(block);
+  cards.forEach(card => {
+    const wrap = document.createElement('div');
+    if      (card.type==='checklist') viewChecklistCard(wrap, card, c);
+    else if (card.type==='progress')  viewProgressCard(wrap, card, c);
+    else if (card.type==='divider')   viewDividerCard(wrap, card);
+    else if (card.type==='note')      viewNoteCard(wrap, card);
+    container.appendChild(wrap);
   });
 }
 
-function toggleViewList(lid) {
-  const body = el('vbody-'+lid);
-  const hdr  = el('vlhdr-'+lid);
-  const arr  = hdr?.querySelector('.ctrl');
-  if (!body) return;
-  const isOpen = body.style.display !== 'none';
-  body.style.display = isOpen ? 'none' : 'block';
-  if (hdr) hdr.style.borderRadius = isOpen ? '8px' : '8px 8px 0 0';
-  if (arr) arr.innerHTML = isOpen ? '&#9660;' : '&#9650;';
+// ── Viewer flag/note state ────────────────────────────────────────────────
+const _vNoteInputs  = {}; // { cid: draftText }
+const _vSavedNotes  = {}; // { cid: true }
+
+function viewerFlagCard(cid) {
+  const card = hubCache?.cards?.find(c=>c.id===cid); if(!card||!viewerName) return;
+  if (!card.flags) card.flags = {};
+  const was = !!card.flags[viewerName];
+  if (was) { delete card.flags[viewerName]; delete _vNoteInputs[cid]; delete _vSavedNotes[cid]; }
+  else      { card.flags[viewerName] = { note: _vNoteInputs[cid]||'' }; delete card.checkedBy?.[viewerName]; }
+  if (_testMode === 'shared' && TEST_HUBS[curHubId]) TEST_HUBS[curHubId].cards = hubCache.cards;
+  else fbPatch('/hubs/'+curHubId+'/cards/'+hubCache.cards.indexOf(card)+'/flags',{[viewerName]: was ? null : {note:''}}).catch(()=>{});
+  renderHubViewer();
 }
+
+function viewerNoteChange(cid, val) {
+  _vNoteInputs[cid] = val;
+  delete _vSavedNotes[cid];
+  const btn = document.getElementById('vns-'+cid);
+  if (btn) { btn.textContent = 'Save'; btn.className = 'note-save'; btn.disabled = false; }
+}
+
+async function viewerSaveCardNote(cid) {
+  const note = _vNoteInputs[cid] || document.getElementById('vni-'+cid)?.value || '';
+  if (!note.trim()) { const inp = document.getElementById('vni-'+cid); if(inp){inp.style.outline='2px solid var(--c1)';setTimeout(()=>inp.style.outline='',800);} return; }
+  const card = hubCache?.cards?.find(c=>c.id===cid); if(!card||!viewerName) return;
+  if (!card.flags) card.flags = {};
+  card.flags[viewerName] = { note };
+  _vSavedNotes[cid] = true;
+  if (_testMode === 'shared' && TEST_HUBS[curHubId]) TEST_HUBS[curHubId].cards = hubCache.cards;
+  else fbPatch('/hubs/'+curHubId+'/cards/'+hubCache.cards.indexOf(card)+'/flags',{[viewerName]:{note}}).catch(()=>{});
+  const btn = document.getElementById('vns-'+cid);
+  if (btn) { btn.textContent = 'Saved ✓'; btn.className = 'note-save saved'; btn.disabled = true; }
+}
+
+function viewChecklistCard(wrap, card, c) {
+  const name    = viewerName;
+  const checked = !!(card.checkedBy||{})[name];
+  const flagged = !!(card.flags||{})[name];
+  const who     = Object.values(card.checkedBy||{});
+  const others  = who.filter(n=>n!==name);
+  const chips   = others.map(n=>`<span style="font-size:9px;padding:1px 5px;border-radius:8px;border:1.5px solid ${c};color:${c};margin-right:2px;">${esc(n)}</span>`).join('');
+  const draft   = _vNoteInputs[card.id] !== undefined ? _vNoteInputs[card.id] : ((card.flags||{})[name]?.note||'');
+  const saved   = !!_vSavedNotes[card.id];
+
+  // Main row — .gc height (45px)
+  const row = document.createElement('div');
+  row.className = 'gc' + (flagged ? ' open-top' : '');
+  row.style.marginBottom = flagged ? '0' : 'var(--margin)';
+  row.innerHTML = `
+    <div class="chk sq ${checked?'on':'off'} sq-l" onclick="viewerToggleCard('${card.id}')">&#10003;</div>
+    <div class="fill" style="background:var(--bg2);">
+      <div class="fill-in" style="align-items:flex-start;padding:0 8px;">
+        <div class="fill-t" style="font-size:13px;${checked?'text-decoration:line-through;opacity:.4;':''}">${esc(card.title||'Item')}</div>
+        ${chips?`<div style="margin-top:2px;">${chips}</div>`:''}
+      </div>
+    </div>
+    <div class="flg sq ${flagged?'on':'off'} sq-r" onclick="viewerFlagCard('${card.id}')">&#9873;</div>`;
+  wrap.appendChild(row);
+
+  if (flagged) {
+    const nr = document.createElement('div');
+    nr.className = 'note-row';
+    nr.style.marginBottom = 'var(--margin)';
+    nr.innerHTML = `
+      <input class="note-inp" id="vni-${card.id}" placeholder="Describe the issue..."
+        value="${esc(draft)}" oninput="viewerNoteChange('${card.id}',this.value)"/>
+      <button class="note-save${saved?' saved':''}" id="vns-${card.id}"
+        onclick="viewerSaveCardNote('${card.id}')" ${saved?'disabled':''}>
+        ${saved?'Saved ✓':'Save'}
+      </button>`;
+    wrap.appendChild(nr);
+  }
+}
+
+function viewProgressCard(wrap, card, c) {
+  const name      = viewerName;
+  const flagged   = !!(card.flags||{})[name];
+  const done      = card.total > 0 && (card.current||0) >= card.total;
+  const pct       = card.total>0 ? Math.round((card.current||0)/card.total*100) : 0;
+  const barColor  = done ? '#8a7530' : c.bg;   // charcoal gold when complete
+  const remaining = Math.max(0, (card.total||0)-(card.current||0));
+  const draft     = _vNoteInputs[card.id] !== undefined ? _vNoteInputs[card.id] : ((card.flags||{})[name]?.note||'');
+  const saved     = !!_vSavedNotes[card.id];
+
+  const outerRow = document.createElement('div');
+  outerRow.style.cssText = `display:flex;gap:var(--margin);margin-bottom:${flagged?'0':'var(--margin)'};align-items:flex-start;`;
+
+  // ── Left col: progress bar (flex:2) ──────────────────────────────────
+  const leftCol = document.createElement('div');
+  leftCol.style.cssText = 'flex:2;min-width:0;display:flex;flex-direction:column;';
+
+  const progRow = document.createElement('div');
+  progRow.className = 'gc' + (flagged ? ' open-top' : '');
+  progRow.style.marginBottom = '0';
+  progRow.innerHTML = `
+    <div class="sq sq-l" style="background:var(--bg4);cursor:pointer;font-size:20px;font-weight:700;"
+      onclick="adjustProgress('${card.id}',-1)">&#8722;</div>
+    <div class="fill" style="background:var(--bg4);">
+      <div class="fill-bar" style="width:${pct}%;background:${barColor};opacity:.85;"></div>
+      <div class="fill-in">
+        <div class="fill-t">${esc(card.title||'Progress')}</div>
+        <div class="fill-s">${card.current||0} / ${card.total||0}</div>
+      </div>
+    </div>
+    <div class="sq sq-r" style="background:var(--bg4);cursor:pointer;font-size:20px;font-weight:700;"
+      onclick="adjustProgress('${card.id}',1)">&#43;</div>`;
+  leftCol.appendChild(progRow);
+
+  // ── Right col: remaining + flag (flex:1) ──────────────────────────────
+  const rightCol = document.createElement('div');
+  rightCol.style.cssText = 'flex:1;min-width:0;display:flex;flex-direction:column;';
+
+  const compRow = document.createElement('div');
+  compRow.className = 'gc' + (flagged ? ' open-top' : '');
+  compRow.style.marginBottom = '0';
+  const compBg = done ? '#8a7530' : 'var(--bg2)';
+  compRow.innerHTML = `
+    <div class="fill" style="background:${compBg};">
+      <div class="fill-in">
+        <div class="fill-t" style="font-size:${done?'13px':'18px'};font-weight:900;line-height:1;">${done?'Complete!':remaining}</div>
+        <div class="fill-s" style="font-size:9px;letter-spacing:1px;text-transform:uppercase;opacity:.6;">${done?'':'left'}</div>
+      </div>
+    </div>
+    <div class="flg sq ${flagged?'on':'off'} sq-r" onclick="viewerFlagCard('${card.id}')">&#9873;</div>`;
+  rightCol.appendChild(compRow);
+
+  // ── Note rows if flagged ───────────────────────────────────────────────
+  if (flagged) {
+    const leftNote = document.createElement('div');
+    leftNote.className = 'note-row';
+    leftNote.style.cssText = 'margin-bottom:var(--margin);';
+    leftNote.innerHTML = `
+      <input class="note-inp" id="vni-${card.id}" placeholder="Describe the issue..."
+        value="${esc(draft)}" style="flex:1;" oninput="viewerNoteChange('${card.id}',this.value)"/>`;
+    leftCol.appendChild(leftNote);
+
+    const rightNote = document.createElement('div');
+    rightNote.className = 'note-row';
+    rightNote.style.cssText = 'margin-bottom:var(--margin);justify-content:center;';
+    rightNote.innerHTML = `
+      <button class="note-save${saved?' saved':''}" id="vns-${card.id}"
+        style="width:100%;height:32px;" onclick="viewerSaveCardNote('${card.id}')"
+        ${saved?'disabled':''}>${saved?'Saved ✓':'Save'}</button>`;
+    rightCol.appendChild(rightNote);
+  }
+
+  outerRow.appendChild(leftCol);
+  outerRow.appendChild(rightCol);
+  wrap.appendChild(outerRow);
+}
+
+function viewDividerCard(wrap, card) {
+  const div = document.createElement('div');
+  div.style.cssText = `height:var(--ch);display:flex;align-items:center;justify-content:center;position:relative;margin-bottom:var(--margin);`;
+  div.innerHTML = `
+    <div style="position:absolute;top:50%;left:0;right:0;height:var(--bw);background:var(--bc);transform:translateY(-50%);z-index:1;"></div>
+    <div style="background:var(--bg3);padding:0 12px;font-size:12px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:.5px;position:relative;z-index:2;">${esc(card.title||'')}</div>`;
+  wrap.appendChild(div);
+}
+
+function viewNoteCard(wrap, card) {
+  const div = document.createElement('div');
+  div.className = 'gc';
+  div.style.cssText = 'background:var(--white);margin-bottom:var(--margin);';
+  div.innerHTML = `
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:var(--c2d);text-align:center;padding:0 10px;">${esc(card.title||'Note')}</div>`;
+  wrap.appendChild(div);
+}
+
+async function adjustProgress(cid, delta) {
+  const card = hubCache?.cards?.find(c=>c.id===cid); if(!card) return;
+  card.current = Math.max(0, Math.min(card.total||0, (card.current||0)+delta));
+  renderHubViewer();
+  try {
+    await fbPatch('/hubs/'+curHubId+'/cards', hubCache.cards.reduce((obj,c,i)=>({...obj,[i]:c}),{}));
+  } catch(e){}
+}
+
+async function viewerToggleCard(cid) {
+  if (memberStatus!=='approved') return;
+  if (!viewerName) { showNameModal(); return; }
+  const card = hubCache?.cards?.find(c=>c.id===cid); if(!card) return;
+  if (!card.checkedBy) card.checkedBy = {};
+  const was = !!card.checkedBy[viewerName];
+  if (was) delete card.checkedBy[viewerName];
+  else card.checkedBy[viewerName] = viewerName;
+  renderHubViewer();
+  try {
+    viewerSt('saving...','');
+    const idx = hubCache.cards.findIndex(c=>c.id===cid);
+    await fbPatch('/hubs/'+curHubId+'/cards/'+idx+'/checkedBy', {[viewerName]: was?null:viewerName});
+    viewerSt('saved ✓',''); setTimeout(()=>viewerSt('live',''),1200);
+  } catch(e) {
+    if(was) card.checkedBy[viewerName]=viewerName; else delete card.checkedBy[viewerName];
+    renderHubViewer(); viewerSt('save error','err');
+  }
+}
+
+function toggleViewList(){}
 
 // ─── Override hubAdminSt ─────────────────────────────────────────────────
 function hubAdminSt(msg, dotState) {
@@ -964,7 +1792,7 @@ function viewerSt(msg, dotState) {
 
 // ─── Override showLanding ────────────────────────────────────────────────
 function showLanding() {
-  showSection('landing-section'); badge('land','Home');
+  showSection('landing-section'); badge('land','Home'); hide('back-btn');
   const saved = localStorage.getItem('cl_admin_id');
   const savedName = localStorage.getItem('cl_admin_name');
   const card = el('land-admin-card');
@@ -1030,6 +1858,7 @@ function renderModalDraft() {
 // ─── Override joinAnotherHub ─────────────────────────────────────────────
 function joinAnotherHub() {
   if (polling) { clearInterval(polling); polling = null; }
+  navPush(startViewerHome);
   showSection('open-hub-section'); badge('viewer','Viewer');
   show('back-btn');
   el('room-code-input').value = '';
@@ -1046,7 +1875,29 @@ function setNote(id, html, color) {
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function uid()  { return 'i' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 function genUUID() { return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16)); }
+const FUNNY_CODES = [
+  // Absurd / nonsense
+  'ZONK','BOOP','GOOF','ZANY','WHAM','BLIP','BONK','DORK','WUMP','ZORP',
+  'MOOP','DORF','BORF','ZORK','WOOP','GORK','FOOP','NOOP','ZOOP','BONK',
+  // Mildly inappropriate but deniable
+  'BUTT','DANG','HECK','DUMB','NERD','FART','BURP','CRUD','CRAP','DRAT',
+  'HUMP','BUNS','DUMP','TURD','POOP','RUMP','DORK','BOOB','NUMB','DUMB',
+  // Absurd proper-noun energy
+  'CHAD','BRAD','DUDE','BABE','BOSS','KING','GOAT','NOPE','VIBE','YEET',
+  'SLAY','FLEX','DRIP','SWAG','THICC','ZOEY','KYLE','BIFF','DUKE','BUCK',
+  // Dark but funny
+  'DOOM','FAIL','OOPS','DEAD','BONE','GRIM','GUTS','PAIN','PITS','WOES',
+  'DRAT','CRUD','MOPE','DIRE','GLUM','DOUR','BANE','WAIL','GRIM','DUSK',
+  // Wholesome random
+  'CAKE','FROG','DUCK','PLUM','BEAN','SOCK','TOAD','SNOB','CLAM','SLUG',
+  'CLOG','BLOB','GLOB','BLUB','GOOP','GUNK','FUNK','HONK','CONK','BONK',
+].map(w => w.slice(0,4).toUpperCase());
+
 function genCode4() {
+  // ~1 in 50 chance of a funny word
+  if (Math.random() < 0.10 && FUNNY_CODES.length) {
+    return FUNNY_CODES[Math.floor(Math.random() * FUNNY_CODES.length)];
+  }
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
   return Array.from(crypto.getRandomValues(new Uint8Array(4))).map(b => chars[b % chars.length]).join('');
 }
@@ -1061,7 +1912,7 @@ function copyEl(id, e) { navigator.clipboard.writeText(el(id).textContent).then(
 function flash(btn, html) { const o = btn.innerHTML; btn.innerHTML = html; setTimeout(()=>btn.innerHTML=o, 1500); }
 function closeModal(id) { hide(id); }
 document.addEventListener('click', e => {
-  ['new-list-modal','add-item-modal','approve-member-modal','name-modal'].forEach(id => {
+  ['new-list-modal','add-item-modal','approve-member-modal','name-modal','activate-hub-modal','join-hub-modal'].forEach(id => {
     const modal = el(id);
     if (modal && !modal.classList.contains('hidden') && e.target === modal) closeModal(id);
   });
@@ -1129,9 +1980,9 @@ async function saveFbUrl() {
 function landAdmin() {
   const saved=localStorage.getItem('cl_admin_id');
   if (saved) { adminId=saved; startAdminDash(); }
-  else { showSection('admin-setup-section'); badge('admin','New Admin'); show('back-btn'); }
+  else { navPush(showLanding); showSection('admin-setup-section'); badge('admin','New Admin'); show('back-btn'); }
 }
-function landViewer() { showSection('open-hub-section'); badge('viewer','Viewer'); show('back-btn'); }
+function landViewer() { navPush(showLanding); showSection('open-hub-section'); badge('viewer','Viewer'); show('back-btn'); }
 
 // ── JOIN FLOW ─────────────────────────────────────────────────────────────
 async function joinFromCode() {
@@ -1170,7 +2021,7 @@ async function createAdmin() {
   try {
     await fbSet('/admins/'+id+'/name',name); adminId=id;
     localStorage.setItem('cl_admin_id',id); localStorage.setItem('cl_admin_name',name);
-    history.replaceState({},'',location.pathname+'?admin='+id); startAdminDash();
+    _hist('replaceState')({},'',location.pathname+'?admin='+id); startAdminDash();
   } catch(e) { alert('Could not create admin: '+e.message); }
 }
 
@@ -1178,7 +2029,7 @@ async function createAdmin() {
 async function startAdminDash() {
   showSection('admin-dash-section'); badge('admin','Admin'); hide('back-btn');
   setDashTab('hubs');
-  if (!location.search.includes('admin=')) history.replaceState({},'',location.pathname+'?admin='+adminId);
+  if (!location.search.includes('admin=')) _hist('replaceState')({},'',location.pathname+'?admin='+adminId);
   const cachedName=localStorage.getItem('cl_admin_name');
   if (cachedName) el('dash-sub').textContent='Signed in as '+cachedName;
   const cachedCode=localStorage.getItem('cl_room_code_'+adminId);
@@ -1201,30 +2052,121 @@ async function loadDash(silent=false) {
 }
 
 // ── ROOM CODE ─────────────────────────────────────────────────────────────
-async function generateRoomCode() {
-  const btn=event.target; btn.disabled=true; btn.textContent='...';
-  try {
-    const old=localStorage.getItem('cl_room_code_'+adminId);
-    if (old) await fbDel('/codes/'+old);
-    let code,attempts=0;
-    do { code=genCode4(); const ex=await fbGet('/codes/'+code); if(!ex) break; } while(++attempts<10);
-    await fbSet('/codes/'+code,{adminId,created:Date.now()});
-    await fbSet('/admins/'+adminId+'/roomCode',code);
-    localStorage.setItem('cl_room_code_'+adminId,code); showRoomCode(code);
-  } catch(e){alert('Error: '+e.message);}
-  btn.disabled=false; btn.innerHTML='&#9851; Gen';
-}
 function showRoomCode(code) {
-  el('room-code-letters').textContent=code||'----';
-  el('copy-code-btn').disabled=!code;
+  const inp = el('room-code-input-admin');
+  if (inp) inp.value = code || '';
+  updateRcDisplay(code || '', !!code && code.length === 4, false);
+  updateRoomCodeUI(code, true);
 }
-function copyRoomCode(e) {
-  const code=el('room-code-letters').textContent; if(code==='----') return;
-  navigator.clipboard.writeText(code).then(()=>flash(e.target,'&#10003; Copied!'));
+
+function updateRoomCodeUI(code, isSaved) {
+  const setZone = el('rc-set-zone');
+  const hasCode = code && code.length === 4;
+  // Blink set zone only when there's a full code that hasn't been saved
+  if (setZone) {
+    if (hasCode && !isSaved) setZone.classList.add('set-blink');
+    else setZone.classList.remove('set-blink');
+  }
+}
+
+function rcKeyDown(e) {
+  const allowed = /^[a-zA-Z]$/.test(e.key) || ['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Enter'].includes(e.key) || e.metaKey || e.ctrlKey;
+  if (!allowed) { e.preventDefault(); return; }
+  if (e.key === 'Enter') { saveCustomRoomCode(); e.preventDefault(); }
+  // Hard stop at 4 letters
+  if (/^[a-zA-Z]$/.test(e.key) && e.target.value.length >= 4) { e.preventDefault(); }
+}
+
+function updateRcDisplay(value, isSet, focused) {
+  const slots = document.querySelectorAll('.rc-slot');
+  const lastFilled = value.length - 1;
+  for (let i = 0; i < 4; i++) {
+    const s = slots[i]; if (!s) continue;
+    if (i < value.length) {
+      s.textContent = value[i];
+      let cls = 'rc-slot ' + (isSet ? 'set' : 'filled');
+      if (focused && !isSet && i === lastFilled && value.length > 0) cls += ' will-delete';
+      s.className = cls;
+    } else {
+      s.textContent = '*';
+      s.className = 'rc-slot empty';
+    }
+  }
+}
+
+function onRoomCodeInput(inp) {
+  inp.value = inp.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4);
+  updateRcDisplay(inp.value, false, document.activeElement === inp);
+  updateRoomCodeUI(inp.value, false);
+}
+
+function rcFocus(inp) {
+  inp.setSelectionRange(inp.value.length, inp.value.length);
+  updateRcDisplay(inp.value, false, true);
+}
+
+function rcBlur(inp) {
+  updateRcDisplay(inp.value, false, false);
+}
+
+
+
+async function saveCustomRoomCode() {
+  const inp  = el('room-code-input-admin');
+  const code = (inp?.value || '').trim().toUpperCase();
+  if (!code || code.length !== 4) return;
+
+  // Test mode — just mark as set locally, no Firebase
+  if (typeof _testMode !== 'undefined' && _testMode === 'admin') {
+    localStorage.setItem('cl_room_code_test', code);
+    showRoomCode(code);
+    return;
+  }
+
+  try {
+    // Check conflict
+    const existing = await fbGet('/codes/' + code);
+    if (existing && existing.adminId && existing.adminId !== adminId) {
+      if (inp) { inp.style.color = 'var(--c1)'; setTimeout(() => inp.style.color='var(--c4)', 1500); }
+      const variant = code.slice(0,3) + String.fromCharCode(65 + Math.floor(Math.random()*26));
+      const tmp = document.createElement('div');
+      tmp.style.cssText = 'font-size:10px;color:var(--c1);padding:4px 6px;font-weight:700;';
+      tmp.textContent = '"' + code + '" is taken. Try "' + variant + '"?';
+      const card = inp?.closest('.gc');
+      if (card) { card.insertAdjacentElement('afterend', tmp); setTimeout(() => tmp.remove(), 3000); }
+      return;
+    }
+    const old = localStorage.getItem('cl_room_code_' + adminId);
+    if (old && old !== code) await fbDel('/codes/' + old).catch(() => {});
+    await fbSet('/codes/' + code, { adminId, created: Date.now() });
+    await fbSet('/admins/' + adminId + '/roomCode', code);
+    localStorage.setItem('cl_room_code_' + adminId, code);
+    showRoomCode(code);
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+async function generateRoomCode() {
+  const zone = el('rc-random-zone');
+  if (zone) zone.style.opacity = '.5';
+  try {
+    let code;
+    if (typeof _testMode !== 'undefined' && _testMode === 'admin') {
+      // Test mode — no Firebase, just generate locally
+      code = genCode4();
+    } else {
+      let attempts = 0;
+      do { code = genCode4(); const ex = await fbGet('/codes/' + code); if (!ex) break; } while (++attempts < 10);
+    }
+    const inp = el('room-code-input-admin');
+    if (inp) { inp.value = code; }
+    updateRcDisplay(code, false, false);
+    updateRoomCodeUI(code, false);
+  } catch(e) { alert('Error: ' + e.message); }
+  if (zone) zone.style.opacity = '1';
 }
 
 // ── HUB ADMIN ─────────────────────────────────────────────────────────────
-function goHubAdmin(hid) { curHubId=hid; history.pushState({},'',location.pathname+'?hub='+hid+'&manage=1'); startHubAdmin(); }
+function goHubAdmin(hid) { curHubId=hid; _hist('pushState')({},'',location.pathname+'?hub='+hid+'&manage=1'); startHubAdmin(); }
 async function startHubAdmin() {
   showSection('hub-admin-section'); badge('admin','Admin'); show('back-btn');
   hide('tab-bar'); show('hdr-dot');
@@ -1413,59 +2355,380 @@ async function refreshViewer() {
   } catch(e){viewerSt('error','err');}
 }
 
-async function viewerToggle(lid,iid) {
-  if(memberStatus!=='approved') return;
-  if(!viewerName){showNameModal();return;}
-  if(!hubCache?.lists?.[lid]?.items?.[iid]) return;
-  const item=hubCache.lists[lid].items[iid];
-  const byObj=item.checkedBy||{};
-  const was=viewerName in byObj;
-  if(was) delete byObj[viewerName]; else byObj[viewerName]=viewerName;
-  item.checkedBy=byObj; renderHubViewer();
-  try {
-    viewerSt('saving...','');
-    await fbPatch('/hubs/'+curHubId+'/lists/'+lid+'/items/'+iid+'/checkedBy',{[viewerName]:was?null:viewerName});
-    viewerSt('saved ✓',''); setTimeout(()=>viewerSt('live',''),1200);
-  } catch(e){
-    if(was) byObj[viewerName]=viewerName; else delete byObj[viewerName];
-    renderHubViewer(); viewerSt('save error','err');
-  }
-}
-
-function enterHubAdmin() {
-  if(polling){clearInterval(polling);polling=null;}
-  hide('hub-viewer-section');
-  history.pushState({},'',location.pathname+'?hub='+curHubId+'&manage=1'); startHubAdmin();
-}
-
-function showNameModal() { el('viewer-name-inp').value=viewerName||''; show('name-modal'); setTimeout(()=>el('viewer-name-inp').focus(),80); }
-async function submitViewerName() {
-  const n=el('viewer-name-inp').value.trim(); if(!n) return;
-  viewerName=n; localStorage.setItem('cl_name',n); closeModal('name-modal');
-  el('viewer-name-lbl').textContent='you: '+viewerName;
-  el('hub-sel-name').textContent='you: '+viewerName;
-  if(memberCode&&curAdminId){try{await fbPatch('/admins/'+curAdminId+'/members/'+memberCode,{name:viewerName});}catch(e){}}
-}
-function changeViewerName(){showNameModal();}
-
+async function viewerToggle(lid,iid) {}
 // ── NAVIGATION ────────────────────────────────────────────────────────────
 function goHome() {
   if(polling){clearInterval(polling);polling=null;}
   const sa=localStorage.getItem('cl_admin_id');
-  if(sa){adminId=sa;history.replaceState({},'',location.pathname+'?admin='+sa);startAdminDash();}
+  if(sa){adminId=sa;_hist('replaceState')({},'',location.pathname+'?admin='+sa);startAdminDash();}
   else {
     const ka=localStorage.getItem('cl_viewer_admin');
-    if(ka){curAdminId=ka;history.replaceState({},'',location.pathname);startViewerHome();}
-    else {history.replaceState({},'',location.pathname);showLanding();}
+    if(ka){curAdminId=ka;_hist('replaceState')({},'',location.pathname);startViewerHome();}
+    else {_hist('replaceState')({},'',location.pathname);showLanding();}
   }
 }
+// Simple navigation stack — used instead of history.back() which breaks in iframes
+const _navStack = [];
+
+function navPush(fn) { _navStack.push(fn); }
+
 function goBack() {
-  if(polling){clearInterval(polling);polling=null;}
-  const p=new URLSearchParams(location.search);
-  if(p.get('manage')){history.replaceState({},'',location.pathname+'?admin='+adminId);startAdminDash();}
-  else history.back();
+  if (polling) { clearInterval(polling); polling = null; }
+  if (_navStack.length) { _navStack.pop()(); return; }
+  const p = new URLSearchParams(location.search);
+  if (p.get('manage')) { _hist('replaceState')({},'',location.pathname+'?admin='+adminId); startAdminDash(); }
+  else { _hist('replaceState')({},'',location.pathname); showLanding(); }
 }
 function requestAccessAgain(){clearSavedMember(curAdminId);memberCode=null;memberStatus=null;showSection('open-hub-section');badge('viewer','Viewer');show('back-btn');el('room-code-input').value='';hide('join-name-card');}
+
+/* =====================================================================
+   TEST FUNCTIONS — REMOVE THIS BLOCK BEFORE PRODUCTION
+   ===================================================================== */
+const TEST_HUB_ID  = 'test-hub-1';
+const TEST_ADMIN_ID = 'test-admin-preview';
+
+// All test hubs live here — admin creates/edits them, shared reads from them
+const TEST_HUBS = {
+  'test-hub-1': {
+    title: 'Team Tasks', colorIdx: 0,
+    ownerId: TEST_ADMIN_ID,
+    cards: [
+      { id:'tc1', type:'checklist', title:'Review pull requests',  checkedBy:{ Alice:'Alice', Marcus:'Marcus' }, flags:{} },
+      { id:'tc2', type:'checklist', title:'Update documentation',  checkedBy:{ Tester:'Tester' }, flags:{} },
+      { id:'tc3', type:'checklist', title:'Deploy to staging',     checkedBy:{}, flags:{ Bob:{ note:'Build is failing on step 3' } } },
+      { id:'tc4', type:'checklist', title:'Write release notes',   checkedBy:{ Priya:'Priya', Yuki:'Yuki' }, flags:{} },
+      { id:'tc5', type:'checklist', title:'Notify stakeholders',   checkedBy:{}, flags:{} },
+      { id:'td1', type:'divider',   title:'Progress Tracking' },
+      { id:'tp1', type:'progress',  title:'Story Points', total:40, current:27, flags:{} },
+      { id:'tp2', type:'progress',  title:'Bugs Fixed',   total:18, current:18, flags:{} },
+      { id:'tn1', type:'note',      title:'Stand-up at 9am daily' },
+    ],
+    members: {
+      'mbr-alice':  { name:'Alice',   status:'approved' },
+      'mbr-bob':    { name:'Bob',     status:'approved' },
+      'mbr-carlos': { name:'Carlos',  status:'approved' },
+      'mbr-dana':   { name:'Dana',    status:'approved' },
+      'mbr-eli':    { name:'Eli',     status:'approved' },
+      'mbr-fran':   { name:'Fran',    status:'approved' },
+      'mbr-gus':    { name:'Gus',     status:'approved' },
+      'mbr-hana':   { name:'Hana',    status:'approved' },
+      'mbr-marcus': { name:'Marcus',  status:'approved' },
+      'mbr-priya':  { name:'Priya',   status:'approved' },
+      'mbr-yuki':   { name:'Yuki',    status:'approved' },
+    }
+  },
+  'test-hub-2': {
+    title: 'Grocery Run', colorIdx: 1,
+    ownerId: TEST_ADMIN_ID,
+    cards: [
+      { id:'tg1', type:'checklist', title:'Milk',   checkedBy:{}, flags:{} },
+      { id:'tg2', type:'checklist', title:'Eggs',   checkedBy:{ Tester:'Tester' }, flags:{} },
+      { id:'tg3', type:'checklist', title:'Bread',  checkedBy:{}, flags:{} },
+      { id:'tg4', type:'checklist', title:'Coffee', checkedBy:{}, flags:{} },
+    ],
+    members: {}
+  },
+};
+
+let _testMode = 'app';
+
+function testTab(mode) {
+  _testMode = mode;
+  ['app','admin','shared'].forEach(m => {
+    const btn = el('tt-'+m);
+    if (btn) btn.className = 'test-tab' + (m===mode?' t-on':'');
+  });
+  if (polling) { clearInterval(polling); polling = null; }
+
+  if (mode === 'app') {
+    goHome();
+
+  } else if (mode === 'admin') {
+    // Show admin dashboard — hub list + creator
+    adminId     = TEST_ADMIN_ID;
+    curHubId    = null;
+    hubCache    = null;
+    dashCache   = Object.fromEntries(
+      Object.entries(TEST_HUBS).map(([hid, h]) => [hid, { title: h.title, listCount: h.cards.length }])
+    );
+    dashMembers = {
+      'mbr-alice':  { name:'Alice',   status:'approved', hubs:{'test-hub-1':true,'test-hub-2':true} },
+      'mbr-bob':    { name:'Bob',     status:'approved', hubs:{'test-hub-1':true} },
+      'mbr-carlos': { name:'Carlos',  status:'approved', hubs:{'test-hub-1':true} },
+      'mbr-dana':   { name:'Dana',    status:'approved', hubs:{'test-hub-1':true} },
+      'mbr-eli':    { name:'Eli',     status:'approved', hubs:{'test-hub-1':true} },
+      'mbr-fran':   { name:'Fran',    status:'approved', hubs:{'test-hub-1':true} },
+      'mbr-gus':    { name:'Gus',     status:'approved', hubs:{'test-hub-1':true} },
+      'mbr-hana':   { name:'Hana',    status:'approved', hubs:{'test-hub-1':true} },
+      'mbr-marcus': { name:'Marcus',  status:'approved', hubs:{'test-hub-1':true} },
+      'mbr-priya':  { name:'Priya',   status:'approved', hubs:{'test-hub-1':true} },
+      'mbr-yuki':   { name:'Yuki',    status:'approved', hubs:{'test-hub-1':true} },
+      'mbr-carlos2':{ name:'Carlos',  status:'pending',  requested: Date.now()-120000 },
+      'mbr-dana2':  { name:'Dana',    status:'pending',  requested: Date.now()-30000 },
+      'mbr-eli2':   { name:'Eli',     status:'revoked',  hubs:{} },
+    };
+    showSection('admin-dash-section');
+    badge('admin','Admin');
+    hide('back-btn');
+    hide('hdr-dot');
+    setDashTab('hubs');
+    el('dash-sub').textContent = 'Test mode · ' + Object.keys(TEST_HUBS).length + ' hubs';
+    showRoomCode('TEST');
+    renderDash();
+    renderDashMembers();
+    updateFlagBadge();
+
+  } else if (mode === 'shared') {
+    viewerName   = viewerName || localStorage.getItem('cl_name') || 'Tester';
+    localStorage.setItem('cl_name', viewerName);
+    memberStatus = 'approved';
+    showTestSharedDash();
+  }
+}
+
+function showTestSharedDash() {
+  if (polling) { clearInterval(polling); polling = null; }
+  curHubId = null; hubCache = null;
+  el('hdr-title').textContent = 'CheckList';
+  showSection('hub-selection-section');
+  badge('viewer','Viewer');
+  show('mode-badge');
+  hide('back-btn');
+  el('hub-sel-sub').textContent = Object.keys(TEST_HUBS).length + ' hub' + (Object.keys(TEST_HUBS).length!==1?'s':'') + ' available';
+  el('hub-sel-name').textContent = 'you: ' + viewerName;
+
+  const container = el('viewer-hub-cards');
+  container.innerHTML = '';
+  Object.entries(TEST_HUBS).forEach(([hid, hub]) => {
+    const c       = HUB_COLORS[(hub.colorIdx||0) % HUB_COLORS.length];
+    const active  = _activeHubs.has(hid);
+    const joined  = _joinedHubs.has(hid);
+    const label   = joined ? 'Tap to continue' : active ? 'Tap to join' : 'Tap to activate';
+    const onClick = joined
+      ? () => openTestSharedHub(hid)
+      : active
+        ? () => promptHubJoin(hid)
+        : () => promptHubActivation(hid);
+
+    // Darken bg 50% when inactive: blend with bg3 (#0f1520)
+    function darkenHex(hex) {
+      const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+      const dr=Math.round(r*0.5), dg=Math.round(g*0.5), db=Math.round(b*0.5);
+      return '#'+[dr,dg,db].map(v=>v.toString(16).padStart(2,'0')).join('');
+    }
+    const cardBg = active ? c : darkenHex(c);
+
+    const div = document.createElement('div');
+    div.className = 'gc';
+    div.style.cssText = `background:${cardBg};cursor:pointer;margin-bottom:var(--margin);`;
+    div.onclick = onClick;
+    div.innerHTML = `
+      <div class="fill" style="background:${cardBg};">
+        <div class="fill-in">
+          <div class="fill-t" style="font-size:16px;font-weight:900;">${esc(hub.title)}</div>
+          <div class="fill-s" style="font-size:9px;letter-spacing:1px;text-transform:uppercase;opacity:.7;">
+            ${label}
+          </div>
+        </div>
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+// Track which hubs are active and which have been joined this session
+const _activeHubs = new Set(['test-hub-2']); // hub2 pre-activated for demo
+const _joinedHubs = new Set();
+let _pendingActivateHid = null;
+let _pendingJoinHid     = null;
+
+function promptHubActivation(hid) {
+  _pendingActivateHid = hid;
+  const hub = TEST_HUBS[hid];
+  const c   = HUB_COLORS[(hub.colorIdx||0) % HUB_COLORS.length];
+  el('activate-modal-title').textContent = hub.title;
+  el('activate-modal-hd').style.background = c.bg;
+  show('activate-hub-modal');
+}
+
+function confirmHubActivation() {
+  if (!_pendingActivateHid) return;
+  _activeHubs.add(_pendingActivateHid);
+  const hid = _pendingActivateHid;
+  _pendingActivateHid = null;
+  closeModal('activate-hub-modal');
+  openTestSharedHub(hid);
+}
+
+function promptHubJoin(hid) {
+  _pendingJoinHid = hid;
+  const hub = TEST_HUBS[hid];
+  const c   = HUB_COLORS[(hub.colorIdx||0) % HUB_COLORS.length];
+  el('join-modal-title').textContent = hub.title;
+  el('join-modal-hd').style.background = c.bg;
+  show('join-hub-modal');
+}
+
+function confirmHubJoin() {
+  if (!_pendingJoinHid) return;
+  const hid = _pendingJoinHid;
+  _pendingJoinHid = null;
+  _joinedHubs.add(hid);
+  closeModal('join-hub-modal');
+  openTestSharedHub(hid);
+}
+
+function openTestSharedHub(hid) {
+  if (polling) { clearInterval(polling); polling = null; }
+  _joinedHubs.add(hid);
+  curHubId = hid;
+  hubCache  = TEST_HUBS[hid];
+  showSection('hub-viewer-section');
+  // Header shows hub name, no badge
+  el('hdr-title').textContent = TEST_HUBS[hid]?.title || 'Hub';
+  hide('mode-badge');
+  show('back-btn');
+  hide('viewer-admin-bar');
+  hide('viewer-pending-state');
+  hide('viewer-revoked-state');
+  hide('viewer-noaccess-state');
+  show('viewer-approved-state');
+  el('viewer-name-lbl').textContent = 'you: ' + viewerName;
+  el('hub-viewer-status').textContent = 'test mode';
+  renderHubViewer();
+  // Live sync from TEST_HUBS — skip if user is typing in a note field
+  polling = setInterval(() => {
+    if (document.activeElement?.classList.contains('note-inp')) return;
+    hubCache = TEST_HUBS[curHubId];
+    // Keep title in sync if hub was renamed
+    el('hdr-title').textContent = TEST_HUBS[curHubId]?.title || 'Hub';
+    renderHubViewer();
+  }, 500);
+}
+
+// Test-mode goHubAdmin — uses TEST_HUBS instead of Firebase
+const _realGoHubAdmin = goHubAdmin;
+goHubAdmin = function(hid) {
+  if (_testMode !== 'admin') { _realGoHubAdmin(hid); return; }
+  curHubId = hid;
+  hubCache  = TEST_HUBS[hid];
+  showSection('hub-admin-section');
+  badge('admin','Admin');
+  show('back-btn');
+  hide('tab-bar');
+  renderHubAdmin();
+}
+
+// Test-mode goBack from hub editor → back to dashboard
+const _realGoBack = goBack;
+goBack = function() {
+  if (_testMode === 'admin' && document.getElementById('admin-hub-activity-section')?.classList.contains('active')) {
+    showSection('admin-dash-section');
+    badge('admin','Admin');
+    hide('back-btn');
+    setDashTab('dash');
+    el('dash-sub').textContent = 'Test mode · ' + Object.keys(TEST_HUBS).length + ' hubs';
+    showRoomCode('TEST');
+    renderDash();
+    renderDashMembers();
+    updateFlagBadge();
+    return;
+  }
+  if (_testMode === 'admin' && document.getElementById('admin-member-section')?.classList.contains('active')) {
+    _curMemberCode = null;
+    showSection('admin-dash-section');
+    badge('admin','Admin');
+    hide('back-btn');
+    setDashTab('members');
+    el('dash-sub').textContent = 'Test mode · ' + Object.keys(TEST_HUBS).length + ' hubs';
+    showRoomCode('TEST');
+    renderDash();
+    renderDashMembers();
+    return;
+  }
+  if (_testMode === 'admin' && curHubId) {
+    if (hubCache) TEST_HUBS[curHubId] = hubCache;
+    curHubId = null; hubCache = null;
+    testTab('admin');
+    return;
+  }
+  if (_testMode === 'shared' && curHubId) {
+    curHubId = null; hubCache = null;
+    showTestSharedDash();
+    return;
+  }
+  _realGoBack();
+}
+
+// Test-mode createHub — adds to TEST_HUBS in memory, no Firebase
+const _realCreateHub = createHub;
+createHub = async function() {
+  if (_testMode !== 'admin') { return _realCreateHub(); }
+  const title = el('new-hub-name')?.value.trim(); if (!title) return;
+  el('new-hub-name').value = '';
+  const hid = 'test-hub-' + uid();
+  TEST_HUBS[hid] = { title, colorIdx: Object.keys(TEST_HUBS).length % HUB_COLORS.length, ownerId: TEST_ADMIN_ID, cards: [], members: {} };
+  dashCache = Object.fromEntries(Object.entries(TEST_HUBS).map(([id, h]) => [id, { title: h.title, listCount: h.cards.length }]));
+  goHubAdmin(hid); // go straight to the new hub editor
+}
+
+// Test-mode deleteHub — removes from TEST_HUBS
+const _realDeleteHub = deleteHub;
+deleteHub = async function() {
+  if (_testMode !== 'admin') { return _realDeleteHub(); }
+  if (!curHubId || !confirm('Delete "' + (TEST_HUBS[curHubId]?.title||'') + '"?')) return;
+  delete TEST_HUBS[curHubId];
+  curHubId = null; hubCache = null;
+  testTab('admin');
+}
+
+// Hook saveCards to also update TEST_HUBS in test mode
+let _testSaveHook = null;
+const _origSaveCards = saveCards;
+saveCards = function() {
+  if (hubCache && curHubId && _testMode === 'admin') {
+    if (TEST_HUBS[curHubId]) TEST_HUBS[curHubId].cards = [...(hubCache.cards||[])];
+    localStorage.setItem('cl_hub_'+curHubId, JSON.stringify(hubCache));
+    return; // no Firebase in test mode
+  }
+  _origSaveCards();
+}
+
+// Hook cycleHubColor to stay local in test mode
+const _origCycleColor = cycleHubColor;
+cycleHubColor = function() {
+  if (!hubCache) return;
+  hubCache.colorIdx = ((hubCache.colorIdx||0)+1) % HUB_COLORS.length;
+  if (_testMode === 'admin' && curHubId && TEST_HUBS[curHubId]) {
+    TEST_HUBS[curHubId].colorIdx = hubCache.colorIdx;
+  } else {
+    fbPatch('/hubs/'+curHubId, {colorIdx:hubCache.colorIdx}).catch(()=>{});
+  }
+  applyHubColor();
+}
+
+// Override viewerToggleCard so it works in test mode (no Firebase)
+const _origViewerToggleCard = viewerToggleCard;
+viewerToggleCard = async function(cid) {
+  if (_testMode !== 'shared') { return _origViewerToggleCard(cid); }
+  const card = hubCache?.cards?.find(c=>c.id===cid); if(!card) return;
+  if (!card.checkedBy) card.checkedBy = {};
+  const was = !!card.checkedBy[viewerName];
+  if (was) delete card.checkedBy[viewerName];
+  else card.checkedBy[viewerName] = viewerName;
+  if (TEST_HUBS[curHubId]) TEST_HUBS[curHubId].cards = hubCache.cards;
+  renderHubViewer();
+}
+
+// Boot intercept — if test bar exists, start in app tab (normal boot)
+// No override needed; testTab('app') calls goHome() which runs normally.
+/* ===================================================================== */
+
+// Safe history wrapper — no-ops inside iframes that block history API
+function _hist(method) {
+  return function(...args) {
+    try { history[method](...args); } catch(e) { /* iframe/srcdoc — ignore */ }
+  };
+}
 </script>
 </body>
 </html>
