@@ -1,1122 +1,1471 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#1e1e1e">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="CheckList">
-  <link rel="manifest" href="manifest.json">
-  <title>CheckList</title>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg:#1e1e1e; --bg2:#252525; --bg3:#2e2e2e; --bg4:#333;
-      --border:3px solid #000; --radius:8px;
-      --c1:#ff6b6b; --c2:#ffa94d; --c3:#ffe066; --c4:#69db7c;
-      --c5:#4dabf7; --c6:#748ffc; --c7:#da77f2; --c8:#f783ac;
-      --text:#f0f0f0; --dim:#888;
-      --mono:'Share Tech Mono',monospace; --ui:'Barlow Condensed',sans-serif;
-    }
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{background:var(--bg);color:var(--text);font-family:var(--ui);min-height:100vh}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0f1520">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CheckList">
+<link rel="manifest" href="manifest.json">
+<title>CheckList</title>
+<style>
+:root {
+  --margin: 4px;
+  --ch: 45px;
+  --sq: 28px;
+  --bw: 3px;
+  --bc: #000;
+  --bg1: #243342;
+  --bg2: #374151;
+  --bg3: #0f1520;
+  --bg4: #636B76;
+  --c1:  #C85A5A; --c1d: #783636; --c1dd: #502424;
+  --c2:  #C7824A; --c2d: #774e2c; --c2dd: #4f341d;
+  --c3:  #d4c956; --c3d: #7f7934;
+  --c4:  #48a971; --c4d: #2b6544;
+  --c5:  #5A8DB8; --c5d: #36556e;
+  --c6:  #8a7ca8; --c6d: #534a65;
+  --c7:  #B87390; --c7d: #6e4556;
+  --dim: #9ca3af;
+  --white: #ffffff;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+*{-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;}
+input,textarea{user-select:text;-webkit-user-select:text;}
+input:focus{outline:2px solid var(--c4);outline-offset:2px;}
+button:focus{outline:none;}
+input[type=number]{-moz-appearance:textfield;}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+body{background:var(--bg3);color:var(--white);font-family:system-ui,-apple-system,sans-serif;font-size:14px;min-height:100vh;}
 
-    /* ── Header ── */
-    header{background:var(--bg2);border-bottom:var(--border);padding:10px 14px;
-      display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:20}
-    .logo{font-size:20px;font-weight:900;letter-spacing:2px;text-transform:uppercase;cursor:pointer}
-    .logo em{font-style:normal;color:var(--c4)}
-    .badge{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;
-      border:2px solid;text-transform:uppercase;letter-spacing:1px;flex-shrink:0}
-    .badge.admin {border-color:var(--c1);color:var(--c1)}
-    .badge.viewer{border-color:var(--c5);color:var(--c5)}
-    .badge.setup {border-color:var(--c7);color:var(--c7)}
-    .badge.land  {border-color:var(--c3);color:var(--c3)}
-    .hspacer{flex:1}
-    .back-btn{font-family:var(--mono);font-size:11px;color:var(--dim);background:none;
-      border:none;cursor:pointer;padding:4px 0;text-decoration:underline}
-    .back-btn:hover{color:var(--text)}
-    .live-dot{width:7px;height:7px;border-radius:50%;background:var(--c4);animation:pulse 2s infinite;flex-shrink:0}
-    .live-dot.err{background:var(--c1);animation:none}
-    .live-dot.off{background:var(--dim);animation:none}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+/* ── CHROME ─────────────────────────────────────────────────────────── */
+#chrome{position:sticky;top:0;z-index:50;}
+.hdr{background:var(--bg2);border-bottom:var(--bw) solid var(--bc);height:var(--ch);display:flex;align-items:center;overflow:hidden;position:relative;}
+.hdr-back{width:var(--sq);min-width:var(--sq);height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg4);border-right:var(--bw) solid var(--bc);cursor:pointer;flex-shrink:0;font-size:14px;z-index:1;}
+.hdr-fill{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:8px;pointer-events:none;}
+.hdr-title{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);}
+.hdr-badge{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:3px;border:2px solid;}
+.hdr-badge.admin{border-color:var(--c1);color:var(--c1);}
+.hdr-badge.viewer{border-color:var(--c5);color:var(--c5);}
+.hdr-badge.setup{border-color:var(--c6);color:var(--c6);}
+.hdr-badge.land{border-color:var(--c3);color:var(--c3);}
+.hdr-dot{width:7px;height:7px;border-radius:50%;background:var(--c4);flex-shrink:0;animation:pulse 2s infinite;}
+.hdr-dot.err{background:var(--c1);animation:none;}
+.hdr-dot.off{background:var(--bg4);animation:none;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-    /* ── Layout ── */
-    main{max-width:640px;margin:0 auto;padding:16px 14px 48px;display:flex;flex-direction:column;gap:14px}
-    .section{display:flex;flex-direction:column;gap:14px}
+/* ── TAB BAR ─────────────────────────────────────────────────────────── */
+#tab-bar{background:var(--bg2);border-bottom:var(--bw) solid var(--bc);display:flex;height:var(--ch);}
+.tab-btn{flex:1;height:100%;border:none;border-right:var(--bw) solid var(--bc);font-family:inherit;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);background:var(--bg2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;}
+.tab-btn:last-child{border-right:none;}
+.tab-btn.active{background:var(--c1d);color:var(--white);}
+.fbadge{background:var(--c1);color:var(--white);font-size:9px;font-weight:700;border-radius:10px;padding:1px 5px;min-width:16px;text-align:center;}
 
-    /* ── Cards ── */
-    .card{background:var(--bg2);border:var(--border);border-radius:var(--radius);overflow:hidden}
-    .card-hd{padding:8px 14px;background:var(--bg3);border-bottom:2px solid #000;
-      font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);
-      display:flex;align-items:center;gap:8px}
-    .card-hd .hd-spacer{flex:1}
-    .card-bd{padding:14px;display:flex;flex-direction:column;gap:10px}
+/* ── APP ─────────────────────────────────────────────────────────────── */
+#sections{max-width:640px;margin:0 auto;}
+.sec{padding:0 var(--margin) 60px;display:none;}
+.sec.active{display:block;}
 
-    /* ── Inputs ── */
-    input[type=text]{width:100%;background:var(--bg);border:2px solid #444;border-radius:6px;
-      color:var(--text);font-family:var(--mono);font-size:13px;padding:8px 11px;outline:none;transition:border-color .15s}
-    input[type=text]:focus{border-color:var(--c5)}
-    .row{display:flex;gap:8px}
-    .row input{flex:1}
+/* ── GT50 CARD ──────────────────────────────────────────────────────── */
+.gc{background:var(--bg2);border:var(--bw) solid var(--bc);border-radius:8px;height:var(--ch);display:flex;align-items:center;overflow:hidden;margin-bottom:var(--margin);position:relative;}
+.gc.open-top{border-radius:8px 8px 0 0;margin-bottom:0;}
+.gc.tall{height:auto;min-height:var(--ch);}
 
-    /* ── Buttons ── */
-    .btn{font-family:var(--ui);font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;
-      padding:9px 16px;border:var(--border);border-radius:var(--radius);cursor:pointer;
-      transition:filter .1s,transform .1s;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
-    .btn:active{transform:scale(.97)}
-    .btn:hover{filter:brightness(1.1)}
-    .btn.green {background:var(--c4);color:#000}
-    .btn.blue  {background:var(--c5);color:#000}
-    .btn.yellow{background:var(--c3);color:#000}
-    .btn.red   {background:var(--c1);color:#000}
-    .btn.purple{background:var(--c7);color:#000}
-    .btn.dim   {background:var(--bg3);color:var(--dim);border-color:#444}
-    .btn.ghost {background:none;color:var(--dim);border-color:#444}
-    .btn.sm    {font-size:11px;padding:6px 10px}
-    .btn.xs    {font-size:10px;padding:4px 8px}
-    .btn:disabled{opacity:.4;cursor:not-allowed}
-    .btn-row   {display:flex;gap:8px;flex-wrap:wrap}
+/* ── GT50 DROPDOWN ──────────────────────────────────────────────────── */
+.gdd{background:var(--bg2);border:var(--bw) solid var(--bc);border-top:none;border-radius:0 0 8px 8px;padding:var(--margin);margin-bottom:var(--margin);}
 
-    /* ── Draft items ── */
-    .draft-item{display:flex;align-items:center;gap:8px;padding:8px 10px;margin-bottom:6px;
-      background:var(--bg3);border:2px solid #333;border-radius:6px}
-    .draft-item:last-child{margin-bottom:0}
-    .dh{color:var(--dim);font-size:14px;user-select:none}
-    .dt{flex:1;font-family:var(--mono);font-size:13px}
-    .del-btn{background:none;border:none;color:var(--c1);cursor:pointer;
-      font-size:18px;padding:0 4px;line-height:1;flex-shrink:0}
+/* ── GT50 ITEM ROW ──────────────────────────────────────────────────── */
+.gi{height:32px;border:var(--bw) solid var(--bc);border-radius:8px;display:flex;align-items:center;overflow:hidden;margin-bottom:var(--margin);}
+.gi:last-child{margin-bottom:0;}
+.gi.open-top{border-radius:8px 8px 0 0;margin-bottom:0;}
 
-    /* ── URL boxes ── */
-    .url-block{display:flex;flex-direction:column;gap:6px}
-    .url-lbl{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:1px}
-    .url-box{font-family:var(--mono);font-size:11px;padding:9px 12px;background:var(--bg);
-      border:2px solid;border-radius:6px;word-break:break-all;line-height:1.5;color:var(--c4);border-color:var(--c4)}
-    .url-box.red{color:var(--c1);border-color:var(--c1)}
+/* ── SQUARE ─────────────────────────────────────────────────────────── */
+.sq{width:var(--sq);min-width:var(--sq);height:100%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sq-l{border-right:var(--bw) solid var(--bc);}
+.sq-r{border-left:var(--bw) solid var(--bc);}
 
-    /* ── Hub cards (admin dashboard) ── */
-    .hub-card{background:var(--bg2);border:var(--border);border-radius:var(--radius);
-      overflow:hidden;transition:filter .1s}
-    .hub-card-hd{padding:12px 14px;background:var(--bg3);border-bottom:2px solid #000;
-      display:flex;align-items:center;gap:10px}
-    .hub-card-title{font-size:18px;font-weight:900;letter-spacing:1px;flex:1}
-    .hub-card-bd{padding:12px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-    .hub-stat{font-family:var(--mono);font-size:10px;color:var(--dim);margin-right:4px}
+/* ── FILL ───────────────────────────────────────────────────────────── */
+.fill{flex:1;height:100%;background:var(--bg4);position:relative;overflow:hidden;}
+.fill-bar{position:absolute;top:0;left:0;bottom:0;transition:width .3s;z-index:1;}
+.fill-in{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 6px;}
+.fill-t{font-size:12px;font-weight:600;color:var(--white);line-height:1;text-align:center;}
+.fill-s{font-size:11px;font-weight:700;color:var(--white);line-height:1;margin-top:2px;opacity:.8;}
 
-    /* ── List accordion (hub admin + viewer) ── */
-    .list-block{background:var(--bg2);border:var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:8px}
-    .list-block:last-child{margin-bottom:0}
-    .list-hd{padding:11px 14px;background:var(--bg3);border-bottom:2px solid #000;
-      display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;transition:background .1s}
-    .list-hd:hover{background:var(--bg4)}
-    .list-hd-title{font-size:16px;font-weight:900;letter-spacing:.5px;flex:1}
-    .list-hd-meta{font-family:var(--mono);font-size:10px;color:var(--dim)}
-    .list-arrow{font-size:12px;color:var(--dim);transition:transform .2s;flex-shrink:0}
-    .list-arrow.open{transform:rotate(90deg)}
-    .list-body{display:none;padding:12px}
-    .list-body.open{display:block}
+/* ── CTRL ───────────────────────────────────────────────────────────── */
+.ctrl{width:var(--sq);min-width:var(--sq);height:100%;display:flex;align-items:center;justify-content:center;border:none;border-left:var(--bw) solid var(--bc);font-size:14px;font-weight:700;color:var(--white);cursor:pointer;font-family:inherit;flex-shrink:0;background:var(--bg4);position:relative;transition:filter .1s;}
+.ctrl:hover{filter:brightness(1.2);}
 
-    /* ── Checklist items ── */
-    .cl-item{display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--bg3);
-      border:2px solid #333;border-radius:6px;cursor:pointer;
-      transition:border-color .12s,background .12s;user-select:none;margin-bottom:6px}
-    .cl-item:last-child{margin-bottom:0}
-    .cl-item:hover{border-color:#555}
-    .cl-item.mine {border-color:var(--c4);background:rgba(105,219,124,.07)}
-    .cl-item.others{border-color:#555;background:rgba(255,255,255,.03)}
-    .ckbox{width:22px;height:22px;border:2px solid #555;border-radius:5px;flex-shrink:0;
-      display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .12s;margin-top:1px}
-    .mine .ckbox   {border-color:var(--c4);background:var(--c4);color:#000}
-    .others .ckbox {border-color:#777;background:rgba(255,255,255,.08);color:var(--dim)}
-    .cl-body{flex:1;min-width:0}
-    .cl-text{font-size:15px;font-weight:700;letter-spacing:.3px;line-height:1.3}
-    .mine .cl-text{text-decoration:line-through;opacity:.5}
-    .chips{margin-top:5px;display:flex;flex-wrap:wrap;gap:4px}
-    .chip{font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:10px;border:1.5px solid}
-    .chip:nth-child(8n+1){border-color:var(--c1);color:var(--c1)}
-    .chip:nth-child(8n+2){border-color:var(--c2);color:var(--c2)}
-    .chip:nth-child(8n+3){border-color:var(--c3);color:var(--c3)}
-    .chip:nth-child(8n+4){border-color:var(--c4);color:var(--c4)}
-    .chip:nth-child(8n+5){border-color:var(--c5);color:var(--c5)}
-    .chip:nth-child(8n+6){border-color:var(--c6);color:var(--c6)}
-    .chip:nth-child(8n+7){border-color:var(--c7);color:var(--c7)}
-    .chip:nth-child(8n+0){border-color:var(--c8);color:var(--c8)}
+/* ── CHECK / FLAG (viewer items) ─────────────────────────────────────── */
+.chk{width:var(--sq);min-width:var(--sq);height:100%;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-right:var(--bw) solid var(--bc);cursor:pointer;font-size:15px;font-weight:900;transition:background .1s;}
+.chk.on{background:var(--c4);color:var(--white);}
+.chk.off{background:var(--white);color:transparent;}
+.flg{width:var(--sq);min-width:var(--sq);height:100%;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-left:var(--bw) solid var(--bc);cursor:pointer;font-size:13px;transition:background .1s;}
+.flg.on{background:var(--c1);color:var(--white);}
+.flg.off{background:var(--bg4);color:var(--dim);}
 
-    /* ── Admin item row ── */
-    .ad-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg3);
-      border:2px solid #333;border-radius:6px;margin-bottom:5px}
-    .ad-item:last-child{margin-bottom:0}
-    .ad-ck{width:20px;height:20px;border:2px solid #555;border-radius:4px;flex-shrink:0;
-      display:flex;align-items:center;justify-content:center;font-size:12px}
-    .ad-text{flex:1;font-size:14px;font-weight:700}
-    .ad-who{font-family:var(--mono);font-size:10px;color:var(--dim);margin-right:4px}
+/* ── NOTE ROW ───────────────────────────────────────────────────────── */
+.note-row{background:var(--c1);border:var(--bw) solid var(--bc);border-top:none;border-radius:0 0 8px 8px;padding:var(--margin);margin-bottom:var(--margin);display:flex;gap:var(--margin);}
+.note-inp{flex:2;height:32px;background:var(--white);border:var(--bw) solid var(--bc);border-radius:8px;color:#000;font-family:inherit;font-size:11px;font-weight:600;padding:0 10px;outline:none;}
+.note-inp::placeholder{color:#888;}
+.note-save{flex:1;height:32px;background:var(--white);border:var(--bw) solid var(--bc);border-radius:8px;color:var(--c4);font-family:inherit;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
+.note-save.saved{color:#aaa;cursor:default;}
 
-    /* ── Progress ── */
-    .prog-track{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-top:4px}
-    .prog-fill{height:100%;background:var(--c4);transition:width .4s;border-radius:2px}
+/* ── ADD ROW ────────────────────────────────────────────────────────── */
+.add-row{display:flex;gap:var(--margin);margin-bottom:var(--margin);}
+.add-inp{flex:1;height:var(--ch);background:var(--bg2);border:var(--bw) solid var(--bc);border-radius:8px;color:var(--white);font-family:inherit;font-size:14px;font-weight:600;padding:0 12px;outline:none;}
+.add-inp::placeholder{color:var(--bg4);}
+.add-btn{height:var(--ch);padding:0 14px;border:var(--bw) solid var(--bc);border-radius:8px;color:var(--white);font-family:inherit;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;white-space:nowrap;}
+.btn-g{background:var(--c4d);}
+.btn-b{background:var(--c5d);}
+.btn-r{background:var(--c1d);}
+.btn-o{background:var(--c2d);}
+.btn-dim{background:var(--bg4);}
 
-    /* ── Landing cards ── */
-    .land-card{background:var(--bg2);border:var(--border);border-radius:var(--radius);
-      padding:24px;display:flex;flex-direction:column;gap:12px;cursor:pointer;
-      transition:filter .1s,transform .12s}
-    .land-card:hover{filter:brightness(1.08);transform:translateY(-1px)}
-    .land-card:active{transform:scale(.98)}
-    .land-icon{font-size:32px;line-height:1}
-    .land-title{font-size:24px;font-weight:900;letter-spacing:1px}
-    .land-desc{font-size:13px;color:var(--dim);line-height:1.5;font-family:var(--mono)}
+/* ── SUB-TAB ────────────────────────────────────────────────────────── */
+.stab-bar{display:flex;overflow:hidden;background:var(--bg2);border:var(--bw) solid var(--bc);border-radius:8px;height:32px;margin-bottom:var(--margin);}
+.stab{flex:1;height:100%;border:none;border-right:var(--bw) solid var(--bc);font-family:inherit;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);background:var(--bg2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;}
+.stab:last-child{border-right:none;}
+.stab.on{background:var(--c1d);color:var(--white);}
 
-    /* ── Footer strip ── */
-    .footer{display:flex;align-items:center;gap:8px;padding:2px;margin-top:4px}
+/* ── MODAL OVERLAY ───────────────────────────────────────────────────── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:100;padding:12px;}
+.modal-box{background:var(--bg2);border:var(--bw) solid var(--bc);border-radius:8px;width:100%;max-width:380px;overflow:hidden;}
+.modal-hd{height:var(--ch);display:flex;align-items:center;justify-content:center;background:var(--c1d);border-bottom:var(--bw) solid var(--bc);font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.modal-bd{padding:var(--margin);}
+.modal-ft{display:flex;border-top:var(--bw) solid var(--bc);}
+.modal-btn{flex:1;height:var(--ch);background:var(--bg4);border:none;border-right:var(--bw) solid var(--bc);color:var(--white);font-family:inherit;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
+.modal-btn:last-child{border-right:none;}
+.modal-btn.confirm{background:var(--c1d);}
+.modal-btn.ok{background:var(--c4d);}
 
-    /* ── Setup steps ── */
-    .steps{display:flex;flex-direction:column;gap:10px}
-    .step{display:flex;gap:10px;align-items:flex-start}
-    .stepn{font-family:var(--mono);font-size:11px;background:var(--c7);color:#000;
-      width:20px;height:20px;border-radius:50%;display:flex;align-items:center;
-      justify-content:center;flex-shrink:0;font-weight:700;margin-top:2px}
-    .stept{font-size:14px;line-height:1.5;color:var(--dim)}
-    .stept strong{color:var(--text)}
-    .stept a{color:var(--c5)}
+/* ── CODE DISPLAY ────────────────────────────────────────────────────── */
+.code-big{font-family:monospace;font-size:38px;font-weight:900;letter-spacing:12px;color:var(--c4);background:var(--bg3);border:var(--bw) solid var(--bc);border-radius:8px;padding:10px 16px;text-align:center;min-width:160px;}
 
-    /* ── Modal ── */
-    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;
-      align-items:center;justify-content:center;z-index:100;padding:20px}
-    .modal{background:var(--bg2);border:var(--border);border-radius:var(--radius);
-      padding:24px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:14px}
-    .modal h2{font-size:22px;font-weight:900;letter-spacing:1px}
-    .modal p{font-size:14px;color:var(--dim);line-height:1.5}
+/* ── CODE INPUT ──────────────────────────────────────────────────────── */
+.code-inp{font-family:monospace;font-size:36px;font-weight:700;letter-spacing:12px;text-align:center;text-transform:uppercase;padding:10px 16px;background:var(--bg2);border:var(--bw) solid var(--bc);border-radius:8px;color:var(--c4);width:100%;outline:none;}
 
-    /* ── Divider ── */
-    hr.div{border:none;border-top:2px solid #333;margin:4px 0}
+/* ── STEP LIST ───────────────────────────────────────────────────────── */
+.step-row{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;}
+.step-n{width:20px;height:20px;border-radius:50%;background:var(--c6);color:#000;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.step-t{font-size:13px;line-height:1.5;color:var(--dim);}
+.step-t strong{color:var(--white);}
+.step-t a{color:var(--c5);}
 
-    /* ── Admin banner (on viewer when admin) ── */
-    .admin-bar{background:var(--bg3);border:2px solid var(--c1);border-radius:var(--radius);
-      padding:10px 14px;display:flex;align-items:center;gap:10px}
-    .admin-bar span{font-family:var(--mono);font-size:11px;color:var(--c1);flex:1}
+/* ── LANDING CARDS ───────────────────────────────────────────────────── */
+.land-card{background:var(--bg2);border:var(--bw) solid var(--bc);border-radius:8px;padding:20px 16px;display:flex;flex-direction:column;gap:10px;cursor:pointer;margin-bottom:var(--margin);transition:filter .1s;}
+.land-card:hover{filter:brightness(1.08);}
+.land-icon{font-size:28px;line-height:1;}
+.land-title{font-size:22px;font-weight:900;letter-spacing:1px;}
+.land-desc{font-size:12px;color:var(--dim);line-height:1.5;}
 
-    /* ── Misc ── */
-    .note{font-family:var(--mono);font-size:11px;color:var(--dim);line-height:1.6}
-    .note a{color:var(--c5)}
-    .note strong{color:var(--text)}
-    .page-title{font-size:26px;font-weight:900;letter-spacing:1px;line-height:1.2}
-    .page-sub{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:3px}
-    .empty{font-family:var(--mono);font-size:12px;color:var(--dim);text-align:center;padding:20px 0}
-    .hidden{display:none!important}
-    .tag{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;
-      background:var(--bg3);border:1.5px solid #444;color:var(--dim)}
-  </style>
+/* ── STATUS STATES (pending / revoked / noaccess) ────────────────────── */
+.state-card{background:var(--bg2);border:var(--bw) solid var(--bc);border-radius:8px;padding:28px 16px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;margin-bottom:var(--margin);}
+.state-icon{font-size:32px;}
+.state-title{font-size:20px;font-weight:900;letter-spacing:1px;}
+.state-note{font-size:12px;color:var(--dim);line-height:1.5;}
+.tag{font-family:monospace;font-size:10px;padding:2px 8px;border-radius:4px;background:var(--bg3);border:2px solid var(--bg4);color:var(--dim);}
+
+/* ── PROGRESS (admin toggle bar in viewer) ───────────────────────────── */
+.admin-bar{background:var(--c1dd);border:var(--bw) solid var(--bc);border-radius:8px;height:var(--ch);display:flex;align-items:center;overflow:hidden;margin-bottom:var(--margin);}
+
+/* ── EMPTY ───────────────────────────────────────────────────────────── */
+.empty-state{background:var(--bg3);border:var(--bw) solid var(--bc);border-radius:8px;height:60px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--dim);opacity:.6;margin-bottom:var(--margin);}
+
+/* ── CHECKBOX LABELS ─────────────────────────────────────────────────── */
+.hub-check-row{display:flex;align-items:center;gap:10px;height:32px;background:var(--bg2);border:var(--bw) solid var(--bc);border-radius:8px;padding:0 12px;margin-bottom:var(--margin);cursor:pointer;}
+.hub-check-row input{width:18px;height:18px;cursor:pointer;accent-color:var(--c4);}
+.hub-check-row:last-child{margin-bottom:0;}
+
+.hidden{display:none!important;}
+</style>
 </head>
 <body>
 
-<header>
-  <div class="logo" onclick="goHome()">Check<em>&#10003;</em>List</div>
-  <div class="badge land" id="mode-badge">Home</div>
-  <div class="hspacer"></div>
-  <button class="back-btn hidden" id="back-btn" onclick="goBack()">&#8592; Back</button>
-  <div class="live-dot off hidden" id="hdr-dot"></div>
-</header>
+<!-- ── CHROME ────────────────────────────────────────────────────────── -->
+<div id="chrome">
+  <div class="hdr">
+    <div class="hdr-back hidden" id="back-btn" onclick="goBack()">&#9664;</div>
+    <div class="hdr-fill">
+      <span class="hdr-title" id="hdr-title">CheckList</span>
+      <span class="hdr-badge land hidden" id="mode-badge">Home</span>
+      <span class="hdr-dot off hidden" id="hdr-dot"></span>
+    </div>
+  </div>
+  <div id="tab-bar" class="hidden">
+    <button class="tab-btn active" id="stab-hubs"    onclick="setDashTab('hubs')">Hubs</button>
+    <button class="tab-btn"        id="stab-members" onclick="setDashTab('members')">Members <span class="fbadge hidden" id="pending-tab-badge">0</span></button>
+  </div>
+</div>
 
-<main>
+<!-- ── SECTIONS ─────────────────────────────────────────────────────── -->
+<div id="sections">
 
-  <!-- ══ FB SETUP ══════════════════════════════════════════════════════ -->
-  <div class="section" id="fb-setup-section">
-    <div class="card">
-      <div class="card-hd">&#128296; One-Time Setup — Firebase</div>
-      <div class="card-bd">
-        <div class="steps">
-          <div class="step"><div class="stepn">1</div>
-            <div class="stept">Go to <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> and sign in with Google</div></div>
-          <div class="step"><div class="stepn">2</div>
-            <div class="stept">Click <strong>Add project</strong> &rarr; name it anything &rarr; skip Analytics &rarr; Create</div></div>
-          <div class="step"><div class="stepn">3</div>
-            <div class="stept">Left sidebar: <strong>Build</strong> &rarr; <strong>Realtime Database</strong> &rarr; <strong>Create database</strong> &rarr; any location &rarr; <strong>Start in test mode</strong> &rarr; Enable</div></div>
-          <div class="step"><div class="stepn">4</div>
-            <div class="stept">Copy the URL at the top — looks like <strong>https://yourproject-default-rtdb.firebaseio.com</strong></div></div>
+  <!-- FB SETUP -->
+  <div class="sec" id="fb-setup-section">
+    <div style="height:var(--margin)"></div>
+    <div class="gc tall" style="height:auto;background:var(--bg2);padding:14px;">
+      <div style="width:100%;display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);">Firebase Setup</div>
+        <div class="step-row"><div class="step-n">1</div><div class="step-t">Go to <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> and sign in with Google</div></div>
+        <div class="step-row"><div class="step-n">2</div><div class="step-t">Click <strong>Add project</strong> &rarr; name it &rarr; skip Analytics &rarr; Create</div></div>
+        <div class="step-row"><div class="step-n">3</div><div class="step-t"><strong>Build</strong> &rarr; <strong>Realtime Database</strong> &rarr; <strong>Create database</strong> &rarr; any region &rarr; <strong>Start in test mode</strong> &rarr; Enable</div></div>
+        <div class="step-row"><div class="step-n">4</div><div class="step-t">Copy the URL at the top — <strong>https://yourproject-default-rtdb.firebaseio.com</strong></div></div>
+        <div class="add-row" style="margin-bottom:0;">
+          <input class="add-inp" id="fb-input" placeholder="https://yourproject-default-rtdb.firebaseio.com" onkeydown="if(event.key==='Enter')saveFbUrl()"/>
+          <button class="add-btn btn-g" onclick="saveFbUrl()">Connect</button>
         </div>
-        <div class="row" style="margin-top:4px">
-          <input type="text" id="fb-input" placeholder="https://yourproject-default-rtdb.firebaseio.com" />
-          <button class="btn purple" onclick="saveFbUrl()">Save</button>
-        </div>
-        <div id="fb-msg" class="note"></div>
+        <div id="fb-msg" style="font-size:11px;color:var(--dim);"></div>
       </div>
     </div>
   </div>
 
-  <!-- ══ LANDING ════════════════════════════════════════════════════════ -->
-  <div class="section hidden" id="landing-section">
-    <div style="padding:8px 0 4px">
-      <div class="page-title">Welcome</div>
-      <div class="page-sub">What would you like to do?</div>
-    </div>
-
+  <!-- LANDING -->
+  <div class="sec" id="landing-section">
+    <div style="height:var(--margin)"></div>
     <div class="land-card" id="land-admin-card" onclick="landAdmin()">
       <div class="land-icon">&#128274;</div>
-      <div class="land-title">I'm an Admin</div>
-      <div class="land-desc">Create hubs, build lists, and share them with others. Your admin access is tied to this device.</div>
+      <div class="land-title">I&#39;m an Admin</div>
+      <div class="land-desc">Create hubs, build lists, share room codes, and approve members. Your admin access is stored on this device.</div>
     </div>
-
     <div class="land-card" onclick="landViewer()">
-      <div class="land-icon">&#128203;</div>
-      <div class="land-title">Open a Shared Hub</div>
-      <div class="land-desc">Someone shared a hub with you. Paste the link or code to open it.</div>
+      <div class="land-icon">&#127922;</div>
+      <div class="land-title">Enter a Room Code</div>
+      <div class="land-desc">Got a 4-letter code from an admin? Enter it to request access to their hubs.</div>
     </div>
   </div>
 
-  <!-- ══ ADMIN SETUP ════════════════════════════════════════════════════ -->
-  <div class="section hidden" id="admin-setup-section">
-    <div class="page-title">Set Up Admin</div>
-    <div class="card">
-      <div class="card-hd">&#128100; Your Admin Profile</div>
-      <div class="card-bd">
-        <p class="note">This creates a unique admin identity for this device. You'll get a personal URL — bookmark it to return to your dashboard on any device.</p>
-        <input type="text" id="admin-name-input" placeholder="Enter your name..." maxlength="40"
-               onkeydown="if(event.key==='Enter')createAdmin()" />
-        <button class="btn green" onclick="createAdmin()">Create My Admin Account &#8594;</button>
+  <!-- ADMIN SETUP -->
+  <div class="sec" id="admin-setup-section">
+    <div style="height:var(--margin)"></div>
+    <div class="gc tall" style="height:auto;background:var(--bg2);padding:14px;">
+      <div style="width:100%;display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);">Create Admin Account</div>
+        <div style="font-size:12px;color:var(--dim);line-height:1.5;">Your admin identity is tied to this device. You'll get a personal URL — bookmark it to return from any device.</div>
+        <div class="add-row" style="margin-bottom:0;">
+          <input class="add-inp" id="admin-name-input" placeholder="Your name..." maxlength="40" onkeydown="if(event.key==='Enter')createAdmin()"/>
+          <button class="add-btn btn-g" onclick="createAdmin()">Create &#8594;</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ══ ADMIN DASHBOARD ════════════════════════════════════════════════ -->
-  <div class="section hidden" id="admin-dash-section">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
-      <div>
-        <div class="page-title" id="dash-welcome">Dashboard</div>
-        <div class="page-sub" id="dash-sub"></div>
-      </div>
-      <button class="btn green sm" onclick="openNewHubModal()">+ New Hub</button>
-    </div>
+  <!-- ADMIN DASHBOARD -->
+  <div class="sec" id="admin-dash-section">
+    <div style="height:var(--margin)"></div>
 
-    <!-- Admin URL reminder -->
-    <div class="card" id="admin-url-card">
-      <div class="card-hd">&#128274; Your Admin Link — bookmark this
-        <div class="hd-spacer"></div>
-        <button class="btn dim xs" onclick="copyEl('admin-url-box',event)">&#128203; Copy</button>
-      </div>
-      <div class="card-bd">
-        <div class="url-box red" id="admin-url-box"></div>
-        <p class="note">This is your personal admin URL. Anyone who has it can manage your hubs — keep it safe. Share hub links separately to give viewer access only.</p>
+    <!-- Sub-title -->
+    <div class="gc" style="background:var(--bg2);margin-bottom:var(--margin);">
+      <div class="fill" style="background:var(--bg2);">
+        <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
+          <div class="fill-t" style="font-size:13px;">Dashboard</div>
+          <div class="fill-s" id="dash-sub" style="font-size:10px;">Loading...</div>
+        </div>
       </div>
     </div>
 
-    <div id="hub-list">
-      <div class="empty" id="hub-list-empty">No hubs yet. Create one above.</div>
+    <!-- HUBS TAB -->
+    <div id="dash-hubs-tab">
+      <!-- Room code -->
+      <div class="gc" style="background:var(--bg2);margin-bottom:var(--margin);">
+        <div class="fill" style="background:var(--bg3);">
+          <div class="fill-in">
+            <div class="code-big" id="room-code-letters" style="background:transparent;border:none;font-size:28px;letter-spacing:8px;padding:0;">----</div>
+          </div>
+        </div>
+        <button class="ctrl btn-g" id="copy-code-btn" onclick="copyRoomCode(event)" disabled style="width:auto;padding:0 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;">Copy</button>
+        <button class="ctrl btn-b" onclick="generateRoomCode()" style="width:auto;padding:0 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;">&#9851; Gen</button>
+      </div>
+      <div style="font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--dim);padding:2px 4px 4px;opacity:.7;">Hubs</div>
+
+      <!-- Add hub -->
+      <div class="add-row">
+        <input class="add-inp" id="new-hub-name" placeholder="New hub name..." onkeydown="if(event.key==='Enter')createHub()"/>
+        <button class="add-btn btn-g" onclick="createHub()">+ Hub</button>
+      </div>
+
+      <div id="hub-list"></div>
+      <div class="empty-state hidden" id="hub-list-empty">No hubs yet — create one above</div>
     </div>
+
+    <!-- MEMBERS TAB -->
+    <div id="dash-members-tab" class="hidden">
+      <div id="dash-members-pending-section" class="hidden">
+        <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--c2);padding:2px 4px 4px;opacity:.9;">Pending</div>
+        <div id="dash-members-pending-list"></div>
+      </div>
+      <div id="dash-members-approved-section" class="hidden">
+        <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--c4);padding:2px 4px 4px;opacity:.9;">Approved</div>
+        <div id="dash-members-approved-list"></div>
+      </div>
+      <div class="empty-state" id="dash-members-empty">No member requests yet</div>
+    </div>
+
   </div>
 
-  <!-- ══ HUB ADMIN ═════════════════════════════════════════════════════ -->
-  <div class="section hidden" id="hub-admin-section">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
-      <div>
-        <div class="page-title" id="hub-admin-title">Hub</div>
-        <div class="page-sub">Admin View</div>
+  <!-- HUB ADMIN -->
+  <div class="sec" id="hub-admin-section">
+    <div style="height:var(--margin)"></div>
+
+    <!-- Hub title card -->
+    <div class="gc" style="background:var(--c1dd);margin-bottom:var(--margin);">
+      <div class="fill" style="background:var(--c1dd);">
+        <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
+          <div class="fill-t" id="hub-admin-title" style="font-size:15px;font-weight:900;">Hub</div>
+        </div>
       </div>
-      <button class="btn blue sm" onclick="openNewListModal()">+ New List</button>
+      <button class="ctrl btn-r" onclick="openNewListModal()" style="width:auto;padding:0 12px;font-size:10px;letter-spacing:1px;text-transform:uppercase;">+ List</button>
+      <button class="ctrl" style="background:var(--bg4);" onclick="deleteHub()">&#128465;</button>
     </div>
 
-    <!-- Hub share link -->
-    <div class="card">
-      <div class="card-hd">&#128279; Hub Share Link
-        <div class="hd-spacer"></div>
-        <button class="btn dim xs" onclick="copyEl('hub-share-url',event)">&#128203; Copy</button>
+    <!-- Status -->
+    <div class="gc" style="height:32px;background:var(--bg3);margin-bottom:var(--margin);">
+      <div class="sq sq-l" style="background:var(--bg3);">
+        <span class="hdr-dot off" id="hub-admin-dot"></span>
       </div>
-      <div class="card-bd">
-        <div class="url-box" id="hub-share-url"></div>
-        <p class="note">Send this to anyone you want to view and check off items. They don't need an account.</p>
+      <div class="fill" style="background:var(--bg3);">
+        <div class="fill-in" style="align-items:flex-start;padding:0 8px;">
+          <div class="fill-t" id="hub-admin-status" style="font-size:10px;color:var(--dim);">loading...</div>
+        </div>
       </div>
     </div>
 
-    <!-- Lists -->
-    <div id="hub-admin-lists">
-      <div class="empty" id="hub-admin-lists-empty">No lists yet. Create one above.</div>
-    </div>
+    <!-- Lists container -->
+    <div id="hub-admin-lists"></div>
+    <div class="empty-state hidden" id="hub-admin-lists-empty">No lists — add one above</div>
 
-    <div class="footer">
-      <div class="live-dot off" id="hub-admin-dot"></div>
-      <span class="note" id="hub-admin-status">loading...</span>
-      <div style="flex:1"></div>
-      <button class="btn dim xs" onclick="deleteHub()">&#128465; Delete Hub</button>
+    <!-- Hub members -->
+    <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);padding:2px 4px 4px;opacity:.7;margin-top:4px;">Hub Members</div>
+    <span class="hidden" id="pending-badge"></span>
+    <div id="members-approved-section" class="hidden">
+      <div style="font-size:9px;color:var(--c4);font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 4px 3px;opacity:.8;">Has Access</div>
+      <div id="members-approved-list"></div>
     </div>
+    <div id="members-revoked-section" class="hidden">
+      <div style="font-size:9px;color:var(--dim);font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 4px 3px;opacity:.8;">Revoked</div>
+      <div id="members-revoked-list"></div>
+    </div>
+    <div class="empty-state" id="members-empty">No members for this hub yet</div>
   </div>
 
-  <!-- ══ HUB VIEWER ════════════════════════════════════════════════════ -->
-  <div class="section hidden" id="hub-viewer-section">
+  <!-- HUB VIEWER -->
+  <div class="sec" id="hub-viewer-section">
+    <div style="height:var(--margin)"></div>
 
     <!-- Admin toggle bar -->
     <div class="admin-bar hidden" id="viewer-admin-bar">
-      <span>&#128274; You have admin access to this hub.</span>
-      <button class="btn red sm" onclick="enterHubAdmin()">Manage Hub</button>
+      <div class="fill" style="background:var(--c1dd);">
+        <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
+          <div class="fill-t" style="font-size:11px;">&#128274; You have admin access to this hub</div>
+        </div>
+      </div>
+      <button class="ctrl btn-r" onclick="enterHubAdmin()" style="width:auto;padding:0 12px;font-size:10px;letter-spacing:1px;text-transform:uppercase;">Manage</button>
     </div>
 
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
-      <div>
-        <div class="page-title" id="hub-viewer-title">Hub</div>
-        <div class="page-sub" id="hub-viewer-sub"></div>
+    <!-- Pending -->
+    <div class="state-card hidden" id="viewer-pending-state">
+      <div class="state-icon">&#9203;</div>
+      <div class="state-title">Waiting for Approval</div>
+      <div class="state-note">Your request has been sent to the admin. This page updates automatically once you&#39;re approved.</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;">
+        <span style="font-size:10px;color:var(--dim);">Name:</span><span class="tag" id="pending-name-lbl"></span>
+        <span style="font-size:10px;color:var(--dim);">Code:</span><span class="tag" id="pending-code-lbl"></span>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;"><span class="hdr-dot"></span><span style="font-size:11px;color:var(--dim);">Checking...</span></div>
+    </div>
+
+    <!-- Revoked -->
+    <div class="state-card hidden" id="viewer-revoked-state">
+      <div class="state-icon">&#128683;</div>
+      <div class="state-title" style="color:var(--c1);">Access Revoked</div>
+      <div class="state-note">The admin has removed your access. Contact them if you think this is a mistake.</div>
+      <button class="add-btn btn-dim" onclick="requestAccessAgain()">Request Access Again</button>
+    </div>
+
+    <!-- No access -->
+    <div class="state-card hidden" id="viewer-noaccess-state">
+      <div class="state-icon">&#128274;</div>
+      <div class="state-title">No Access to This Hub</div>
+      <div class="state-note">You&#39;re approved but haven&#39;t been given access to this specific hub.</div>
+      <button class="add-btn btn-dim" onclick="goHome()">Back to My Hubs</button>
+    </div>
+
+    <!-- Approved view -->
+    <div class="hidden" id="viewer-approved-state">
+      <!-- Hub title + progress -->
+      <div class="gc" style="background:var(--bg2);margin-bottom:var(--margin);">
+        <div class="fill" style="background:var(--bg2);">
+          <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
+            <div class="fill-t" id="hub-viewer-title" style="font-size:14px;font-weight:900;">Hub</div>
+            <div class="fill-s" id="hub-viewer-sub" style="font-size:10px;opacity:.7;"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Lists -->
+      <div id="hub-viewer-lists"></div>
+      <div class="empty-state hidden" id="hub-viewer-lists-empty">No lists in this hub yet</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="gc" style="height:32px;background:var(--bg3);margin-bottom:var(--margin);">
+      <div class="sq sq-l" style="background:var(--bg3);"><span class="hdr-dot off" id="hub-viewer-dot"></span></div>
+      <div class="fill" style="background:var(--bg3);">
+        <div class="fill-in" style="align-items:flex-start;padding:0 8px;">
+          <div class="fill-t" id="hub-viewer-status" style="font-size:10px;color:var(--dim);">loading...</div>
+        </div>
+      </div>
+      <div class="fill" style="background:var(--bg3);">
+        <div class="fill-in" style="align-items:flex-end;padding:0 8px;">
+          <div class="fill-t" id="viewer-name-lbl" style="font-size:10px;color:var(--dim);"></div>
+        </div>
+      </div>
+      <button class="ctrl" style="background:var(--bg4);font-size:9px;letter-spacing:1px;text-transform:uppercase;width:auto;padding:0 10px;" onclick="changeViewerName()">Rename</button>
+    </div>
+  </div>
+
+  <!-- HUB SELECTION (viewer home) -->
+  <div class="sec" id="hub-selection-section">
+    <div style="height:var(--margin)"></div>
+    <!-- Viewer header -->
+    <div class="gc" style="background:var(--bg2);margin-bottom:var(--margin);">
+      <div class="fill" style="background:var(--bg2);">
+        <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
+          <div class="fill-t" style="font-size:13px;">My Hubs</div>
+          <div class="fill-s" id="hub-sel-sub" style="font-size:10px;opacity:.7;"></div>
+        </div>
+      </div>
+      <div class="fill" style="background:var(--bg2);">
+        <div class="fill-in" style="align-items:flex-end;padding:0 10px;">
+          <div class="fill-s" id="hub-sel-name" style="font-size:10px;opacity:.7;"></div>
+        </div>
+      </div>
+      <button class="ctrl btn-b" onclick="joinAnotherHub()" style="width:auto;padding:0 10px;font-size:9px;letter-spacing:1px;text-transform:uppercase;">+ Join</button>
+    </div>
+    <div id="viewer-hub-cards"></div>
+  </div>
+
+  <!-- JOIN (code entry) -->
+  <div class="sec" id="open-hub-section">
+    <div style="height:var(--margin)"></div>
+    <div class="gc tall" style="height:auto;background:var(--bg2);padding:20px 14px;flex-direction:column;align-items:center;gap:14px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);">Enter Room Code</div>
+      <input class="code-inp" id="room-code-input" maxlength="4" placeholder="····" autocomplete="off" autocorrect="off" spellcheck="false"
+        oninput="this.value=this.value.toUpperCase().replace(/[^A-Z]/g,'');if(this.value.length===4)joinFromCode()"
+        onkeydown="if(event.key==='Enter')joinFromCode()"/>
+      <button class="add-btn btn-g" onclick="joinFromCode()" style="width:100%;justify-content:center;">Join &#8594;</button>
+      <div id="open-hub-msg" style="font-size:11px;color:var(--dim);text-align:center;"></div>
+    </div>
+
+    <div class="gc tall hidden" id="join-name-card" style="height:auto;background:var(--bg2);padding:14px;flex-direction:column;gap:10px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);">Your Name</div>
+      <div style="font-size:12px;color:var(--dim);">Only needed once — remembered for all future hubs.</div>
+      <div class="add-row" style="margin-bottom:0;">
+        <input class="add-inp" id="join-name-input" placeholder="Your name..." maxlength="30" onkeydown="if(event.key==='Enter')joinWithName()"/>
+        <button class="add-btn btn-g" onclick="joinWithName()">Go &#8594;</button>
       </div>
     </div>
-
-    <div id="hub-viewer-lists">
-      <div class="empty" id="hub-viewer-lists-empty">This hub has no lists yet.</div>
-    </div>
-
-    <div class="footer">
-      <div class="live-dot off" id="hub-viewer-dot"></div>
-      <span class="note" id="hub-viewer-status">loading...</span>
-      <div style="flex:1"></div>
-      <span class="note" id="viewer-name-lbl"></span>
-      <button class="btn dim xs" onclick="changeViewerName()" style="margin-left:6px">rename</button>
-    </div>
   </div>
 
-  <!-- ══ OPEN HUB (viewer paste link) ══════════════════════════════════ -->
-  <div class="section hidden" id="open-hub-section">
-    <div class="page-title">Open a Hub</div>
-    <div class="card">
-      <div class="card-hd">&#128279; Paste Your Link</div>
-      <div class="card-bd">
-        <p class="note">Paste the hub link or just the hub ID that was shared with you.</p>
-        <input type="text" id="hub-link-input" placeholder="Paste link or hub ID..."
-               onkeydown="if(event.key==='Enter')openHubFromInput()" />
-        <button class="btn blue" onclick="openHubFromInput()">Open Hub &#8594;</button>
-        <div id="open-hub-msg" class="note"></div>
-      </div>
-    </div>
-  </div>
+</div><!-- #sections -->
 
-</main>
+<!-- ── MODALS ─────────────────────────────────────────────────────────── -->
 
-<!-- ── New Hub Modal ────────────────────────────────────────────────── -->
-<div class="overlay hidden" id="new-hub-modal">
-  <div class="modal">
-    <h2>New Hub</h2>
-    <p>A hub is a collection of lists you share with others.</p>
-    <input type="text" id="new-hub-name" placeholder="Hub name..." maxlength="60"
-           onkeydown="if(event.key==='Enter')createHub()" />
-    <div class="btn-row">
-      <button class="btn green" onclick="createHub()">Create Hub</button>
-      <button class="btn dim" onclick="closeModal('new-hub-modal')">Cancel</button>
-    </div>
-  </div>
-</div>
+<!-- New Hub Modal — inline, no modal needed, handled via add-row above -->
 
-<!-- ── New List Modal ───────────────────────────────────────────────── -->
+<!-- New List Modal -->
 <div class="overlay hidden" id="new-list-modal">
-  <div class="modal">
-    <h2>New List</h2>
-    <input type="text" id="new-list-name" placeholder="List title..." maxlength="60"
-           onkeydown="if(event.key==='Enter')createList()" />
-    <div id="new-list-items-wrap" style="display:flex;flex-direction:column;gap:8px">
-      <div class="row">
-        <input type="text" id="new-list-item-inp" placeholder="Add an item, press Enter..."
-               onkeydown="if(event.key==='Enter')addModalItem()" />
-        <button class="btn blue sm" onclick="addModalItem()">+ Add</button>
+  <div class="modal-box" style="max-width:400px;">
+    <div class="modal-hd" style="background:var(--c1d);">New List</div>
+    <div class="modal-bd" style="display:flex;flex-direction:column;gap:var(--margin);">
+      <input class="add-inp" id="new-list-name" placeholder="List title..." maxlength="60" onkeydown="if(event.key==='Enter')document.getElementById('new-list-item-inp').focus()"/>
+      <div class="add-row">
+        <input class="add-inp" id="new-list-item-inp" placeholder="Add an item, press Enter..." onkeydown="if(event.key==='Enter')addModalItem()"/>
+        <button class="add-btn btn-b" onclick="addModalItem()">+ Add</button>
       </div>
       <div id="modal-draft-list"></div>
-      <div id="modal-draft-count" class="note"></div>
+      <div id="modal-draft-count" style="font-size:10px;color:var(--dim);padding:0 2px;"></div>
     </div>
-    <div class="btn-row">
-      <button class="btn green" onclick="createList()">Create List</button>
-      <button class="btn dim" onclick="closeModal('new-list-modal')">Cancel</button>
+    <div class="modal-ft">
+      <button class="modal-btn" onclick="closeModal('new-list-modal')">Cancel</button>
+      <button class="modal-btn ok" onclick="createList()">Create List</button>
     </div>
   </div>
 </div>
 
-<!-- ── Add Item to Existing List Modal ─────────────────────────────── -->
+<!-- Add Item Modal -->
 <div class="overlay hidden" id="add-item-modal">
-  <div class="modal">
-    <h2>Add Item</h2>
-    <input type="text" id="add-item-inp" placeholder="Item text..." maxlength="200"
-           onkeydown="if(event.key==='Enter')submitAddItem()" />
-    <div class="btn-row">
-      <button class="btn green" onclick="submitAddItem()">Add</button>
-      <button class="btn dim" onclick="closeModal('add-item-modal')">Cancel</button>
+  <div class="modal-box">
+    <div class="modal-hd" style="background:var(--c1d);">Add Item</div>
+    <div class="modal-bd">
+      <input class="add-inp" id="add-item-inp" placeholder="Item text..." maxlength="200" style="margin-bottom:0;" onkeydown="if(event.key==='Enter')submitAddItem()"/>
+    </div>
+    <div class="modal-ft">
+      <button class="modal-btn" onclick="closeModal('add-item-modal')">Cancel</button>
+      <button class="modal-btn ok" onclick="submitAddItem()">Add</button>
     </div>
   </div>
 </div>
 
-<!-- ── Viewer Name Modal ────────────────────────────────────────────── -->
+<!-- Approve Member Modal -->
+<div class="overlay hidden" id="approve-member-modal">
+  <div class="modal-box">
+    <div class="modal-hd" style="background:var(--c4d);">Approve Member</div>
+    <div class="modal-bd" style="display:flex;flex-direction:column;gap:8px;">
+      <div style="font-size:12px;color:var(--dim);padding:4px 2px;">Select which hubs to give <strong id="approve-member-name" style="color:var(--white);"></strong> access to:</div>
+      <div id="approve-hub-checkboxes"></div>
+    </div>
+    <div class="modal-ft">
+      <button class="modal-btn" onclick="closeModal('approve-member-modal')">Cancel</button>
+      <button class="modal-btn ok" onclick="confirmApproval()">Approve &#8594;</button>
+    </div>
+  </div>
+</div>
+
+<!-- Name Modal -->
 <div class="overlay hidden" id="name-modal">
-  <div class="modal">
-    <h2>What's your name?</h2>
-    <p>It shows up on items you check off so others can see who did what.</p>
-    <input type="text" id="viewer-name-inp" placeholder="Your name..." maxlength="30"
-           onkeydown="if(event.key==='Enter')submitViewerName()" />
-    <button class="btn green" onclick="submitViewerName()">Let's Go &#8594;</button>
+  <div class="modal-box">
+    <div class="modal-hd" style="background:var(--c5d);">Your Name</div>
+    <div class="modal-bd" style="display:flex;flex-direction:column;gap:8px;">
+      <div style="font-size:12px;color:var(--dim);padding:4px 2px;">It shows up on items you check off so others can see who did what.</div>
+      <input class="add-inp" id="viewer-name-inp" placeholder="Your name..." maxlength="30" onkeydown="if(event.key==='Enter')submitViewerName()"/>
+    </div>
+    <div class="modal-ft">
+      <button class="modal-btn ok" onclick="submitViewerName()">Let&#39;s Go &#8594;</button>
+    </div>
   </div>
 </div>
 
 <script>
-// ─────────────────────────────────────────────────────────────────────────
-let FB = null;
+// ─── Dashboard tab state ───────────────────────────────────────────────────
+let dashTab = 'hubs'; // 'hubs' | 'members'
 
-// ── Global state ──────────────────────────────────────────────────────────
-let adminId     = null;  // current admin UUID
-let curHubId    = null;  // hub being viewed/managed
-let curListId   = null;  // list being edited (add-item modal)
-let viewerName  = null;
-let hubCache    = null;  // full hub data { title, ownerId, lists: {...} }
-let dashCache   = null;  // admin's hub index
-let polling     = null;
-let modalDraft  = [];    // items draft inside new-list modal
-
-// ── Firebase REST ─────────────────────────────────────────────────────────
-function ep(path) { return FB + path + '.json'; }
-
-async function fbGet(path) {
-  const r = await fetch(ep(path));
-  if (!r.ok) throw new Error('Read error ' + r.status);
-  return r.json();
-}
-async function fbSet(path, val) {
-  const r = await fetch(ep(path), {
-    method: 'PUT', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify(val)
-  });
-  if (!r.ok) throw new Error('Write error ' + r.status);
-}
-async function fbPatch(path, val) {
-  const r = await fetch(ep(path), {
-    method: 'PATCH', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify(val)
-  });
-  if (!r.ok) throw new Error('Patch error ' + r.status);
-}
-async function fbPush(path, val) {
-  const r = await fetch(ep(path), {
-    method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify(val)
-  });
-  if (!r.ok) throw new Error('Push error ' + r.status);
-  return (await r.json()).name;
-}
-async function fbDel(path) {
-  const r = await fetch(ep(path), { method: 'DELETE' });
-  if (!r.ok) throw new Error('Delete error ' + r.status);
+function setDashTab(tab) {
+  dashTab = tab;
+  const hEl = document.getElementById('dash-hubs-tab');
+  const mEl = document.getElementById('dash-members-tab');
+  const hBtn = document.getElementById('stab-hubs');
+  const mBtn = document.getElementById('stab-members');
+  if (hEl) hEl.classList.toggle('hidden', tab !== 'hubs');
+  if (mEl) mEl.classList.toggle('hidden', tab !== 'members');
+  if (hBtn) hBtn.classList.toggle('active', tab === 'hubs');
+  if (mBtn) mBtn.classList.toggle('active', tab === 'members');
 }
 
-// ── Boot ──────────────────────────────────────────────────────────────────
-window.addEventListener('load', async () => {
-  // Load Firebase URL from firebase.txt, fallback to localStorage
-  try {
-    const r = await fetch('firebase.txt');
-    if (r.ok) {
-      const t = (await r.text()).trim();
-      if (t.startsWith('https://')) FB = t.replace(/\/$/,'');
-    }
-  } catch(e) {}
-  if (!FB) FB = (localStorage.getItem('cl_fb')||'').replace(/\/$/,'');
-
-  const p = new URLSearchParams(location.search);
-  const pAdmin = p.get('admin');
-  const pHub   = p.get('hub');
-  const pMgr   = p.get('manage');
-
-  if (!FB) {
-    // Need Firebase URL first — then redirect back
-    if (location.search) localStorage.setItem('cl_after_fb', location.href);
-    showSection('fb-setup-section'); badge('setup','Setup');
-    return;
-  }
-
-  hide('fb-setup-section');
-
-  if (pHub && pMgr) {
-    // Hub admin view
-    curHubId = pHub;
-    adminId  = localStorage.getItem('cl_admin_id');
-    if (!adminId) { alert('No admin identity found on this device.'); goHome(); return; }
-    startHubAdmin();
-
-  } else if (pHub) {
-    // Hub viewer
-    curHubId = pHub;
-    startHubViewer();
-
-  } else if (pAdmin) {
-    // Admin dashboard
-    adminId = pAdmin;
-    localStorage.setItem('cl_admin_id', adminId);
-    startAdminDash();
-
-  } else {
-    // Landing — go straight to dash if returning admin
-    const saved = localStorage.getItem('cl_admin_id');
-    if (saved) {
-      adminId = saved;
-      startAdminDash();
-    } else {
-      showLanding();
-    }
-  }
-});
-
-// ── FB Setup ──────────────────────────────────────────────────────────────
-async function saveFbUrl() {
-  let url = el('fb-input').value.trim().replace(/\/$/,'');
-  if (!url.startsWith('https://') || !url.includes('firebaseio.com')) {
-    setNote('fb-msg','Doesn\'t look right — should end in .firebaseio.com','var(--c1)'); return;
-  }
-  setNote('fb-msg','Testing...','var(--c3)');
-  try {
-    const r = await fetch(url + '/.json?shallow=true');
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    FB = url; localStorage.setItem('cl_fb', url);
-    setNote('fb-msg','&#10003; Connected!','var(--c4)');
-    setTimeout(() => {
-      const after = localStorage.getItem('cl_after_fb');
-      localStorage.removeItem('cl_after_fb');
-      location.href = after || location.pathname;
-    }, 600);
-  } catch(e) {
-    setNote('fb-msg','Could not connect: ' + e.message,'var(--c1)');
-  }
+// ─── Override showSection to use .sec.active pattern ──────────────────────
+function showSection(id) {
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+  const t = document.getElementById(id);
+  if (t) t.classList.add('active');
+  // Show/hide tab bar only on admin dash
+  const tabBar = document.getElementById('tab-bar');
+  if (tabBar) tabBar.classList.toggle('hidden', id !== 'admin-dash-section');
 }
 
-// ── Landing ───────────────────────────────────────────────────────────────
-function showLanding() {
-  showSection('landing-section'); badge('land','Home');
-  // Update admin card text if admin already exists
-  const saved = localStorage.getItem('cl_admin_id');
-  const savedName = localStorage.getItem('cl_admin_name');
-  if (saved) {
-    el('land-admin-card').querySelector('.land-desc').textContent =
-      'Welcome back' + (savedName ? ', ' + savedName : '') + '! Open your dashboard.';
-  }
+// ─── Override badge ────────────────────────────────────────────────────────
+function badge(cls, txt) {
+  const b = document.getElementById('mode-badge');
+  if (!b) return;
+  b.className = 'hdr-badge ' + cls;
+  b.textContent = txt;
+  b.classList.remove('hidden');
 }
 
-function landAdmin() {
-  const saved = localStorage.getItem('cl_admin_id');
-  if (saved) {
-    adminId = saved; startAdminDash();
-  } else {
-    showSection('admin-setup-section'); badge('admin','New Admin');
-    show('back-btn');
-  }
-}
+// ─── Override show/hide for sections (they use .active not .hidden) ────────
+// Keep el(), show(), hide() working normally for non-section elements
+function el(id) { return document.getElementById(id); }
+function show(id) { const e = el(id); if (e) e.classList.remove('hidden'); }
+function hide(id) { const e = el(id); if (e) e.classList.add('hidden'); }
 
-function landViewer() {
-  showSection('open-hub-section'); badge('viewer','Viewer');
-  show('back-btn');
-}
-
-function openHubFromInput() {
-  let val = el('hub-link-input').value.trim();
-  if (!val) return;
-  // Accept full URL or just the hub ID
-  try {
-    const u = new URL(val);
-    val = new URLSearchParams(u.search).get('hub') || val;
-  } catch(e) {}
-  if (!val) { setNote('open-hub-msg','Could not find a hub ID in that link.','var(--c1)'); return; }
-  location.href = location.pathname + '?hub=' + val;
-}
-
-// ── Admin Setup ───────────────────────────────────────────────────────────
-async function createAdmin() {
-  const name = el('admin-name-input').value.trim();
-  if (!name) { el('admin-name-input').focus(); return; }
-  const id = genUUID();
-  try {
-    await fbSet('/admins/' + id + '/name', name);
-    adminId = id;
-    localStorage.setItem('cl_admin_id', id);
-    localStorage.setItem('cl_admin_name', name);
-    // Update URL without reload so bookmark captures it
-    history.replaceState({}, '', location.pathname + '?admin=' + id);
-    startAdminDash();
-  } catch(e) {
-    alert('Could not create admin: ' + e.message);
-  }
-}
-
-// ── Admin Dashboard ───────────────────────────────────────────────────────
-async function startAdminDash() {
-  showSection('admin-dash-section'); badge('admin','Admin');
-  hide('back-btn');
-  // Ensure URL reflects admin param
-  if (!location.search.includes('admin=')) {
-    history.replaceState({}, '', location.pathname + '?admin=' + adminId);
-  }
-  el('admin-url-box').textContent = location.origin + location.pathname + '?admin=' + adminId;
-  // Load admin name
-  try {
-    const name = await fbGet('/admins/' + adminId + '/name');
-    const n = name || localStorage.getItem('cl_admin_name') || '';
-    if (n) { localStorage.setItem('cl_admin_name', n); el('dash-welcome').textContent = 'Dashboard'; el('dash-sub').textContent = 'Signed in as ' + n; }
-  } catch(e) {}
-  loadDash();
-}
-
-async function loadDash(silent=false) {
-  try {
-    const hubs = await fbGet('/admins/' + adminId + '/hubs');
-    dashCache = hubs || {};
-    renderDash();
-  } catch(e) {
-    if (!silent) el('hub-list-empty').textContent = 'Error loading hubs: ' + e.message;
-  }
-}
-
+// ─── Override renderDash to use GT50 ─────────────────────────────────────
 function renderDash() {
   const container = el('hub-list');
-  // Remove old hub cards (keep empty msg)
-  container.querySelectorAll('.hub-card').forEach(c=>c.remove());
-  const keys = Object.keys(dashCache||{});
+  container.querySelectorAll('.gc-hub').forEach(c => c.remove());
+  const keys = Object.keys(dashCache || {});
   if (!keys.length) { show('hub-list-empty'); return; }
   hide('hub-list-empty');
   keys.reverse().forEach(hid => {
-    const h = dashCache[hid];
+    const h   = dashCache[hid];
+    const lc  = h.listCount || 0;
     const div = document.createElement('div');
-    div.className = 'hub-card';
+    div.className = 'gc gc-hub';
     div.innerHTML = `
-      <div class="hub-card-hd">
-        <div class="hub-card-title">${esc(h.title||'Untitled Hub')}</div>
+      <div class="sq sq-l" style="background:var(--c1d);cursor:pointer;" onclick="goHubAdmin('${hid}')">
+        <span style="font-size:13px;font-weight:900;">${lc}</span>
       </div>
-      <div class="hub-card-bd">
-        <span class="hub-stat">${h.listCount||0} list${(h.listCount||0)!==1?'s':''}</span>
-        <div style="flex:1"></div>
-        <button class="btn dim sm" onclick="copyHubLink('${hid}',event)">&#128203; Share Link</button>
-        <button class="btn blue sm" onclick="goHubAdmin('${hid}')">Manage &#8594;</button>
-      </div>`;
+      <div class="fill" style="cursor:pointer;" onclick="goHubAdmin('${hid}')">
+        <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
+          <div class="fill-t" style="font-size:14px;font-weight:900;">${esc(h.title||'Hub')}</div>
+          <div class="fill-s" style="font-size:10px;opacity:.7;">${lc} list${lc!==1?'s':''}</div>
+        </div>
+      </div>
+      <button class="ctrl" style="background:var(--c1dd);color:var(--c1);font-size:16px;" onclick="deleteHubFromDash('${hid}')">&#10005;</button>`;
     container.appendChild(div);
   });
 }
 
-function copyHubLink(hid, e) {
-  const url = location.origin + location.pathname + '?hub=' + hid;
-  navigator.clipboard.writeText(url).then(() => flash(e.target, '&#10003; Copied!'));
-}
-
-// ── New Hub ───────────────────────────────────────────────────────────────
-function openNewHubModal() { el('new-hub-name').value=''; show('new-hub-modal'); setTimeout(()=>el('new-hub-name').focus(),80); }
-
-async function createHub() {
-  const title = el('new-hub-name').value.trim();
-  if (!title) return;
-  closeModal('new-hub-modal');
-  try {
-    const hid = await fbPush('/hubs', { title, ownerId: adminId, created: Date.now() });
-    // Index under admin
-    await fbSet('/admins/' + adminId + '/hubs/' + hid, { title, listCount: 0, created: Date.now() });
-    await loadDash();
-    goHubAdmin(hid);
-  } catch(e) { alert('Error: ' + e.message); }
-}
-
-// ── Hub Admin ─────────────────────────────────────────────────────────────
-function goHubAdmin(hid) {
+function deleteHubFromDash(hid) {
   curHubId = hid;
-  history.pushState({}, '', location.pathname + '?hub=' + hid + '&manage=1');
-  startHubAdmin();
+  deleteHub();
 }
 
-async function startHubAdmin() {
-  showSection('hub-admin-section'); badge('admin','Admin');
-  show('back-btn'); show('hdr-dot');
-  el('hub-share-url').textContent = location.origin + location.pathname + '?hub=' + curHubId;
-  loadHubAdmin();
+// ─── Override renderDashMembers to use GT50 ───────────────────────────────
+function renderDashMembers() {
+  const members  = dashMembers || {};
+  const keys     = Object.keys(members);
+  const pending  = keys.filter(k => members[k].status === 'pending');
+  const approved = keys.filter(k => members[k].status === 'approved');
+
+  // Update pending badge on tab
+  const badge = el('pending-tab-badge');
+  if (badge) { badge.textContent = pending.length; badge.classList.toggle('hidden', pending.length === 0); }
+
+  if (!keys.length) {
+    show('dash-members-empty'); hide('dash-members-pending-section'); hide('dash-members-approved-section'); return;
+  }
+  hide('dash-members-empty');
+
+  const mkRow = (code, m, rightHtml) => {
+    const d = document.createElement('div');
+    d.className = 'gi';
+    d.style.cssText = 'background:var(--bg2);margin-bottom:var(--margin);';
+    d.innerHTML = `
+      <div class="sq sq-l" style="background:var(--bg4);font-size:10px;">&#128100;</div>
+      <div class="fill" style="background:var(--bg2);">
+        <div class="fill-in" style="align-items:flex-start;padding:0 8px;">
+          <div class="fill-t" style="font-size:12px;font-weight:700;">${esc(m.name||'Unknown')}</div>
+          <div class="fill-s" style="font-size:9px;opacity:.6;">${code}</div>
+        </div>
+      </div>
+      ${rightHtml}`;
+    return d;
+  };
+
+  if (pending.length) {
+    show('dash-members-pending-section');
+    const list = el('dash-members-pending-list');
+    list.innerHTML = '';
+    pending.forEach(code => {
+      const row = mkRow(code, members[code], `
+        <button class="ctrl btn-g" onclick="openApproveMemberModal('${code}')" style="width:auto;padding:0 10px;font-size:9px;letter-spacing:1px;text-transform:uppercase;">Approve</button>
+        <button class="ctrl" style="background:var(--c1d);color:var(--c1);font-size:16px;" onclick="denyMember('${code}')">&#10005;</button>`);
+      list.appendChild(row);
+    });
+  } else hide('dash-members-pending-section');
+
+  if (approved.length) {
+    show('dash-members-approved-section');
+    const list = el('dash-members-approved-list');
+    list.innerHTML = '';
+    approved.forEach(code => {
+      const hc = Object.keys(members[code].hubs||{}).length;
+      const row = mkRow(code, members[code], `
+        <div class="ctrl" style="background:var(--c4d);font-size:9px;letter-spacing:1px;text-transform:uppercase;pointer-events:none;width:auto;padding:0 8px;">${hc} hub${hc!==1?'s':''}</div>
+        <button class="ctrl btn-r" onclick="denyMember('${code}')" style="width:auto;padding:0 10px;font-size:9px;letter-spacing:1px;text-transform:uppercase;">Revoke</button>`);
+      list.appendChild(row);
+    });
+  } else hide('dash-members-approved-section');
 }
 
-async function loadHubAdmin(silent=false) {
-  if (!silent) hubAdminSt('loading...', 'off');
-  try {
-    hubCache = await fbGet('/hubs/' + curHubId);
-    if (!hubCache) throw new Error('Hub not found');
-    renderHubAdmin();
-    hubAdminSt('live', 'on');
-  } catch(e) { hubAdminSt('error: '+e.message, 'err'); }
-  if (!polling) polling = setInterval(()=>loadHubAdmin(true), 8000);
+// ─── Override openApproveMemberModal hub checkboxes styling ───────────────
+function _buildApproveCheckboxes(hkeys, hubs) {
+  return hkeys.map(hid => `
+    <div class="hub-check-row">
+      <input type="checkbox" value="${hid}" checked/>
+      <span style="font-size:13px;font-weight:700;">${esc(hubs[hid].title||'Hub')}</span>
+    </div>`).join('');
 }
 
+// ─── Override renderHubAdmin to use GT50 ─────────────────────────────────
 function renderHubAdmin() {
   if (!hubCache) return;
-  el('hub-admin-title').textContent = hubCache.title||'Hub';
+  el('hub-admin-title').textContent = hubCache.title || 'Hub';
   document.title = (hubCache.title||'Hub') + ' — Admin';
 
   const container = el('hub-admin-lists');
-  container.querySelectorAll('.list-block').forEach(b=>b.remove());
+  container.querySelectorAll('.list-block').forEach(b => b.remove());
   const lists = hubCache.lists || {};
   const lkeys = Object.keys(lists);
 
-  if (!lkeys.length) { show('hub-admin-lists-empty'); return; }
+  if (!lkeys.length) { show('hub-admin-lists-empty'); renderMembersPanel(); return; }
   hide('hub-admin-lists-empty');
 
   lkeys.forEach(lid => {
-    const lst  = lists[lid];
-    const order= lst.order||[];
-    const items= lst.items||{};
-    const done = order.filter(id=>Object.keys(items[id]?.checkedBy||{}).length>0).length;
-    const pct  = order.length ? Math.round(done/order.length*100) : 0;
+    const lst   = lists[lid];
+    const order = lst.order || [];
+    const items = lst.items || {};
+    const done  = order.filter(id => Object.keys(items[id]?.checkedBy||{}).length > 0).length;
+    const pct   = order.length ? Math.round(done / order.length * 100) : 0;
 
+    // List header card
     const block = document.createElement('div');
     block.className = 'list-block';
     block.id = 'lb-'+lid;
+
+    const hdrDiv = document.createElement('div');
+    hdrDiv.className = 'gc';
+    hdrDiv.id = 'lhdr-'+lid;
+    hdrDiv.style.cssText = 'background:var(--bg2);margin-bottom:0;border-radius:8px 8px 0 0;';
+    hdrDiv.innerHTML = `
+      <div class="fill" style="background:var(--bg2);cursor:pointer;" onclick="toggleAccordion('lb-${lid}')">
+        <div class="fill-bar" style="width:${pct}%;background:var(--c1d);opacity:0.5;"></div>
+        <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
+          <div class="fill-t" style="font-size:13px;font-weight:900;">${esc(lst.title||'List')}</div>
+          <div class="fill-s" style="font-size:10px;opacity:.7;">${done}/${order.length} &nbsp;&#183;&nbsp; ${pct}%</div>
+        </div>
+      </div>
+      <button class="ctrl btn-b" onclick="event.stopPropagation();openAddItemModal('${lid}')" style="width:auto;padding:0 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;">+ Item</button>
+      <button class="ctrl" style="background:var(--c1dd);color:var(--c1);font-size:16px;" onclick="event.stopPropagation();adminDelList('${lid}')">&#10005;</button>`;
+
+    // Items dropdown
+    const dd = document.createElement('div');
+    dd.className = 'gdd list-body';
+    dd.id = 'body-'+lid;
+    dd.style.display = 'none';
 
     const itemsHtml = order.map(iid => {
       const it    = items[iid]; if (!it) return '';
       const who   = Object.values(it.checkedBy||{});
       const isChk = who.length > 0;
-      const chips = who.map(n=>`<span class="chip">${esc(n)}</span>`).join('');
-      return `<div class="ad-item">
-        <div class="ad-ck" style="${isChk?'border-color:var(--c4);background:var(--c4);color:#000':''}">
-          ${isChk?'&#10003;':''}</div>
-        <div style="flex:1;min-width:0">
-          <div class="ad-text">${esc(it.text)}</div>
-          ${chips?`<div class="chips" style="margin-top:4px">${chips}</div>`:''}
+      const chips = who.map(n => `<span style="font-size:9px;padding:1px 5px;border-radius:8px;border:1.5px solid var(--c4);color:var(--c4);margin-right:3px;">${esc(n)}</span>`).join('');
+      return `<div class="gi" style="background:var(--bg3);margin-bottom:var(--margin);">
+        <div class="sq sq-l" style="background:${isChk?'var(--c4)':'var(--bg4)'};flex-shrink:0;">
+          <span style="font-size:13px;color:var(--white);">${isChk?'&#10003;':''}</span>
         </div>
-        <button class="del-btn" onclick="adminDelItem('${lid}','${iid}')">&#10005;</button>
+        <div class="fill" style="background:var(--bg3);">
+          <div class="fill-in" style="align-items:flex-start;padding:0 8px;">
+            <div class="fill-t" style="font-size:12px;${isChk?'text-decoration:line-through;opacity:.45;':''}">${esc(it.text)}</div>
+            ${chips?`<div style="margin-top:2px;">${chips}</div>`:''}
+          </div>
+        </div>
+        <button class="ctrl" style="background:var(--c1dd);color:var(--c1);font-size:16px;" onclick="adminDelItem('${lid}','${iid}')">&#10005;</button>
       </div>`;
-    }).join('') || '<div class="note" style="padding:8px 0">No items yet.</div>';
+    }).join('') || '<div style="font-size:11px;color:var(--dim);padding:6px 4px;">No items yet.</div>';
 
-    block.innerHTML = `
-      <div class="list-hd" onclick="toggleAccordion('lb-${lid}')">
-        <div class="list-arrow" id="la-${lid}">&#9654;</div>
-        <div class="list-hd-title">${esc(lst.title||'List')}</div>
-        <div class="list-hd-meta">${done}/${order.length}</div>
-        <button class="btn dim xs" style="margin-left:4px" onclick="event.stopPropagation();openAddItemModal('${lid}')">+ Item</button>
-        <button class="del-btn" style="margin-left:4px" onclick="event.stopPropagation();adminDelList('${lid}')">&#10005;</button>
-      </div>
-      <div class="list-body" id="body-${lid}">
-        <div class="prog-track" style="margin-bottom:10px"><div class="prog-fill" style="width:${pct}%"></div></div>
-        ${itemsHtml}
-      </div>`;
+    dd.innerHTML = itemsHtml;
+    block.appendChild(hdrDiv);
+    block.appendChild(dd);
     container.appendChild(block);
   });
+
+  renderMembersPanel();
 }
 
+// ─── Override toggleAccordion ─────────────────────────────────────────────
 function toggleAccordion(blockId) {
-  const body  = el('body-' + blockId.replace('lb-',''));
-  const arrow = el('la-'  + blockId.replace('lb-',''));
-  body.classList.toggle('open');
-  arrow.classList.toggle('open');
+  const lid  = blockId.replace('lb-','');
+  const body = el('body-'+lid);
+  const hdr  = el('lhdr-'+lid);
+  if (!body) return;
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  if (hdr) hdr.style.borderRadius = isOpen ? '8px 8px 0 0' : '8px';
 }
 
-// New list modal
-function openNewListModal() {
-  modalDraft = [];
-  el('new-list-name').value = '';
-  el('new-list-item-inp').value = '';
-  renderModalDraft();
-  show('new-list-modal');
-  setTimeout(()=>el('new-list-name').focus(), 80);
-}
-function addModalItem() {
-  const inp = el('new-list-item-inp');
-  const txt = inp.value.trim(); if (!txt) return;
-  modalDraft.push({id: uid(), text: txt});
-  inp.value = ''; renderModalDraft(); inp.focus();
-}
-function removeModalItem(id) { modalDraft = modalDraft.filter(i=>i.id!==id); renderModalDraft(); }
-function renderModalDraft() {
-  el('modal-draft-list').innerHTML = modalDraft.map(it=>`
-    <div class="draft-item">
-      <span class="dh">&#11039;</span>
-      <span class="dt">${esc(it.text)}</span>
-      <button class="del-btn" onclick="removeModalItem('${it.id}')">&#10005;</button>
-    </div>`).join('');
-  const n = modalDraft.length;
-  el('modal-draft-count').textContent = n ? n+' item'+(n!==1?'s':'') : '';
+// ─── Override renderMembersPanel to use GT50 ─────────────────────────────
+function renderMembersPanel() {
+  const members  = hubCache?.members || {};
+  const keys     = Object.keys(members);
+  const approved = keys.filter(k => members[k].status === 'approved');
+  const revoked  = keys.filter(k => members[k].status === 'revoked');
+
+  if (!keys.length) { show('members-empty'); hide('members-approved-section'); hide('members-revoked-section'); return; }
+  hide('members-empty');
+
+  const mkRow = (code, m, rightHtml) => {
+    const d = document.createElement('div');
+    d.className = 'gi';
+    d.style.cssText = 'background:var(--bg2);margin-bottom:var(--margin);';
+    d.innerHTML = `
+      <div class="sq sq-l" style="background:var(--bg4);font-size:10px;">&#128100;</div>
+      <div class="fill" style="background:var(--bg2);">
+        <div class="fill-in" style="align-items:flex-start;padding:0 8px;">
+          <div class="fill-t" style="font-size:12px;font-weight:700;">${esc(m.name||'?')}</div>
+        </div>
+      </div>${rightHtml}`;
+    return d;
+  };
+
+  if (approved.length) {
+    show('members-approved-section');
+    const list = el('members-approved-list');
+    list.innerHTML = '';
+    approved.forEach(c => {
+      list.appendChild(mkRow(c, members[c],
+        `<button class="ctrl btn-r" onclick="revokeFromHub('${c}')" style="width:auto;padding:0 10px;font-size:9px;letter-spacing:1px;text-transform:uppercase;">Revoke</button>`));
+    });
+  } else hide('members-approved-section');
+
+  if (revoked.length) {
+    show('members-revoked-section');
+    const list = el('members-revoked-list');
+    list.innerHTML = '';
+    revoked.forEach(c => {
+      list.appendChild(mkRow(c, members[c],
+        `<button class="ctrl btn-g" onclick="restoreToHub('${c}')" style="width:auto;padding:0 10px;font-size:9px;letter-spacing:1px;text-transform:uppercase;">Restore</button>`));
+    });
+  } else hide('members-revoked-section');
 }
 
-async function createList() {
-  const title = el('new-list-name').value.trim() || 'Untitled List';
-  closeModal('new-list-modal');
-  const items = {}, order = [];
-  modalDraft.forEach(it => { items[it.id] = {text: it.text, checkedBy: {}}; order.push(it.id); });
+// ─── Override renderViewerHubSelection to use GT50 ────────────────────────
+async function renderViewerHubSelection() {
+  const container = el('viewer-hub-cards');
+  container.innerHTML = '';
   try {
-    const lid = await fbPush('/hubs/' + curHubId + '/lists', { title, order, items });
-    // Update list count in admin index
-    const lcount = Object.keys((hubCache?.lists||{})).length + 1;
-    await fbPatch('/admins/' + adminId + '/hubs/' + curHubId, { listCount: lcount });
-    await loadHubAdmin();
-  } catch(e) { alert('Error: ' + e.message); }
-}
-
-// Add item to existing list
-let addItemTargetList = null;
-function openAddItemModal(lid) {
-  addItemTargetList = lid;
-  el('add-item-inp').value = '';
-  show('add-item-modal');
-  setTimeout(()=>el('add-item-inp').focus(), 80);
-}
-async function submitAddItem() {
-  const txt = el('add-item-inp').value.trim();
-  if (!txt || !addItemTargetList) return;
-  closeModal('add-item-modal');
-  const iid = uid();
-  const lst = hubCache?.lists?.[addItemTargetList];
-  const order = [...(lst?.order||[]), iid];
-  try {
-    await fbPatch('/hubs/' + curHubId + '/lists/' + addItemTargetList + '/items', {[iid]: {text: txt, checkedBy: {}}});
-    await fbSet('/hubs/' + curHubId + '/lists/' + addItemTargetList + '/order', order);
-    await loadHubAdmin(true);
-  } catch(e) { alert('Error: ' + e.message); }
-}
-
-async function adminDelItem(lid, iid) {
-  if (!confirm('Remove this item?')) return;
-  try {
-    await fbDel('/hubs/' + curHubId + '/lists/' + lid + '/items/' + iid);
-    const lst   = hubCache.lists[lid];
-    const order = (lst.order||[]).filter(id=>id!==iid);
-    await fbSet('/hubs/' + curHubId + '/lists/' + lid + '/order', order);
-    await loadHubAdmin(true);
-  } catch(e) { alert('Error: ' + e.message); }
-}
-
-async function adminDelList(lid) {
-  if (!confirm('Delete this entire list?')) return;
-  try {
-    await fbDel('/hubs/' + curHubId + '/lists/' + lid);
-    const lcount = Math.max(0, Object.keys(hubCache?.lists||{}).length - 1);
-    await fbPatch('/admins/' + adminId + '/hubs/' + curHubId, { listCount: lcount });
-    await loadHubAdmin(true);
-  } catch(e) { alert('Error: ' + e.message); }
-}
-
-async function deleteHub() {
-  if (!confirm('Delete this entire hub and all its lists? This cannot be undone.')) return;
-  try {
-    await fbDel('/hubs/' + curHubId);
-    await fbDel('/admins/' + adminId + '/hubs/' + curHubId);
-    goBack();
-  } catch(e) { alert('Error: ' + e.message); }
-}
-
-function hubAdminSt(msg, dotState) {
-  el('hub-admin-status').textContent = msg;
-  el('hub-admin-dot').className = 'live-dot ' + dotState;
-  el('hdr-dot').className = 'live-dot ' + dotState;
-}
-
-// ── Hub Viewer ────────────────────────────────────────────────────────────
-async function startHubViewer() {
-  showSection('hub-viewer-section'); badge('viewer','Viewer');
-  hide('back-btn'); show('hdr-dot');
-
-  // Load viewer name
-  viewerName = localStorage.getItem('cl_name');
-
-  // Load hub to check ownership
-  try {
-    hubCache = await fbGet('/hubs/' + curHubId);
-    if (!hubCache) throw new Error('Hub not found');
-    // Check if viewer is actually the admin of this hub
-    const myAdminId = localStorage.getItem('cl_admin_id');
-    if (myAdminId && hubCache.ownerId === myAdminId) {
-      show('viewer-admin-bar');
+    const memberData = await fbGet('/admins/' + curAdminId + '/members/' + memberCode);
+    const hubIds = Object.keys(memberData?.hubs || {});
+    el('hub-sel-sub').textContent = hubIds.length + ' hub' + (hubIds.length !== 1 ? 's' : '') + ' available';
+    if (!hubIds.length) {
+      container.innerHTML = '<div class="empty-state">No hubs assigned yet — ask your admin</div>'; return;
     }
-    renderHubViewer();
-    viewerSt('live', 'on');
-  } catch(e) { viewerSt('error: '+e.message, 'err'); }
-
-  if (!viewerName) {
-    showNameModal();
-  } else {
-    el('viewer-name-lbl').textContent = 'you: ' + viewerName;
+    for (const hid of hubIds) {
+      const hubTitle = await fbGet('/hubs/' + hid + '/title');
+      const div = document.createElement('div');
+      div.className = 'gc';
+      div.style.cursor = 'pointer';
+      div.innerHTML = `
+        <div class="fill" style="cursor:pointer;" onclick="openViewerHub('${hid}')">
+          <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
+            <div class="fill-t" style="font-size:14px;font-weight:900;">${esc(hubTitle||'Hub')}</div>
+          </div>
+        </div>
+        <button class="ctrl btn-b" onclick="openViewerHub('${hid}')" style="width:auto;padding:0 12px;font-size:10px;letter-spacing:1px;text-transform:uppercase;">Open &#8594;</button>`;
+      container.appendChild(div);
+    }
+  } catch(e) {
+    container.innerHTML = '<div class="empty-state">Error loading hubs</div>';
   }
-
-  if (!polling) polling = setInterval(()=>refreshViewer(), 7000);
 }
 
-async function refreshViewer(silent=false) {
-  try {
-    hubCache = await fbGet('/hubs/' + curHubId);
-    renderHubViewer();
-    viewerSt('live', 'on');
-  } catch(e) { viewerSt('error', 'err'); }
-}
-
+// ─── Override renderHubViewer to use GT50 chk/fill/flg items ─────────────
 function renderHubViewer() {
   if (!hubCache) return;
-  el('hub-viewer-title').textContent = hubCache.title||'Hub';
-  document.title = hubCache.title||'Hub';
+  el('hub-viewer-title').textContent = hubCache.title || 'Hub';
+  document.title = hubCache.title || 'Hub';
 
-  const lists  = hubCache.lists||{};
-  const lkeys  = Object.keys(lists);
-  const total  = lkeys.reduce((s,lid)=>{const l=lists[lid];return s+(l.order||[]).length;},0);
-  const checked= lkeys.reduce((s,lid)=>{
-    const l=lists[lid]; return s+(l.order||[]).filter(id=>Object.keys(l.items?.[id]?.checkedBy||{}).length>0).length;
-  },0);
-  el('hub-viewer-sub').textContent = lkeys.length+' list'+(lkeys.length!==1?'s':'')+' · '+checked+'/'+total+' checked';
+  const lists   = hubCache.lists || {};
+  const lkeys   = Object.keys(lists);
+  const total   = lkeys.reduce((s,lid) => s + (lists[lid].order||[]).length, 0);
+  const checked = lkeys.reduce((s,lid) => {
+    const l = lists[lid]; return s + (l.order||[]).filter(id => Object.keys(l.items?.[id]?.checkedBy||{}).length > 0).length;
+  }, 0);
+  el('hub-viewer-sub').textContent = lkeys.length + ' list' + (lkeys.length!==1?'s':'') + ' · ' + checked + '/' + total + ' checked';
 
   const container = el('hub-viewer-lists');
-  // Save open/closed state
+  // Preserve open state
   const openState = {};
-  container.querySelectorAll('.list-block').forEach(b=>{
-    const lid = b.id.replace('vb-','');
-    openState[lid] = !!b.querySelector('.list-body.open');
+  container.querySelectorAll('.vlist-block').forEach(b => {
+    const lid = b.dataset.lid;
+    openState[lid] = b.querySelector('.gdd')?.style.display !== 'none';
   });
-  container.querySelectorAll('.list-block').forEach(b=>b.remove());
+  container.querySelectorAll('.vlist-block').forEach(b => b.remove());
 
   if (!lkeys.length) { show('hub-viewer-lists-empty'); return; }
   hide('hub-viewer-lists-empty');
 
   lkeys.forEach(lid => {
     const lst   = lists[lid];
-    const order = lst.order||[];
-    const items = lst.items||{};
-    const done  = order.filter(id=>Object.keys(items[id]?.checkedBy||{}).length>0).length;
-    const pct   = order.length ? Math.round(done/order.length*100) : 0;
-    const wasOpen = openState[lid] !== undefined ? openState[lid] : true; // default open
-
-    const itemsHtml = order.map(iid => {
-      const it     = items[iid]; if (!it) return '';
-      const byObj  = it.checkedBy||{};
-      const who    = Object.values(byObj);
-      const isMine = viewerName && who.includes(viewerName);
-      const chips  = who.map(n=>`<span class="chip">${esc(n)}</span>`).join('');
-      const cls    = isMine ? 'mine' : who.length ? 'others' : '';
-      return `<div class="cl-item ${cls}" onclick="viewerToggle('${lid}','${iid}')">
-        <div class="ckbox">${isMine?'&#10003;':who.length?'&#10003;':''}</div>
-        <div class="cl-body">
-          <div class="cl-text">${esc(it.text)}</div>
-          ${chips?`<div class="chips">${chips}</div>`:''}
-        </div></div>`;
-    }).join('')||'<div class="note" style="padding:8px 0">No items.</div>';
+    const order = lst.order || [];
+    const items = lst.items || {};
+    const done  = order.filter(id => Object.keys(items[id]?.checkedBy||{}).length > 0).length;
+    const pct   = order.length ? Math.round(done / order.length * 100) : 0;
+    const isOpen = openState[lid] !== undefined ? openState[lid] : true;
 
     const block = document.createElement('div');
-    block.className = 'list-block';
-    block.id = 'vb-'+lid;
-    block.innerHTML = `
-      <div class="list-hd" onclick="toggleAccordionV('${lid}')">
-        <div class="list-arrow${wasOpen?' open':''}" id="va-${lid}">&#9654;</div>
-        <div class="list-hd-title">${esc(lst.title||'List')}</div>
-        <div class="list-hd-meta">${done}/${order.length} &nbsp; ${pct}%</div>
+    block.className = 'vlist-block';
+    block.dataset.lid = lid;
+
+    // List header
+    const hdr = document.createElement('div');
+    hdr.className = 'gc';
+    hdr.id = 'vlhdr-'+lid;
+    hdr.style.cssText = `background:var(--bg2);margin-bottom:0;border-radius:${isOpen?'8px 8px 0 0':'8px'};cursor:pointer;`;
+    hdr.onclick = () => toggleViewList(lid);
+    hdr.innerHTML = `
+      <div class="fill" style="background:var(--bg2);">
+        <div class="fill-bar" style="width:${pct}%;background:var(--c5d);opacity:0.6;"></div>
+        <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
+          <div class="fill-t" style="font-size:13px;font-weight:900;">${esc(lst.title||'List')}</div>
+          <div class="fill-s" style="font-size:10px;opacity:.7;">${done}/${order.length} · ${pct}%</div>
+        </div>
       </div>
-      <div class="list-body${wasOpen?' open':''}" id="vbody-${lid}">
-        <div class="prog-track" style="margin-bottom:10px"><div class="prog-fill" style="width:${pct}%"></div></div>
-        ${itemsHtml}
-      </div>`;
+      <div class="ctrl" style="background:var(--bg4);pointer-events:none;font-size:10px;">${isOpen?'&#9650;':'&#9660;'}</div>`;
+
+    // Items dropdown
+    const dd = document.createElement('div');
+    dd.className = 'gdd';
+    dd.id = 'vbody-'+lid;
+    dd.style.display = isOpen ? 'block' : 'none';
+
+    if (!order.length) {
+      dd.innerHTML = '<div style="font-size:11px;color:var(--dim);padding:6px 4px;">No items yet.</div>';
+    } else {
+      order.forEach(iid => {
+        const it     = items[iid]; if (!it) return;
+        const byObj  = it.checkedBy || {};
+        const who    = Object.values(byObj);
+        const isMine = viewerName && who.includes(viewerName);
+        const others = who.filter(n => n !== viewerName);
+        const chips  = others.map(n => `<span style="font-size:9px;padding:1px 5px;border-radius:8px;border:1.5px solid var(--c5);color:var(--c5);margin-right:2px;">${esc(n)}</span>`).join('');
+
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'gi';
+        itemDiv.style.marginBottom = 'var(--margin)';
+        itemDiv.innerHTML = `
+          <div class="chk ${isMine?'on':'off'}" onclick="viewerToggle('${lid}','${iid}')">&#10003;</div>
+          <div class="fill" style="background:var(--bg3);">
+            <div class="fill-in" style="align-items:flex-start;padding:0 8px;">
+              <div class="fill-t" style="font-size:12px;${isMine?'text-decoration:line-through;opacity:.4;':''}">${esc(it.text)}</div>
+              ${chips?`<div style="margin-top:2px;">${chips}</div>`:''}
+            </div>
+          </div>
+          <div class="flg ${who.length&&!isMine?'on':'off'}" style="pointer-events:none;">&#9679;</div>`;
+        dd.appendChild(itemDiv);
+      });
+    }
+
+    block.appendChild(hdr);
+    block.appendChild(dd);
     container.appendChild(block);
   });
 }
 
-function toggleAccordionV(lid) {
-  el('vbody-'+lid).classList.toggle('open');
-  el('va-'+lid).classList.toggle('open');
+function toggleViewList(lid) {
+  const body = el('vbody-'+lid);
+  const hdr  = el('vlhdr-'+lid);
+  const arr  = hdr?.querySelector('.ctrl');
+  if (!body) return;
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  if (hdr) hdr.style.borderRadius = isOpen ? '8px' : '8px 8px 0 0';
+  if (arr) arr.innerHTML = isOpen ? '&#9660;' : '&#9650;';
 }
 
-async function viewerToggle(lid, iid) {
-  if (!viewerName) { showNameModal(); return; }
-  if (!hubCache?.lists?.[lid]?.items?.[iid]) return;
-  const item  = hubCache.lists[lid].items[iid];
-  const byObj = item.checkedBy||{};
-  const was   = viewerName in byObj;
-  // Optimistic update
-  if (was) delete byObj[viewerName];
-  else byObj[viewerName] = viewerName;
-  item.checkedBy = byObj;
-  renderHubViewer();
+// ─── Override hubAdminSt ─────────────────────────────────────────────────
+function hubAdminSt(msg, dotState) {
+  const statusEl = el('hub-admin-status');
+  const dotEl    = el('hub-admin-dot');
+  const hdrDot   = el('hdr-dot');
+  if (statusEl) statusEl.textContent = msg;
+  const cls = 'hdr-dot ' + (dotState === 'err' ? 'err' : dotState === 'off' ? 'off' : '');
+  if (dotEl)  dotEl.className = cls;
+  if (hdrDot) hdrDot.className = cls;
+}
+
+// ─── Override viewerSt ───────────────────────────────────────────────────
+function viewerSt(msg, dotState) {
+  const statusEl = el('hub-viewer-status');
+  const dotEl    = el('hub-viewer-dot');
+  const hdrDot   = el('hdr-dot');
+  if (statusEl) statusEl.textContent = msg;
+  const cls = 'hdr-dot ' + (dotState === 'err' ? 'err' : dotState === 'off' ? 'off' : '');
+  if (dotEl)  dotEl.className = cls;
+  if (hdrDot) hdrDot.className = cls;
+}
+
+// ─── Override showLanding ────────────────────────────────────────────────
+function showLanding() {
+  showSection('landing-section'); badge('land','Home');
+  const saved = localStorage.getItem('cl_admin_id');
+  const savedName = localStorage.getItem('cl_admin_name');
+  const card = el('land-admin-card');
+  if (saved && card) {
+    card.querySelector('.land-desc').textContent =
+      'Welcome back' + (savedName ? ', ' + savedName : '') + '! Open your dashboard.';
+  }
+}
+
+// ─── Override startAdminDash to show hdr-dot as off ─────────────────────
+const _origStartAdminDash = typeof startAdminDash !== 'undefined' ? startAdminDash : null;
+
+// ─── Override openApproveMemberModal checkboxes rendering ─────────────────
+const _origOpenApproveModal = openApproveMemberModal;
+function openApproveMemberModal(code) {
+  approvingCode = code;
+  const m = dashMembers?.[code];
+  el('approve-member-name').textContent = m?.name || 'this person';
+  const hubs  = dashCache || {};
+  const hkeys = Object.keys(hubs);
+  el('approve-hub-checkboxes').innerHTML = hkeys.length
+    ? hkeys.map(hid => `
+        <div class="hub-check-row">
+          <input type="checkbox" value="${hid}" checked />
+          <span style="font-size:13px;font-weight:700;">${esc(hubs[hid].title||'Hub')}</span>
+        </div>`).join('')
+    : '<div style="font-size:12px;color:var(--dim);padding:6px 4px;">No hubs yet — create one first.</div>';
+  show('approve-member-modal');
+}
+
+// ─── Override createHub (uses inline input, no modal) ────────────────────
+async function createHub() {
+  const title = el('new-hub-name').value.trim();
+  if (!title) return;
+  el('new-hub-name').value = '';
   try {
-    viewerSt('saving...','on');
-    // Atomic patch — only touches this one person's entry
-    await fbPatch(
-      '/hubs/' + curHubId + '/lists/' + lid + '/items/' + iid + '/checkedBy',
-      {[viewerName]: was ? null : viewerName}
-    );
-    viewerSt('saved ✓','on');
-    setTimeout(()=>viewerSt('live','on'), 1200);
-  } catch(e) {
-    // Revert
-    if (was) byObj[viewerName] = viewerName; else delete byObj[viewerName];
-    renderHubViewer();
-    viewerSt('save error','err');
+    const hid = await fbPush('/hubs', { title, ownerId: adminId, created: Date.now() });
+    const entry = { title, listCount: 0, created: Date.now() };
+    await fbSet('/admins/' + adminId + '/hubs/' + hid, entry);
+    if (!dashCache) dashCache = {};
+    dashCache[hid] = entry;
+    localStorage.setItem('cl_dash_' + adminId, JSON.stringify(dashCache));
+    await loadDash();
+    goHubAdmin(hid);
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+// ─── Override renderModalDraft ───────────────────────────────────────────
+function renderModalDraft() {
+  el('modal-draft-list').innerHTML = modalDraft.map(it => `
+    <div class="gi" style="background:var(--bg3);margin-bottom:var(--margin);">
+      <div class="fill" style="background:var(--bg3);">
+        <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
+          <div class="fill-t" style="font-size:12px;">${esc(it.text)}</div>
+        </div>
+      </div>
+      <button class="ctrl" style="background:var(--c1dd);color:var(--c1);font-size:16px;" onclick="removeModalItem('${it.id}')">&#10005;</button>
+    </div>`).join('');
+  const n = modalDraft.length;
+  el('modal-draft-count').textContent = n ? n + ' item' + (n!==1?'s':'') : '';
+}
+
+// ─── Override joinAnotherHub ─────────────────────────────────────────────
+function joinAnotherHub() {
+  if (polling) { clearInterval(polling); polling = null; }
+  showSection('open-hub-section'); badge('viewer','Viewer');
+  show('back-btn');
+  el('room-code-input').value = '';
+  hide('join-name-card');
+}
+
+// ─── Override setNote to work with element IDs ─────────────────────────
+function setNote(id, html, color) {
+  const e = el(id); if (!e) return;
+  e.innerHTML = html; e.style.color = color || 'var(--dim)';
+}
+
+// ─── Utilities ────────────────────────────────────────────────────────────
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function uid()  { return 'i' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function genUUID() { return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16)); }
+function genCode4() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  return Array.from(crypto.getRandomValues(new Uint8Array(4))).map(b => chars[b % chars.length]).join('');
+}
+function genMemberCode() {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  return Array.from(crypto.getRandomValues(new Uint8Array(8))).map(b => chars[b % chars.length]).join('');
+}
+function getSavedMember(aId)   { try { return JSON.parse(localStorage.getItem('cl_member_'+aId)); } catch(e) { return null; } }
+function saveMember(aId, data) { localStorage.setItem('cl_member_'+aId, JSON.stringify(data)); }
+function clearSavedMember(aId) { localStorage.removeItem('cl_member_'+(aId||curAdminId)); }
+function copyEl(id, e) { navigator.clipboard.writeText(el(id).textContent).then(()=>flash(e.target,'&#10003; Copied!')); }
+function flash(btn, html) { const o = btn.innerHTML; btn.innerHTML = html; setTimeout(()=>btn.innerHTML=o, 1500); }
+function closeModal(id) { hide(id); }
+document.addEventListener('click', e => {
+  ['new-list-modal','add-item-modal','approve-member-modal','name-modal'].forEach(id => {
+    const modal = el(id);
+    if (modal && !modal.classList.contains('hidden') && e.target === modal) closeModal(id);
+  });
+});
+
+// ── Firebase vars ─────────────────────────────────────────────────────────
+let FB = null;
+let adminId = null, curHubId = null, curAdminId = null;
+let viewerName = null, memberCode = null, memberStatus = null;
+let hubCache = null, dashCache = null, dashMembers = null;
+let polling = null, modalDraft = [], approvingCode = null;
+let addItemTargetList = null, pendingAdminId = null;
+
+// ── Firebase REST ─────────────────────────────────────────────────────────
+function ep(path) { return FB + path + '.json'; }
+async function fbGet(path) { const r=await fetch(ep(path)); if(!r.ok) throw new Error('Read error '+r.status); return r.json(); }
+async function fbSet(path,val) { const r=await fetch(ep(path),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(val)}); if(!r.ok) throw new Error('Write error '+r.status); }
+async function fbPatch(path,val) { const r=await fetch(ep(path),{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(val)}); if(!r.ok) throw new Error('Patch error '+r.status); }
+async function fbPush(path,val) { const r=await fetch(ep(path),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(val)}); if(!r.ok) throw new Error('Push error '+r.status); return (await r.json()).name; }
+async function fbDel(path) { const r=await fetch(ep(path),{method:'DELETE'}); if(!r.ok) throw new Error('Delete error '+r.status); }
+
+// ── BOOT ─────────────────────────────────────────────────────────────────
+window.addEventListener('load', async () => {
+  try { const r=await fetch('firebase.txt'); if(r.ok){const t=(await r.text()).trim(); if(t.startsWith('https://'))FB=t.replace(/\/$/,'');} } catch(e){}
+  if (!FB) FB = (localStorage.getItem('cl_fb')||'').replace(/\/$/,'');
+  const p=new URLSearchParams(location.search);
+  const pAdmin=p.get('admin'), pHub=p.get('hub'), pMgr=p.get('manage');
+  if (!FB) {
+    if (location.search) localStorage.setItem('cl_after_fb', location.href);
+    showSection('fb-setup-section'); badge('setup','Setup'); return;
+  }
+  if (pHub&&pMgr) {
+    curHubId=pHub; adminId=localStorage.getItem('cl_admin_id');
+    if (!adminId) { alert('No admin identity found.'); goHome(); return; }
+    startHubAdmin();
+  } else if (pHub) {
+    curHubId=pHub; startHubViewer();
+  } else if (pAdmin) {
+    adminId=pAdmin; localStorage.setItem('cl_admin_id',adminId); startAdminDash();
+  } else {
+    const sa=localStorage.getItem('cl_admin_id');
+    if (sa) { adminId=sa; startAdminDash(); }
+    else {
+      const ka=localStorage.getItem('cl_viewer_admin');
+      if (ka) { curAdminId=ka; startViewerHome(); }
+      else showLanding();
+    }
+  }
+});
+
+// ── FB SETUP ──────────────────────────────────────────────────────────────
+async function saveFbUrl() {
+  let url = el('fb-input').value.trim().replace(/\/$/,'');
+  if (!url.startsWith('https://')||!url.includes('firebaseio.com')) { setNote('fb-msg','Should end in .firebaseio.com','var(--c1)'); return; }
+  setNote('fb-msg','Testing...','var(--c3)');
+  try {
+    const r=await fetch(url+'/.json?shallow=true'); if(!r.ok) throw new Error('HTTP '+r.status);
+    FB=url; localStorage.setItem('cl_fb',url);
+    setNote('fb-msg','&#10003; Connected!','var(--c4)');
+    setTimeout(()=>{ const after=localStorage.getItem('cl_after_fb'); localStorage.removeItem('cl_after_fb'); location.href=after||location.pathname; },600);
+  } catch(e) { setNote('fb-msg','Could not connect: '+e.message,'var(--c1)'); }
+}
+
+// ── LANDING ───────────────────────────────────────────────────────────────
+function landAdmin() {
+  const saved=localStorage.getItem('cl_admin_id');
+  if (saved) { adminId=saved; startAdminDash(); }
+  else { showSection('admin-setup-section'); badge('admin','New Admin'); show('back-btn'); }
+}
+function landViewer() { showSection('open-hub-section'); badge('viewer','Viewer'); show('back-btn'); }
+
+// ── JOIN FLOW ─────────────────────────────────────────────────────────────
+async function joinFromCode() {
+  const code=el('room-code-input').value.trim().toUpperCase();
+  if (code.length!==4) { setNote('open-hub-msg','Enter a 4-letter code','var(--c2)'); return; }
+  setNote('open-hub-msg','Looking up...','var(--c3)');
+  try {
+    const entry=await fbGet('/codes/'+code);
+    if (!entry||!entry.adminId) { setNote('open-hub-msg','Code not found — check with your admin','var(--c1)'); return; }
+    pendingAdminId=entry.adminId;
+    setNote('open-hub-msg','&#10003; Found!','var(--c4)');
+    const savedName=localStorage.getItem('cl_name');
+    if (savedName) { viewerName=savedName; await submitMemberRequest(); }
+    else { show('join-name-card'); setTimeout(()=>el('join-name-input').focus(),80); }
+  } catch(e) { setNote('open-hub-msg','Error: '+e.message,'var(--c1)'); }
+}
+async function joinWithName() {
+  const name=el('join-name-input').value.trim(); if(!name||!pendingAdminId) return;
+  viewerName=name; localStorage.setItem('cl_name',name); await submitMemberRequest();
+}
+async function submitMemberRequest() {
+  const saved=getSavedMember(pendingAdminId);
+  if (saved&&saved.status!=='revoked') { memberCode=saved.code; memberStatus=saved.status; curAdminId=pendingAdminId; localStorage.setItem('cl_viewer_admin',curAdminId); startViewerHome(); return; }
+  memberCode=genMemberCode();
+  try {
+    await fbSet('/admins/'+pendingAdminId+'/members/'+memberCode,{name:viewerName,status:'pending',requested:Date.now()});
+    saveMember(pendingAdminId,{code:memberCode,name:viewerName,status:'pending'});
+    curAdminId=pendingAdminId; localStorage.setItem('cl_viewer_admin',curAdminId); memberStatus='pending'; startViewerHome();
+  } catch(e) { setNote('open-hub-msg','Request failed: '+e.message,'var(--c1)'); }
+}
+
+// ── ADMIN SETUP ───────────────────────────────────────────────────────────
+async function createAdmin() {
+  const name=el('admin-name-input').value.trim(); if(!name) return;
+  const id=genUUID();
+  try {
+    await fbSet('/admins/'+id+'/name',name); adminId=id;
+    localStorage.setItem('cl_admin_id',id); localStorage.setItem('cl_admin_name',name);
+    history.replaceState({},'',location.pathname+'?admin='+id); startAdminDash();
+  } catch(e) { alert('Could not create admin: '+e.message); }
+}
+
+// ── ADMIN DASHBOARD ───────────────────────────────────────────────────────
+async function startAdminDash() {
+  showSection('admin-dash-section'); badge('admin','Admin'); hide('back-btn');
+  setDashTab('hubs');
+  if (!location.search.includes('admin=')) history.replaceState({},'',location.pathname+'?admin='+adminId);
+  const cachedName=localStorage.getItem('cl_admin_name');
+  if (cachedName) el('dash-sub').textContent='Signed in as '+cachedName;
+  const cachedCode=localStorage.getItem('cl_room_code_'+adminId);
+  if (cachedCode) showRoomCode(cachedCode);
+  try { const name=await fbGet('/admins/'+adminId+'/name'); const n=name||cachedName||''; if(n){localStorage.setItem('cl_admin_name',n);el('dash-sub').textContent='Signed in as '+n;} } catch(e){}
+  loadDash();
+}
+
+async function loadDash(silent=false) {
+  const ck='cl_dash_'+adminId;
+  if (!silent){const raw=localStorage.getItem(ck);if(raw){try{dashCache=JSON.parse(raw);renderDash();}catch(e){}}}
+  try {
+    const [hubs,members,codeEntry]=await Promise.all([fbGet('/admins/'+adminId+'/hubs'),fbGet('/admins/'+adminId+'/members'),fbGet('/admins/'+adminId+'/roomCode')]);
+    dashCache=hubs||{}; dashMembers=members||{};
+    localStorage.setItem(ck,JSON.stringify(dashCache));
+    if (codeEntry){localStorage.setItem('cl_room_code_'+adminId,codeEntry);showRoomCode(codeEntry);}
+    renderDash(); renderDashMembers();
+  } catch(e){if(!silent&&!dashCache)el('hub-list-empty').textContent='Error: '+e.message;}
+  if (!polling) polling=setInterval(()=>loadDash(true),8000);
+}
+
+// ── ROOM CODE ─────────────────────────────────────────────────────────────
+async function generateRoomCode() {
+  const btn=event.target; btn.disabled=true; btn.textContent='...';
+  try {
+    const old=localStorage.getItem('cl_room_code_'+adminId);
+    if (old) await fbDel('/codes/'+old);
+    let code,attempts=0;
+    do { code=genCode4(); const ex=await fbGet('/codes/'+code); if(!ex) break; } while(++attempts<10);
+    await fbSet('/codes/'+code,{adminId,created:Date.now()});
+    await fbSet('/admins/'+adminId+'/roomCode',code);
+    localStorage.setItem('cl_room_code_'+adminId,code); showRoomCode(code);
+  } catch(e){alert('Error: '+e.message);}
+  btn.disabled=false; btn.innerHTML='&#9851; Gen';
+}
+function showRoomCode(code) {
+  el('room-code-letters').textContent=code||'----';
+  el('copy-code-btn').disabled=!code;
+}
+function copyRoomCode(e) {
+  const code=el('room-code-letters').textContent; if(code==='----') return;
+  navigator.clipboard.writeText(code).then(()=>flash(e.target,'&#10003; Copied!'));
+}
+
+// ── HUB ADMIN ─────────────────────────────────────────────────────────────
+function goHubAdmin(hid) { curHubId=hid; history.pushState({},'',location.pathname+'?hub='+hid+'&manage=1'); startHubAdmin(); }
+async function startHubAdmin() {
+  showSection('hub-admin-section'); badge('admin','Admin'); show('back-btn');
+  hide('tab-bar'); show('hdr-dot');
+  loadHubAdmin();
+}
+
+async function loadHubAdmin(silent=false) {
+  const ck='cl_hub_'+curHubId;
+  if (!silent){const raw=localStorage.getItem(ck);if(raw){try{hubCache=JSON.parse(raw);renderHubAdmin();hubAdminSt('cached','off');}catch(e){}}}
+  try {
+    const fresh=await fbGet('/hubs/'+curHubId); if(!fresh) throw new Error('Hub not found');
+    hubCache=fresh; localStorage.setItem(ck,JSON.stringify(hubCache)); renderHubAdmin(); hubAdminSt('live','');
+  } catch(e){hubAdminSt('error: '+e.message,'err');}
+  if (!polling) polling=setInterval(()=>loadHubAdmin(true),8000);
+}
+
+function openNewListModal() { modalDraft=[]; el('new-list-name').value=''; el('new-list-item-inp').value=''; renderModalDraft(); show('new-list-modal'); setTimeout(()=>el('new-list-name').focus(),80); }
+function addModalItem() { const inp=el('new-list-item-inp'); const txt=inp.value.trim(); if(!txt) return; modalDraft.push({id:uid(),text:txt}); inp.value=''; renderModalDraft(); inp.focus(); }
+function removeModalItem(id) { modalDraft=modalDraft.filter(i=>i.id!==id); renderModalDraft(); }
+
+async function createList() {
+  const title=el('new-list-name').value.trim()||'Untitled List';
+  closeModal('new-list-modal');
+  const items={},order=[];
+  modalDraft.forEach(it=>{items[it.id]={text:it.text,checkedBy:{}};order.push(it.id);});
+  try {
+    const lid=await fbPush('/hubs/'+curHubId+'/lists',{title,order,items});
+    const lc=Object.keys(hubCache?.lists||{}).length+1;
+    await fbPatch('/admins/'+adminId+'/hubs/'+curHubId,{listCount:lc});
+    if(hubCache){if(!hubCache.lists)hubCache.lists={};hubCache.lists[lid]={title,order,items};localStorage.setItem('cl_hub_'+curHubId,JSON.stringify(hubCache));}
+    if(dashCache?.[curHubId]){dashCache[curHubId].listCount=lc;localStorage.setItem('cl_dash_'+adminId,JSON.stringify(dashCache));}
+    await loadHubAdmin();
+  } catch(e){alert('Error: '+e.message);}
+}
+
+function openAddItemModal(lid) { addItemTargetList=lid; el('add-item-inp').value=''; show('add-item-modal'); setTimeout(()=>el('add-item-inp').focus(),80); }
+async function submitAddItem() {
+  const txt=el('add-item-inp').value.trim(); if(!txt||!addItemTargetList) return;
+  closeModal('add-item-modal');
+  const iid=uid(); const lst=hubCache?.lists?.[addItemTargetList]; const order=[...(lst?.order||[]),iid];
+  try {
+    await fbPatch('/hubs/'+curHubId+'/lists/'+addItemTargetList+'/items',{[iid]:{text:txt,checkedBy:{}}});
+    await fbSet('/hubs/'+curHubId+'/lists/'+addItemTargetList+'/order',order);
+    if(hubCache?.lists?.[addItemTargetList]){if(!hubCache.lists[addItemTargetList].items)hubCache.lists[addItemTargetList].items={};hubCache.lists[addItemTargetList].items[iid]={text:txt,checkedBy:{}};hubCache.lists[addItemTargetList].order=order;localStorage.setItem('cl_hub_'+curHubId,JSON.stringify(hubCache));}
+    await loadHubAdmin(true);
+  } catch(e){alert('Error: '+e.message);}
+}
+
+async function adminDelItem(lid,iid) {
+  if(!confirm('Remove this item?')) return;
+  try {
+    await fbDel('/hubs/'+curHubId+'/lists/'+lid+'/items/'+iid);
+    const lst=hubCache.lists[lid]; const order=(lst.order||[]).filter(id=>id!==iid);
+    await fbSet('/hubs/'+curHubId+'/lists/'+lid+'/order',order);
+    if(hubCache?.lists?.[lid]){delete hubCache.lists[lid].items[iid];hubCache.lists[lid].order=order;localStorage.setItem('cl_hub_'+curHubId,JSON.stringify(hubCache));}
+    await loadHubAdmin(true);
+  } catch(e){alert('Error: '+e.message);}
+}
+async function adminDelList(lid) {
+  if(!confirm('Delete this entire list?')) return;
+  try {
+    await fbDel('/hubs/'+curHubId+'/lists/'+lid);
+    const lc=Math.max(0,Object.keys(hubCache?.lists||{}).length-1);
+    await fbPatch('/admins/'+adminId+'/hubs/'+curHubId,{listCount:lc});
+    if(hubCache?.lists){delete hubCache.lists[lid];localStorage.setItem('cl_hub_'+curHubId,JSON.stringify(hubCache));}
+    if(dashCache?.[curHubId]){dashCache[curHubId].listCount=lc;localStorage.setItem('cl_dash_'+adminId,JSON.stringify(dashCache));}
+    await loadHubAdmin(true);
+  } catch(e){alert('Error: '+e.message);}
+}
+async function deleteHub() {
+  if(!confirm('Delete this hub and all its lists? Cannot be undone.')) return;
+  try {
+    if(hubCache?.roomCode) await fbDel('/codes/'+hubCache.roomCode);
+    await fbDel('/hubs/'+curHubId); await fbDel('/admins/'+adminId+'/hubs/'+curHubId);
+    localStorage.removeItem('cl_hub_'+curHubId);
+    if(dashCache){delete dashCache[curHubId];localStorage.setItem('cl_dash_'+adminId,JSON.stringify(dashCache));}
+    goBack();
+  } catch(e){alert('Error: '+e.message);}
+}
+
+async function revokeFromHub(code) {
+  try { await fbPatch('/hubs/'+curHubId+'/members/'+code,{status:'revoked'}); if(hubCache?.members?.[code]){hubCache.members[code].status='revoked';localStorage.setItem('cl_hub_'+curHubId,JSON.stringify(hubCache));} renderMembersPanel(); } catch(e){alert('Error: '+e.message);}
+}
+async function restoreToHub(code) {
+  try { await fbPatch('/hubs/'+curHubId+'/members/'+code,{status:'approved'}); if(hubCache?.members?.[code]){hubCache.members[code].status='approved';localStorage.setItem('cl_hub_'+curHubId,JSON.stringify(hubCache));} renderMembersPanel(); } catch(e){alert('Error: '+e.message);}
+}
+
+async function confirmApproval() {
+  if (!approvingCode) return;
+  const boxes=el('approve-hub-checkboxes').querySelectorAll('input[type=checkbox]:checked');
+  const sel=Array.from(boxes).map(cb=>cb.value);
+  closeModal('approve-member-modal');
+  try {
+    const hm={}; sel.forEach(hid=>{hm[hid]=true;});
+    await fbPatch('/admins/'+adminId+'/members/'+approvingCode,{status:'approved',approvedAt:Date.now(),hubs:hm});
+    const mn=dashMembers?.[approvingCode]?.name||'Unknown';
+    for(const hid of sel) await fbSet('/hubs/'+hid+'/members/'+approvingCode,{name:mn,status:'approved',approvedAt:Date.now()});
+    if(dashMembers?.[approvingCode]){dashMembers[approvingCode].status='approved';dashMembers[approvingCode].hubs=hm;}
+    renderDashMembers(); approvingCode=null;
+  } catch(e){alert('Error: '+e.message);}
+}
+async function denyMember(code) {
+  try {
+    await fbPatch('/admins/'+adminId+'/members/'+code,{status:'revoked'});
+    const m=dashMembers?.[code]; if(m?.hubs){for(const hid of Object.keys(m.hubs)) await fbPatch('/hubs/'+hid+'/members/'+code,{status:'revoked'});}
+    if(dashMembers?.[code]) dashMembers[code].status='revoked'; renderDashMembers();
+  } catch(e){alert('Error: '+e.message);}
+}
+
+// ── VIEWER HOME ───────────────────────────────────────────────────────────
+async function startViewerHome() {
+  showSection('hub-selection-section'); badge('viewer','Viewer'); hide('back-btn');
+  viewerName=localStorage.getItem('cl_name');
+  el('hub-sel-name').textContent=viewerName?'you: '+viewerName:'';
+  const saved=getSavedMember(curAdminId);
+  if(!saved){showSection('open-hub-section');return;}
+  memberCode=saved.code; memberStatus=saved.status;
+  try {
+    const md=await fbGet('/admins/'+curAdminId+'/members/'+memberCode);
+    if(md){memberStatus=md.status;saveMember(curAdminId,{code:memberCode,name:viewerName,status:memberStatus});}
+  } catch(e){}
+  if (memberStatus==='pending'){
+    showSection('hub-viewer-section'); badge('viewer','Viewer');
+    hide('viewer-approved-state');hide('viewer-revoked-state');hide('viewer-noaccess-state');show('viewer-pending-state');
+    el('pending-name-lbl').textContent=viewerName||''; el('pending-code-lbl').textContent=memberCode;
+    if(!polling) polling=setInterval(()=>pollMemberStatus(),5000); return;
+  }
+  if (memberStatus==='revoked'){
+    showSection('hub-viewer-section'); badge('viewer','Viewer');
+    hide('viewer-approved-state');hide('viewer-pending-state');hide('viewer-noaccess-state');show('viewer-revoked-state'); return;
+  }
+  renderViewerHubSelection();
+  if(!polling) polling=setInterval(()=>renderViewerHubSelection(),10000);
+}
+
+async function pollMemberStatus() {
+  try {
+    const md=await fbGet('/admins/'+curAdminId+'/members/'+memberCode);
+    if(md&&md.status!==memberStatus){
+      memberStatus=md.status; saveMember(curAdminId,{code:memberCode,name:viewerName,status:memberStatus});
+      if(memberStatus==='approved'){clearInterval(polling);polling=null;startViewerHome();}
+      else if(memberStatus==='revoked'){clearInterval(polling);polling=null;hide('viewer-pending-state');show('viewer-revoked-state');}
+    }
+  } catch(e){}
+}
+
+// ── HUB VIEWER ────────────────────────────────────────────────────────────
+async function startHubViewer() {
+  showSection('hub-viewer-section'); badge('viewer','Viewer'); show('back-btn'); show('hdr-dot');
+  viewerName=localStorage.getItem('cl_name');
+  if(viewerName) el('viewer-name-lbl').textContent='you: '+viewerName;
+  try {
+    hubCache=await fbGet('/hubs/'+curHubId); if(!hubCache) throw new Error('Hub not found');
+    const myAdminId=localStorage.getItem('cl_admin_id');
+    if(myAdminId&&hubCache.ownerId===myAdminId) show('viewer-admin-bar');
+    const ownerAdminId=hubCache.ownerId;
+    const saved=getSavedMember(ownerAdminId);
+    memberCode=saved?.code||null; memberStatus=saved?.status||null;
+    if(memberCode){
+      const hm=hubCache.members?.[memberCode];
+      hide('viewer-pending-state');hide('viewer-revoked-state');hide('viewer-approved-state');hide('viewer-noaccess-state');
+      if(hm){
+        if(hm.status==='approved'){show('viewer-approved-state');renderHubViewer();}
+        else if(hm.status==='revoked') show('viewer-revoked-state');
+        else show('viewer-noaccess-state');
+      } else if(memberStatus==='pending'){
+        show('viewer-pending-state');
+        el('pending-name-lbl').textContent=viewerName||''; el('pending-code-lbl').textContent=memberCode;
+      } else show('viewer-noaccess-state');
+    } else {if(polling){clearInterval(polling);polling=null;} showSection('open-hub-section');badge('viewer','Viewer');show('back-btn');return;}
+    viewerSt('live','');
+  } catch(e){viewerSt('error: '+e.message,'err');}
+  if(!polling) polling=setInterval(()=>refreshViewer(),6000);
+}
+
+async function refreshViewer() {
+  try {
+    hubCache=await fbGet('/hubs/'+curHubId); if(!hubCache) return;
+    const hm=memberCode?hubCache.members?.[memberCode]:null;
+    if(hm){
+      hide('viewer-pending-state');hide('viewer-revoked-state');hide('viewer-approved-state');hide('viewer-noaccess-state');
+      if(hm.status==='approved'){show('viewer-approved-state');renderHubViewer();}
+      else if(hm.status==='revoked') show('viewer-revoked-state');
+    }
+    viewerSt('live','');
+  } catch(e){viewerSt('error','err');}
+}
+
+async function viewerToggle(lid,iid) {
+  if(memberStatus!=='approved') return;
+  if(!viewerName){showNameModal();return;}
+  if(!hubCache?.lists?.[lid]?.items?.[iid]) return;
+  const item=hubCache.lists[lid].items[iid];
+  const byObj=item.checkedBy||{};
+  const was=viewerName in byObj;
+  if(was) delete byObj[viewerName]; else byObj[viewerName]=viewerName;
+  item.checkedBy=byObj; renderHubViewer();
+  try {
+    viewerSt('saving...','');
+    await fbPatch('/hubs/'+curHubId+'/lists/'+lid+'/items/'+iid+'/checkedBy',{[viewerName]:was?null:viewerName});
+    viewerSt('saved ✓',''); setTimeout(()=>viewerSt('live',''),1200);
+  } catch(e){
+    if(was) byObj[viewerName]=viewerName; else delete byObj[viewerName];
+    renderHubViewer(); viewerSt('save error','err');
   }
 }
 
 function enterHubAdmin() {
-  if (polling) { clearInterval(polling); polling = null; }
+  if(polling){clearInterval(polling);polling=null;}
   hide('hub-viewer-section');
-  history.pushState({}, '', location.pathname + '?hub=' + curHubId + '&manage=1');
-  startHubAdmin();
+  history.pushState({},'',location.pathname+'?hub='+curHubId+'&manage=1'); startHubAdmin();
 }
 
-function showNameModal() {
-  el('viewer-name-inp').value = viewerName||'';
-  show('name-modal');
-  setTimeout(()=>el('viewer-name-inp').focus(), 80);
+function showNameModal() { el('viewer-name-inp').value=viewerName||''; show('name-modal'); setTimeout(()=>el('viewer-name-inp').focus(),80); }
+async function submitViewerName() {
+  const n=el('viewer-name-inp').value.trim(); if(!n) return;
+  viewerName=n; localStorage.setItem('cl_name',n); closeModal('name-modal');
+  el('viewer-name-lbl').textContent='you: '+viewerName;
+  el('hub-sel-name').textContent='you: '+viewerName;
+  if(memberCode&&curAdminId){try{await fbPatch('/admins/'+curAdminId+'/members/'+memberCode,{name:viewerName});}catch(e){}}
 }
-function submitViewerName() {
-  const n = el('viewer-name-inp').value.trim(); if (!n) return;
-  viewerName = n; localStorage.setItem('cl_name', n);
-  closeModal('name-modal');
-  el('viewer-name-lbl').textContent = 'you: ' + viewerName;
-  renderHubViewer();
-}
-function changeViewerName() { showNameModal(); }
+function changeViewerName(){showNameModal();}
 
-function viewerSt(msg, dotState) {
-  el('hub-viewer-status').textContent = msg;
-  el('hub-viewer-dot').className = 'live-dot ' + dotState;
-  el('hdr-dot').className = 'live-dot ' + dotState;
-}
-
-// ── Navigation ────────────────────────────────────────────────────────────
+// ── NAVIGATION ────────────────────────────────────────────────────────────
 function goHome() {
-  if (polling) { clearInterval(polling); polling = null; }
-  const saved = localStorage.getItem('cl_admin_id');
-  if (saved) {
-    adminId = saved;
-    history.replaceState({}, '', location.pathname + '?admin=' + saved);
-    startAdminDash();
-  } else {
-    history.replaceState({}, '', location.pathname);
-    showLanding();
+  if(polling){clearInterval(polling);polling=null;}
+  const sa=localStorage.getItem('cl_admin_id');
+  if(sa){adminId=sa;history.replaceState({},'',location.pathname+'?admin='+sa);startAdminDash();}
+  else {
+    const ka=localStorage.getItem('cl_viewer_admin');
+    if(ka){curAdminId=ka;history.replaceState({},'',location.pathname);startViewerHome();}
+    else {history.replaceState({},'',location.pathname);showLanding();}
   }
 }
-
 function goBack() {
-  if (polling) { clearInterval(polling); polling = null; }
-  const p = new URLSearchParams(location.search);
-  if (p.get('manage')) {
-    // Hub admin → back to dashboard
-    history.replaceState({}, '', location.pathname + '?admin=' + adminId);
-    startAdminDash();
-  } else {
-    history.back();
-  }
+  if(polling){clearInterval(polling);polling=null;}
+  const p=new URLSearchParams(location.search);
+  if(p.get('manage')){history.replaceState({},'',location.pathname+'?admin='+adminId);startAdminDash();}
+  else history.back();
 }
-
-// ── Modals ────────────────────────────────────────────────────────────────
-function closeModal(id) { hide(id); }
-
-// Close modal on overlay click
-document.addEventListener('click', e => {
-  ['new-hub-modal','new-list-modal','add-item-modal','name-modal'].forEach(id => {
-    const modal = el(id);
-    if (!modal.classList.contains('hidden') && e.target === modal) closeModal(id);
-  });
-});
-
-// ── Utilities ─────────────────────────────────────────────────────────────
-function showSection(id) {
-  ['fb-setup-section','landing-section','admin-setup-section','admin-dash-section',
-   'hub-admin-section','hub-viewer-section','open-hub-section'].forEach(s => hide(s));
-  show(id);
-}
-function badge(cls, txt) {
-  const b = el('mode-badge');
-  b.className = 'badge ' + cls;
-  b.textContent = txt;
-}
-function setNote(id, html, color) {
-  const e = el(id); e.innerHTML = html; e.style.color = color||'var(--dim)';
-}
-function el(id)   { return document.getElementById(id); }
-function show(id) { el(id).classList.remove('hidden'); }
-function hide(id) { el(id).classList.add('hidden'); }
-function esc(s)   { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function uid()    { return 'i' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-function genUUID(){ return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16)); }
-function copyEl(id, e) {
-  navigator.clipboard.writeText(el(id).textContent).then(()=>flash(e.target,'&#10003; Copied!'));
-}
-function flash(btn, html) {
-  const o = btn.innerHTML; btn.innerHTML = html;
-  setTimeout(()=>btn.innerHTML=o, 1500);
-}
+function requestAccessAgain(){clearSavedMember(curAdminId);memberCode=null;memberStatus=null;showSection('open-hub-section');badge('viewer','Viewer');show('back-btn');el('room-code-input').value='';hide('join-name-card');}
 </script>
 </body>
 </html>
