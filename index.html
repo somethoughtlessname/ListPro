@@ -1629,12 +1629,13 @@ async function openRealViewerHub(hid, hubData) {
   el('viewer-name-lbl').textContent = 'you: ' + viewerName;
   renderHubViewer();
   polling = setInterval(async () => {
-    if (_pendingWrite) return; // skip poll while user is writing
+    if (_pendingWrite) return;
     try {
       const fresh = await fbGet('/hubs/' + curHubId);
-      if (!_pendingWrite) { hubCache = fresh; renderHubViewer(); }
+      if (_pendingWrite) return;
+      hubCache = fresh; renderHubViewer();
     } catch(e) {}
-  }, 8000);
+  }, 10000);
 }
 
 // ─── Override renderHubViewer to use GT50 chk/fill/flg items ─────────────
@@ -1872,7 +1873,10 @@ async function adjustProgress(cid, delta) {
       const idx = hubCache.cards.findIndex(c=>c.id===cid);
       await fbPatch('/hubs/'+curHubId+'/cards/'+idx+'/current', card.current);
     } catch(e){}
-    finally { _pendingWrite = false; }
+    finally {
+      // Keep guard up for 3s so poll can't overwrite right after write
+      setTimeout(() => { _pendingWrite = false; }, 3000);
+    }
   }
 }
 
@@ -2481,8 +2485,11 @@ async function startHubViewer() {
 }
 
 async function refreshViewer() {
+  if (_pendingWrite) return; // user is mid-write, skip this poll
   try {
-    hubCache=await fbGet('/hubs/'+curHubId); if(!hubCache) return;
+    const fresh = await fbGet('/hubs/'+curHubId); if(!fresh) return;
+    if (_pendingWrite) return; // check again after await
+    hubCache = fresh;
     const hm=memberCode?hubCache.members?.[memberCode]:null;
     if(hm){
       hide('viewer-pending-state');hide('viewer-revoked-state');hide('viewer-approved-state');hide('viewer-noaccess-state');
@@ -2770,7 +2777,7 @@ function openTestSharedHub(hid) {
 // Test-mode goHubAdmin — uses TEST_HUBS instead of Firebase
 const _realGoHubAdmin = goHubAdmin;
 goHubAdmin = function(hid) {
-  if (_testMode !== 'admin') { _realGoHubAdmin(hid); return; }
+  if (_testMode !== 'admin') { _realGoHubAdmin(hid); return; } // app or shared: use real
   curHubId = hid;
   hubCache  = TEST_HUBS[hid];
   showSection('hub-admin-section');
