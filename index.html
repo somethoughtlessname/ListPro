@@ -2890,6 +2890,13 @@ function _hist(method) {
   };
 }
 
+// Register service worker for PWA install
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+
 // Wrapper so onclick strings don't fail if goHubAdmin is overridden
 function openAdminHub(hid) { goHubAdmin(hid); }
 </script>
