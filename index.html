@@ -1490,31 +1490,98 @@ function toggleAccordion(){}
 // ─── Override renderViewerHubSelection to use GT50 ────────────────────────
 async function renderViewerHubSelection() {
   const container = el('viewer-hub-cards');
-  container.innerHTML = '';
+
+  let hubIds = [], hubDataMap = {};
   try {
     const memberData = await fbGet('/admins/' + curAdminId + '/members/' + memberCode);
-    const hubIds = Object.keys(memberData?.hubs || {});
-    el('hub-sel-sub').textContent = hubIds.length + ' hub' + (hubIds.length !== 1 ? 's' : '') + ' available';
-    if (!hubIds.length) {
-      container.innerHTML = '<div class="empty-state">No hubs assigned yet — ask your admin</div>'; return;
-    }
-    for (const hid of hubIds) {
-      const hubTitle = await fbGet('/hubs/' + hid + '/title');
-      const div = document.createElement('div');
-      div.className = 'gc';
-      div.style.cursor = 'pointer';
-      div.innerHTML = `
-        <div class="fill" style="cursor:pointer;" onclick="openViewerHub('${hid}')">
-          <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
-            <div class="fill-t" style="font-size:14px;font-weight:900;">${esc(hubTitle||'Hub')}</div>
-          </div>
-        </div>
-        <button class="ctrl btn-b" onclick="openViewerHub('${hid}')" style="width:auto;padding:0 12px;font-size:10px;letter-spacing:1px;text-transform:uppercase;">Open &#8594;</button>`;
-      container.appendChild(div);
-    }
+    hubIds = Object.keys(memberData?.hubs || {});
+    // Fetch all hub titles in parallel
+    await Promise.all(hubIds.map(async hid => {
+      const hub = await fbGet('/hubs/' + hid);
+      hubDataMap[hid] = hub;
+    }));
   } catch(e) {
-    container.innerHTML = '<div class="empty-state">Error loading hubs</div>';
+    container.innerHTML = '<div class="empty-state">Error loading hubs</div>'; return;
   }
+
+  if (!hubIds.length) {
+    container.innerHTML = '<div class="empty-state">No hubs assigned yet — ask your admin</div>'; return;
+  }
+
+  // Only rebuild DOM if hub list changed
+  const newIds = hubIds.join(',');
+  if (container.dataset.renderedIds === newIds) return; // no change, skip re-render
+  container.dataset.renderedIds = newIds;
+  container.innerHTML = '';
+
+  hubIds.forEach(hid => {
+    const hub    = hubDataMap[hid] || {};
+    const col    = HUB_COLORS[(hub.colorIdx||0) % HUB_COLORS.length];
+    const active = _activeHubs.has(hid);
+    const joined = _joinedHubs.has(hid);
+    const label  = joined ? 'Tap to continue' : active ? 'Tap to join' : 'Tap to activate';
+
+    function darkenHex(hex) {
+      if (!hex.startsWith('#')) return hex;
+      const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+      return '#'+[Math.round(r*.5),Math.round(g*.5),Math.round(b*.5)].map(v=>v.toString(16).padStart(2,'0')).join('');
+    }
+    const cardBg = active ? col : darkenHex(col);
+
+    const div = document.createElement('div');
+    div.className = 'gc';
+    div.style.cssText = `background:${cardBg};cursor:pointer;margin-bottom:var(--margin);`;
+    div.onclick = () => {
+      if (joined)       openRealViewerHub(hid, hub);
+      else if (active)  promptRealHubJoin(hid, hub, col);
+      else              promptRealHubActivation(hid, hub, col);
+    };
+    div.innerHTML = `
+      <div class="fill" style="background:${cardBg};">
+        <div class="fill-in">
+          <div class="fill-t" style="font-size:16px;font-weight:900;">${esc(hub.title||'Hub')}</div>
+          <div class="fill-s" style="font-size:9px;letter-spacing:1px;text-transform:uppercase;opacity:.7;">${label}</div>
+        </div>
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+function promptRealHubActivation(hid, hub, col) {
+  _activeHubs.add(hid);
+  openRealViewerHub(hid, hub); // activate goes straight in
+}
+
+function promptRealHubJoin(hid, hub, col) {
+  _pendingJoinHid = hid;
+  const c = col || HUB_COLORS[(hub.colorIdx||0) % HUB_COLORS.length];
+  el('join-modal-title').textContent = hub.title || 'Hub';
+  el('join-modal-hd').style.background = c;
+  show('join-hub-modal');
+  // Override confirmHubJoin for real mode
+  window._pendingJoinHub = hub;
+  window._pendingJoinHid = hid;
+}
+
+async function openRealViewerHub(hid, hubData) {
+  if (polling) { clearInterval(polling); polling = null; }
+  _joinedHubs.add(hid);
+  curHubId  = hid;
+  hubCache  = hubData || await fbGet('/hubs/' + hid);
+  showSection('hub-viewer-section');
+  el('hdr-title').textContent = hubCache.title || 'Hub';
+  hide('mode-badge');
+  show('back-btn');
+  hide('viewer-admin-bar');
+  hide('viewer-pending-state');
+  hide('viewer-revoked-state');
+  hide('viewer-noaccess-state');
+  show('viewer-approved-state');
+  el('viewer-name-lbl').textContent = 'you: ' + viewerName;
+  renderHubViewer();
+  polling = setInterval(async () => {
+    try { hubCache = await fbGet('/hubs/' + curHubId); renderHubViewer(); } catch(e) {}
+  }, 8000);
 }
 
 // ─── Override renderHubViewer to use GT50 chk/fill/flg items ─────────────
@@ -2375,9 +2442,13 @@ function navPush(fn) { _navStack.push(fn); }
 function goBack() {
   if (polling) { clearInterval(polling); polling = null; }
   if (_navStack.length) { _navStack.pop()(); return; }
-  const p = new URLSearchParams(location.search);
-  if (p.get('manage')) { _hist('replaceState')({},'',location.pathname+'?admin='+adminId); startAdminDash(); }
-  else { _hist('replaceState')({},'',location.pathname); showLanding(); }
+  // Real viewer inside a hub → back to hub list
+  if (!_testMode || _testMode === 'app') {
+    const p = new URLSearchParams(location.search);
+    if (p.get('hub') && !p.get('manage')) { curHubId=null; hubCache=null; startViewerHome(); return; }
+    if (p.get('manage')) { _hist('replaceState')({},'',location.pathname+'?admin='+adminId); startAdminDash(); return; }
+  }
+  _hist('replaceState')({},'',location.pathname); showLanding();
 }
 function requestAccessAgain(){clearSavedMember(curAdminId);memberCode=null;memberStatus=null;showSection('open-hub-section');badge('viewer','Viewer');show('back-btn');el('room-code-input').value='';hide('join-name-card');}
 
@@ -2574,7 +2645,12 @@ function confirmHubJoin() {
   _pendingJoinHid = null;
   _joinedHubs.add(hid);
   closeModal('join-hub-modal');
-  openTestSharedHub(hid);
+  if (typeof _testMode !== 'undefined' && _testMode === 'shared') {
+    openTestSharedHub(hid);
+  } else {
+    openRealViewerHub(hid, window._pendingJoinHub);
+    window._pendingJoinHub = null;
+  }
 }
 
 function openTestSharedHub(hid) {
