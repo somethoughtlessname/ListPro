@@ -64,11 +64,11 @@ body{background:var(--bg3);color:var(--white);font-family:system-ui,-apple-syste
 
 /* ── APP ─────────────────────────────────────────────────────────────── */
 #sections{max-width:640px;margin:0 auto;}
-.sec{padding:0 var(--margin) 60px;display:none;}
+.sec{padding:0 0 60px;display:none;}
 .sec.active{display:block;}
 
 /* ── GT50 CARD ──────────────────────────────────────────────────────── */
-.gc{background:var(--bg2);border:var(--bw) solid var(--bc);border-radius:8px;height:var(--ch);display:flex;align-items:center;overflow:hidden;margin-bottom:var(--margin);position:relative;}
+.gc{background:var(--bg2);border:var(--bw) solid var(--bc);border-radius:8px;height:var(--ch);display:flex;align-items:center;overflow:hidden;margin:0 var(--margin) var(--margin);position:relative;}
 .gc.open-top{border-radius:8px 8px 0 0;margin-bottom:0;}
 .gc.tall{height:auto;min-height:var(--ch);}
 
@@ -978,21 +978,31 @@ function renderDash() {
   hide('hub-list-empty');
   keys.reverse().forEach(hid => {
     const h     = dashCache[hid];
-    // Count checklist + progress cards from TEST_HUBS if available, else listCount
-    const hub   = typeof TEST_HUBS !== 'undefined' ? TEST_HUBS[hid] : null;
+    // In test mode pull live card data; in production use dashCache summary
+    const hub   = typeof TEST_HUBS !== 'undefined' && TEST_HUBS[hid] ? TEST_HUBS[hid] : null;
     const cards = hub?.cards || [];
     const count = hub
       ? cards.filter(c => c.type === 'checklist' || c.type === 'progress').length
       : (h.listCount || 0);
+    // Stats for fill bar
+    const clCards = cards.filter(c=>c.type==='checklist');
+    const prCards = cards.filter(c=>c.type==='progress');
+    const prTotal = prCards.reduce((s,c)=>s+(c.total||0),0);
+    const clDone  = clCards.filter(c=>Object.keys(c.checkedBy||{}).length>0).length;
+    const prDone  = prCards.reduce((s,c)=>s+(c.current||0),0);
+    const total   = clCards.length + prTotal;
+    const done    = clDone + prDone;
+    const pct     = total > 0 ? Math.round(done/total*100) : 0;
+    const col     = hub ? HUB_COLORS[(hub.colorIdx||0) % HUB_COLORS.length] : HUB_COLORS[0];
+
     const div = document.createElement('div');
     div.className = 'gc gc-hub';
     div.innerHTML = `
-      <div class="sq sq-l" style="background:var(--c1d);cursor:pointer;" onclick="goHubAdmin('${hid}')">
-        <span style="font-size:13px;font-weight:900;">${count}</span>
-      </div>
-      <div class="fill" style="cursor:pointer;" onclick="goHubAdmin('${hid}')">
+      <div class="fill" style="cursor:pointer;background:var(--bg2);" onclick="goHubAdmin('${hid}')">
+        <div class="fill-bar" style="width:${pct}%;background:${col};opacity:.5;"></div>
         <div class="fill-in">
           <div class="fill-t" style="font-size:15px;font-weight:900;">${esc(h.title||'Hub')}</div>
+          <div class="fill-s" style="font-size:11px;font-weight:700;opacity:.7;">${pct}%</div>
         </div>
       </div>
       <button class="ctrl" style="background:var(--c1dd);color:var(--c1);font-size:16px;" onclick="deleteHubFromDash('${hid}')">&#10005;</button>`;
@@ -1807,10 +1817,17 @@ function viewNoteCard(wrap, card) {
 async function adjustProgress(cid, delta) {
   const card = hubCache?.cards?.find(c=>c.id===cid); if(!card) return;
   card.current = Math.max(0, Math.min(card.total||0, (card.current||0)+delta));
+  // Sync back to TEST_HUBS in test mode
+  if (typeof _testMode !== 'undefined' && _testMode === 'shared' && TEST_HUBS[curHubId]) {
+    TEST_HUBS[curHubId].cards = hubCache.cards;
+  }
   renderHubViewer();
-  try {
-    await fbPatch('/hubs/'+curHubId+'/cards', hubCache.cards.reduce((obj,c,i)=>({...obj,[i]:c}),{}));
-  } catch(e){}
+  if (typeof _testMode === 'undefined' || _testMode === 'app') {
+    try {
+      const idx = hubCache.cards.findIndex(c=>c.id===cid);
+      await fbPatch('/hubs/'+curHubId+'/cards/'+idx+'/current', card.current);
+    } catch(e){}
+  }
 }
 
 async function viewerToggleCard(cid) {
