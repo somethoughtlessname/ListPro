@@ -2,7 +2,7 @@ const CACHE = 'checklist-v1';
 const ASSETS = [
   './',
   './index.html',
-  './manifest.json',
+  './site.webmanifest',
   './firebase.txt',
   './icon-192.png',
   './icon-512.png',
