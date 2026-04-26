@@ -1514,6 +1514,13 @@ function _loadActiveHubs() {
 function _saveActiveHubs() {
   try { localStorage.setItem(_todayKey(), JSON.stringify([..._activeHubs])); } catch(e){}
 }
+function _joinedKey() { return 'cl_joined_' + new Date().toISOString().slice(0,10); }
+function _loadJoinedHubs() {
+  try { const s=localStorage.getItem(_joinedKey()); if(s) JSON.parse(s).forEach(h=>_joinedHubs.add(h)); } catch(e){}
+}
+function _saveJoinedHubs() {
+  try { localStorage.setItem(_joinedKey(), JSON.stringify([..._joinedHubs])); } catch(e){}
+}
 
 async function renderViewerHubSelection() {
   const container = el('viewer-hub-cards');
@@ -1607,6 +1614,7 @@ function promptRealHubJoin(hid, hub, col) {
 async function openRealViewerHub(hid, hubData) {
   if (polling) { clearInterval(polling); polling = null; }
   _joinedHubs.add(hid);
+  _saveJoinedHubs();
   curHubId  = hid;
   hubCache  = hubData || await fbGet('/hubs/' + hid);
   showSection('hub-viewer-section');
@@ -1621,7 +1629,11 @@ async function openRealViewerHub(hid, hubData) {
   el('viewer-name-lbl').textContent = 'you: ' + viewerName;
   renderHubViewer();
   polling = setInterval(async () => {
-    try { hubCache = await fbGet('/hubs/' + curHubId); renderHubViewer(); } catch(e) {}
+    if (_pendingWrite) return; // skip poll while user is writing
+    try {
+      const fresh = await fbGet('/hubs/' + curHubId);
+      if (!_pendingWrite) { hubCache = fresh; renderHubViewer(); }
+    } catch(e) {}
   }, 8000);
 }
 
@@ -1845,19 +1857,22 @@ function viewNoteCard(wrap, card) {
   wrap.appendChild(div);
 }
 
+let _pendingWrite = false;
+
 async function adjustProgress(cid, delta) {
   const card = hubCache?.cards?.find(c=>c.id===cid); if(!card) return;
   card.current = Math.max(0, Math.min(card.total||0, (card.current||0)+delta));
-  // Sync back to TEST_HUBS in test mode
   if (typeof _testMode !== 'undefined' && _testMode === 'shared' && TEST_HUBS[curHubId]) {
     TEST_HUBS[curHubId].cards = hubCache.cards;
   }
   renderHubViewer();
   if (typeof _testMode === 'undefined' || _testMode === 'app') {
+    _pendingWrite = true;
     try {
       const idx = hubCache.cards.findIndex(c=>c.id===cid);
       await fbPatch('/hubs/'+curHubId+'/cards/'+idx+'/current', card.current);
     } catch(e){}
+    finally { _pendingWrite = false; }
   }
 }
 
@@ -2400,6 +2415,7 @@ async function denyMember(code) {
 // ── VIEWER HOME ───────────────────────────────────────────────────────────
 async function startViewerHome() {
   _loadActiveHubs();
+  _loadJoinedHubs();
   showSection('hub-selection-section'); badge('viewer','Viewer'); hide('back-btn');
   viewerName=localStorage.getItem('cl_name');
   el('hub-sel-name').textContent=viewerName?'you: '+viewerName:'';
