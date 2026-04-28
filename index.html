@@ -36,7 +36,7 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 *{-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;}
 input,textarea{user-select:text;-webkit-user-select:text;}
-input:focus:not(.note-inp){outline:2px solid var(--c4);outline-offset:2px;}
+input:focus:not(.note-inp):not(.add-inp){outline:2px solid var(--c4);outline-offset:2px;}
 button:focus{outline:none;}
 input[type=number]{-moz-appearance:textfield;}
 input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
@@ -254,6 +254,14 @@ body{background:var(--bg3);color:var(--white);font-family:system-ui,-apple-syste
       <span class="hdr-badge land hidden" id="mode-badge">Home</span>
       <span class="hdr-dot off hidden" id="hdr-dot"></span>
     </div>
+    <div id="hdr-settings-btn" class="hidden"
+      style="width:var(--sq);min-width:var(--sq);height:100%;flex-shrink:0;
+      margin-left:auto;
+      display:flex;align-items:center;justify-content:center;
+      background:var(--bg4);border-left:var(--bw) solid var(--bc);
+      cursor:pointer;font-size:20px;font-weight:900;color:var(--white);
+      line-height:1;z-index:1;"
+      onclick="openViewerSettings()">&#8942;</div>
   </div>
   <div id="tab-bar" class="hidden">
     <button class="tab-btn"        id="stab-dash"    onclick="setDashTab('dash')">Dashboard</button>
@@ -326,63 +334,8 @@ body{background:var(--bg3);color:var(--white);font-family:system-ui,-apple-syste
 
     <!-- HUBS TAB -->
     <div id="dash-hubs-tab">
-      <!-- Room code -->
-      <style>
-        @keyframes setblink{0%,100%{filter:brightness(1)}50%{filter:brightness(0.8)}}
-        @keyframes slotblink{0%,100%{opacity:1}50%{opacity:.2}}
-        .set-blink{animation:setblink 800ms infinite;}
-        .rc-slot{
-          font-size:26px;font-weight:900;font-family:monospace;
-          width:24px;text-align:center;line-height:1;
-        }
-        .rc-slot.filled{color:var(--c1);}
-        .rc-slot.empty{color:var(--c1);opacity:.35;position:relative;top:5px;}
-        .rc-slot.set{color:var(--c4);}
-        .rc-slot.will-delete{animation:slotblink 500ms infinite;}
-        #room-code-input-admin::placeholder{color:var(--c1);opacity:1;}
-      </style>
-      <div class="gc" style="background:var(--bg2);margin-bottom:var(--margin);overflow:hidden;">
-        <!-- Left third: Random -->
-        <div id="rc-random-zone" onclick="generateRoomCode()"
-          style="flex:1;height:100%;background:var(--bg4);border-right:var(--bw) solid var(--bc);
-          cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
-          transition:filter .15s;">
-          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);">Random</div>
-          <div style="font-size:11px;font-weight:900;letter-spacing:1px;color:var(--white);font-family:monospace;">Code</div>
-        </div>
-        <!-- Center: editable code input -->
-        <div style="flex:2;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:text;position:relative;" onclick="el('room-code-input-admin').focus()">
-          <!-- Hidden real input captures keyboard -->
-          <input id="room-code-input-admin" maxlength="4"
-            autocomplete="off" autocorrect="off" autocapitalize="characters"
-            spellcheck="false"
-            style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:text;"
-            oninput="onRoomCodeInput(this)"
-            onfocus="rcFocus(this)"
-            onblur="rcBlur(this)"
-            onclick="rcFocus(this)"
-            onkeydown="this.setSelectionRange(this.value.length,this.value.length);rcKeyDown(event)"
-            onpaste="event.preventDefault();const t=(event.clipboardData||window.clipboardData).getData('text').replace(/[^a-zA-Z]/g,'').slice(0,4).toUpperCase();this.value=t;onRoomCodeInput(this);"
-            value=""/>
-          <!-- Visual display -->
-          <div id="rc-display" style="display:flex;gap:8px;pointer-events:none;">
-            <span class="rc-slot">*</span>
-            <span class="rc-slot">*</span>
-            <span class="rc-slot">*</span>
-            <span class="rc-slot">*</span>
-          </div>
-        </div>
-        <!-- Right third: Set Code -->
-        <div id="rc-set-zone" onclick="saveCustomRoomCode()"
-          style="flex:1;height:100%;background:var(--bg4);border-left:var(--bw) solid var(--bc);
-          cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
-          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);">Set</div>
-          <div style="font-size:11px;font-weight:900;letter-spacing:1px;color:var(--white);font-family:monospace;">Code</div>
-        </div>
-      </div>
-
       <!-- Add hub -->
-      <div class="add-row">
+      <div class="add-row" style="margin:0 var(--margin) var(--margin);">
         <input class="add-inp" id="new-hub-name" placeholder="New hub name..." onkeydown="if(event.key==='Enter')createHub()"/>
         <button class="add-btn btn-g" onclick="createHub()">+ Hub</button>
       </div>
@@ -394,11 +347,9 @@ body{background:var(--bg3);color:var(--white);font-family:system-ui,-apple-syste
     <!-- MEMBERS TAB -->
     <div id="dash-members-tab" class="hidden">
       <div id="dash-members-pending-section" class="hidden">
-        <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--c2);padding:2px 4px 4px;opacity:.9;">Pending</div>
         <div id="dash-members-pending-list"></div>
       </div>
       <div id="dash-members-approved-section" class="hidden">
-        <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--c4);padding:2px 4px 4px;opacity:.9;">Approved</div>
         <div id="dash-members-approved-list"></div>
       </div>
       <div class="empty-state" id="dash-members-empty">No member requests yet</div>
@@ -502,11 +453,12 @@ body{background:var(--bg3);color:var(--white);font-family:system-ui,-apple-syste
 
     <!-- Approved view -->
     <div class="hidden" id="viewer-approved-state">
-      <!-- Member tags card -->
-      <div style="background:#fff;border:var(--bw) solid var(--bc);border-radius:8px;
-        min-height:var(--ch);display:flex;align-items:center;justify-content:center;
-        padding:10px 12px;margin:0 var(--margin) var(--margin);">
-        <div id="viewer-member-tags" style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center;"></div>
+      <!-- Contributors card -->
+      <div style="background:var(--bg4);border:var(--bw) solid var(--bc);border-radius:8px;
+        height:var(--ch);display:flex;align-items:center;justify-content:center;
+        margin:0 var(--margin) var(--margin);cursor:pointer;"
+        onclick="showContributorsModal()">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);">Tap for list of contributors</div>
       </div>
       <!-- Lists -->
       <div id="hub-viewer-lists"></div>
@@ -536,29 +488,40 @@ body{background:var(--bg3);color:var(--white);font-family:system-ui,-apple-syste
   </div>
 
   <!-- MEMBER DETAIL -->
-  <div class="sec" id="admin-member-section">
+  <div class="sec" id="admin-member-section" style="padding-bottom:calc(var(--ch) + 16px);">
     <div style="height:var(--margin)"></div>
-    <!-- Member header — colored by status, set dynamically -->
+    <!-- Member header -->
     <div class="gc" id="member-detail-hdr" style="background:var(--c4d);margin-bottom:var(--margin);">
       <div class="fill">
         <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
           <div class="fill-t" id="member-detail-name" style="font-size:17px;font-weight:900;">Member</div>
-          <div class="fill-s" id="member-detail-status" style="font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:1px;">approved</div>
         </div>
       </div>
       <div id="member-action-btns" style="display:flex;height:100%;"></div>
     </div>
-    <!-- Hub access -->
-    <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);padding:2px 4px 4px;opacity:.7;">Hub Access</div>
+    <!-- Member code card -->
+    <div class="gc" id="member-code-card" style="background:var(--bg3);cursor:pointer;margin-bottom:var(--margin);"
+      onclick="copyMemberCode()">
+      <div class="fill" style="background:var(--bg3);">
+        <div class="fill-in">
+          <div class="fill-t" id="member-detail-code" style="font-family:monospace;font-size:15px;font-weight:900;letter-spacing:3px;"></div>
+          <div class="fill-s" style="font-size:9px;opacity:.5;letter-spacing:1px;text-transform:uppercase;">Tap to copy to clipboard</div>
+        </div>
+      </div>
+    </div>
     <div id="member-hub-access"></div>
-    <!-- Checked items -->
-    <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);padding:6px 4px 4px;opacity:.7;">Checked Items</div>
     <div id="member-checked-list"></div>
     <div class="empty-state hidden" id="member-checked-empty">Nothing checked yet</div>
-    <!-- Flags -->
-    <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);padding:6px 4px 4px;opacity:.7;">Flags</div>
     <div id="member-flags-list"></div>
     <div class="empty-state hidden" id="member-flags-empty">No flags raised</div>
+    <!-- Delete user — frozen footer matching header style -->
+    <div id="member-delete-zone"
+      style="position:fixed;bottom:0;left:0;right:0;
+      height:var(--ch);display:none;
+      background:var(--c1d);border-top:var(--bw) solid var(--bc);
+      z-index:40;cursor:pointer;
+      align-items:center;justify-content:center;"
+      onclick=""></div>
   </div>
 
   <!-- HUB SELECTION (viewer home) -->
@@ -572,25 +535,103 @@ body{background:var(--bg3);color:var(--white);font-family:system-ui,-apple-syste
   <!-- JOIN (code entry) -->
   <div class="sec" id="open-hub-section">
     <div style="height:var(--margin)"></div>
-    <div class="gc tall" style="height:auto;background:var(--bg2);padding:20px 14px;flex-direction:column;align-items:center;gap:14px;">
-      <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);">Enter Room Code</div>
-      <input class="code-inp" id="room-code-input" maxlength="4" placeholder="····" autocomplete="off" autocorrect="off" spellcheck="false"
-        oninput="this.value=this.value.toUpperCase().replace(/[^A-Z]/g,'');if(this.value.length===4)joinFromCode()"
-        onkeydown="if(event.key==='Enter')joinFromCode()"/>
-      <button class="add-btn btn-g" onclick="joinFromCode()" style="width:100%;justify-content:center;">Join &#8594;</button>
-      <div id="open-hub-msg" style="font-size:11px;color:var(--dim);text-align:center;"></div>
+
+    <!-- Code entry card — center section of admin code card, no subdivisions -->
+    <div class="gc" style="background:var(--bg3);margin:0 var(--margin) var(--margin);cursor:text;position:relative;"
+      onclick="el('room-code-input').focus()">
+      <input id="room-code-input" maxlength="4"
+        autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"
+        style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:text;"
+        oninput="joinCodeInput(this)"
+        onfocus="joinRcFocus(this)"
+        onblur="joinRcBlur(this)"
+        onclick="joinRcFocus(this)"
+        onkeydown="this.setSelectionRange(this.value.length,this.value.length);joinRcKeyDown(event)"
+        onpaste="event.preventDefault();const t=(event.clipboardData||window.clipboardData).getData('text').replace(/[^a-zA-Z]/g,'').slice(0,4).toUpperCase();this.value=t;joinCodeInput(this);"
+        value=""/>
+      <div id="join-rc-display" style="display:flex;gap:8px;pointer-events:none;width:100%;align-items:center;justify-content:center;">
+        <span class="rc-slot">*</span><span class="rc-slot">*</span>
+        <span class="rc-slot">*</span><span class="rc-slot">*</span>
+      </div>
     </div>
+
+    <!-- Join button -->
+    <div class="gc" style="background:var(--c4d);cursor:pointer;margin:0 var(--margin) var(--margin);"
+      onclick="joinFromCode()">
+      <div class="fill" style="background:var(--c4d);">
+        <div class="fill-in">
+          <div class="fill-t" style="font-size:13px;font-weight:900;letter-spacing:1px;text-transform:uppercase;">Join</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="open-hub-msg" style="font-size:11px;color:var(--dim);text-align:center;padding:0 var(--margin);"></div>
 
     <div class="gc tall hidden" id="join-name-card" style="height:auto;background:var(--bg2);padding:14px;flex-direction:column;gap:10px;">
       <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);">Your Name</div>
       <div style="font-size:12px;color:var(--dim);">Only needed once — remembered for all future hubs.</div>
       <div class="add-row" style="margin-bottom:0;">
         <input class="add-inp" id="join-name-input" placeholder="Your name..." maxlength="30" onkeydown="if(event.key==='Enter')joinWithName()"/>
-        <button class="add-btn btn-g" onclick="joinWithName()">Go &#8594;</button>
+        <button class="add-btn btn-g" onclick="joinWithName()">Go</button>
       </div>
     </div>
   </div>
 
+  <!-- VIEWER SETTINGS -->
+  <div class="sec" id="viewer-settings-section">
+    <div style="height:var(--margin)"></div>
+    <div id="viewer-color-card"
+      style="border:var(--bw) solid var(--bc);border-radius:8px;height:var(--ch);
+      margin:0 var(--margin) var(--margin);
+      display:flex;align-items:center;justify-content:center;cursor:pointer;"
+      onclick="cycleViewerColor()">
+      <span style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.7);">Tap to change color</span>
+    </div>
+  </div>
+
+  <!-- ADMIN SETTINGS -->
+  <div class="sec" id="admin-settings-section">
+    <div style="height:var(--margin)"></div>
+          <style>
+        @keyframes setblink{0%,100%{filter:brightness(1)}50%{filter:brightness(0.8)}}
+        @keyframes slotblink{0%,100%{opacity:1}50%{opacity:.2}}
+        .set-blink{animation:setblink 800ms infinite;}
+        .rc-slot{font-size:26px;font-weight:900;font-family:monospace;width:24px;text-align:center;line-height:1;}
+        .rc-slot.filled{color:var(--c1);}
+        .rc-slot.empty{color:var(--c1);opacity:.35;position:relative;top:5px;}
+        .rc-slot.set{color:var(--c4);}
+        .rc-slot.will-delete{animation:slotblink 500ms infinite;}
+        #room-code-input-admin::placeholder{color:var(--c1);opacity:1;}
+      </style>
+      <div class="gc" style="background:var(--bg2);overflow:hidden;">
+        <div id="rc-random-zone" onclick="generateRoomCode()"
+          style="flex:1;height:100%;background:var(--bg4);border-right:var(--bw) solid var(--bc);
+          cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:filter .15s;">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);">Random</div>
+          <div style="font-size:11px;font-weight:900;letter-spacing:1px;color:var(--white);font-family:monospace;">Code</div>
+        </div>
+        <div style="flex:2;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:text;position:relative;" onclick="el('room-code-input-admin').focus()">
+          <input id="room-code-input-admin" maxlength="4"
+            autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"
+            style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:text;"
+            oninput="onRoomCodeInput(this)" onfocus="rcFocus(this)" onblur="rcBlur(this)"
+            onclick="rcFocus(this)"
+            onkeydown="this.setSelectionRange(this.value.length,this.value.length);rcKeyDown(event)"
+            onpaste="event.preventDefault();const t=(event.clipboardData||window.clipboardData).getData('text').replace(/[^a-zA-Z]/g,'').slice(0,4).toUpperCase();this.value=t;onRoomCodeInput(this);"
+            value=""/>
+          <div id="rc-display" style="display:flex;gap:8px;pointer-events:none;">
+            <span class="rc-slot">*</span><span class="rc-slot">*</span>
+            <span class="rc-slot">*</span><span class="rc-slot">*</span>
+          </div>
+        </div>
+        <div id="rc-set-zone" onclick="saveCustomRoomCode()"
+          style="flex:1;height:100%;background:var(--bg4);border-left:var(--bw) solid var(--bc);
+          cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);">Set</div>
+          <div style="font-size:11px;font-weight:900;letter-spacing:1px;color:var(--white);font-family:monospace;">Code</div>
+        </div>
+      </div>
+  </div>
 </div><!-- #sections -->
 
 <!-- ── MODALS ─────────────────────────────────────────────────────────── -->
@@ -642,6 +683,38 @@ body{background:var(--bg3);color:var(--white);font-family:system-ui,-apple-syste
     <div class="modal-ft">
       <button class="modal-btn" onclick="closeModal('approve-member-modal')">Cancel</button>
       <button class="modal-btn ok" onclick="confirmApproval()">Approve &#8594;</button>
+    </div>
+  </div>
+</div>
+
+<!-- Hub Reset Modal -->
+<div class="overlay hidden" id="hub-reset-modal">
+  <div class="modal-box" style="max-width:340px;">
+    <div class="modal-hd" style="background:var(--c5d);">Hub Reset</div>
+    <div class="modal-bd" style="padding:16px 12px;font-size:13px;color:var(--dim);line-height:1.7;text-align:center;">
+      This hub has reset for the day. All checklist items and progress counters have been cleared. You'll need to activate the hub again to continue.
+    </div>
+    <div style="border-top:var(--bw) solid var(--bc);">
+      <div style="height:var(--ch);display:flex;align-items:center;justify-content:center;
+        background:var(--c5d);cursor:pointer;"
+        onclick="closeResetModal()">
+        <div style="font-size:12px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--white);">OK</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Contributors Modal -->
+<div class="overlay hidden" id="contributors-modal">
+  <div class="modal-box" style="max-width:380px;max-height:80vh;display:flex;flex-direction:column;">
+    <div class="modal-hd" style="background:var(--bg4);color:var(--dim);flex-shrink:0;">Contributors</div>
+    <div class="modal-bd" style="padding:var(--margin);display:flex;flex-direction:column;gap:var(--margin);overflow-y:auto;flex:1;" id="contributors-list"></div>
+    <div style="flex-shrink:0;border-top:var(--bw) solid var(--bc);">
+      <div style="height:var(--ch);display:flex;align-items:center;justify-content:center;
+        background:var(--bg4);cursor:pointer;"
+        onclick="closeModal('contributors-modal')">
+        <div style="font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);">Back</div>
+      </div>
     </div>
   </div>
 </div>
@@ -1093,52 +1166,70 @@ function showMemberDetail(code) {
   show('back-btn');
   hide('tab-bar');
 
-  // Header color by status
   const STATUS_COLOR = { pending:'var(--c2d)', approved:'var(--c4d)', revoked:'var(--c1d)' };
   const hdr = el('member-detail-hdr');
   if (hdr) hdr.style.background = STATUS_COLOR[m.status]||'var(--bg2)';
-  el('member-detail-name').textContent   = m.name||'Unknown';
-  el('member-detail-status').textContent = m.status||'';
+  const codeCard = el('member-code-card');
+  const codeFill = codeCard?.querySelector('.fill');
+  const statusBg = STATUS_COLOR[m.status]||'var(--bg2)';
+  if (codeCard) codeCard.style.background = statusBg;
+  if (codeFill) codeFill.style.background = statusBg;
+  el('member-detail-name').textContent = m.name||'Unknown';
+  el('member-detail-code').textContent   = code;
+  el('member-action-btns').innerHTML = '';
 
-  // Action buttons
-  const actBtns = el('member-action-btns');
-  actBtns.innerHTML = '';
-  if (m.status === 'pending') {
-    const appBtn = document.createElement('button');
-    appBtn.className = 'ctrl btn-g';
-    appBtn.style.cssText = 'width:auto;padding:0 12px;font-size:9px;letter-spacing:1px;text-transform:uppercase;';
-    appBtn.textContent = 'Approve';
-    appBtn.onclick = () => openApproveMemberModal(code);
-    const denyBtn = document.createElement('button');
-    denyBtn.className = 'ctrl';
-    denyBtn.style.cssText = 'background:var(--c1d);color:var(--c1);font-size:16px;';
-    denyBtn.textContent = '✕';
-    denyBtn.onclick = () => { denyMember(code); goBack(); };
-    actBtns.appendChild(appBtn);
-    actBtns.appendChild(denyBtn);
-  } else if (m.status === 'approved') {
-    const revokeBtn = document.createElement('button');
-    revokeBtn.className = 'ctrl btn-r';
-    revokeBtn.style.cssText = 'width:auto;padding:0 12px;font-size:9px;letter-spacing:1px;text-transform:uppercase;';
-    revokeBtn.textContent = 'Revoke';
-    revokeBtn.onclick = () => { denyMember(code); goBack(); };
-    actBtns.appendChild(revokeBtn);
-  } else if (m.status === 'revoked') {
-    const reBtn = document.createElement('button');
-    reBtn.className = 'ctrl btn-g';
-    reBtn.style.cssText = 'width:auto;padding:0 12px;font-size:9px;letter-spacing:1px;text-transform:uppercase;';
-    reBtn.textContent = 'Re-approve';
-    reBtn.onclick = () => openApproveMemberModal(code);
-    actBtns.appendChild(reBtn);
+  // Hide all sections first
+  ['member-hub-access','member-checked-list','member-checked-empty',
+   'member-flags-list','member-flags-empty'].forEach(id => {
+    const e = el(id); if(e){ e.innerHTML=''; e.classList.add('hidden'); }
+  });
+
+  // Always show delete footer — behavior differs by status
+  addDeleteUserCard(el('member-delete-zone'), code, m.name, m.status);
+
+  // ── Revoked ──────────────────────────────────────────────────────────────
+  if (m.status === 'revoked') {
+    const cont = el('member-checked-list');
+    cont.innerHTML = ''; cont.classList.remove('hidden');
+    appendActionCard(cont, 'Re-approve', 'var(--c4d)', () => openApproveMemberModal(code));
+    return;
   }
 
-  // Hub access — one row per hub
+  // ── Pending ───────────────────────────────────────────────────────────────
+  if (m.status === 'pending') {
+    const cont = el('member-checked-list');
+    cont.innerHTML = ''; cont.classList.remove('hidden');
+    appendActionCard(cont, 'Approve', 'var(--c4d)', () => openApproveMemberModal(code));
+    appendActionCard(cont, 'Deny', 'var(--c1d)', () => { denyMember(code); goBack(); });
+    return;
+  }
+
+  // ── Approved: full detail ─────────────────────────────────────────────────
+
+  // Override header to show name + Approved centered
+  if (hdr) hdr.style.background = 'var(--c4d)';
+  el('member-detail-name').textContent = m.name || 'Unknown';
+  el('member-detail-code').textContent   = code;
+  // Center the header fill
+  const hdrFill = hdr?.querySelector('.fill-in');
+  if (hdrFill) hdrFill.style.cssText = 'align-items:center;justify-content:center;';
+
+  const mkDivider = text => {
+    const d = document.createElement('div');
+    d.style.cssText = 'height:var(--ch);display:flex;align-items:center;justify-content:center;position:relative;margin:0 var(--margin) var(--margin);';
+    d.innerHTML = `
+      <div style="position:absolute;top:50%;left:0;right:0;height:var(--bw);background:var(--bc);transform:translateY(-50%);z-index:1;"></div>
+      <div style="background:var(--bg3);padding:0 12px;font-size:11px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:.5px;position:relative;z-index:2;">${text}</div>`;
+    return d;
+  };
+
+  // ── Hub Access ──────────────────────────────────────────────────────────
   const accessContainer = el('member-hub-access');
-  accessContainer.innerHTML = '';
+  accessContainer.classList.remove('hidden');
+  accessContainer.appendChild(mkDivider('Hubs'));
   const hubs = dashCache || {};
   Object.entries(hubs).forEach(([hid, h]) => {
     const hasAccess = !!(m.hubs||{})[hid];
-    const hc = HUB_COLORS ? HUB_COLORS[0] : {bg:'var(--c5d)'};
     const row = document.createElement('div');
     row.className = 'gc';
     row.style.cssText = `background:${hasAccess?'var(--c4d)':'var(--bg2)'};cursor:pointer;margin-bottom:var(--margin);`;
@@ -1148,27 +1239,28 @@ function showMemberDetail(code) {
         <span style="font-size:13px;font-weight:900;color:var(--white);">${hasAccess?'&#10003;':''}</span>
       </div>
       <div class="fill" style="background:${hasAccess?'var(--c4d)':'var(--bg2)'};">
-        <div class="fill-in" style="align-items:flex-start;padding:0 10px;">
+        <div class="fill-in">
           <div class="fill-t" style="font-size:13px;font-weight:900;">${esc(h.title||'Hub')}</div>
         </div>
       </div>`;
     accessContainer.appendChild(row);
   });
 
-  // Checked items across all hubs
+  // ── Checked Items ───────────────────────────────────────────────────────
   const checkedList = el('member-checked-list');
-  checkedList.innerHTML = '';
+  checkedList.classList.remove('hidden');
+  checkedList.appendChild(mkDivider('History'));
   const checkedItems = [];
-  Object.entries(TEST_HUBS||{}).forEach(([hid, hub]) => {
-    (hub.cards||[]).forEach(card => {
-      if (card.type==='checklist' && (card.checkedBy||{})[m.name]) {
+  Object.entries(getAdminHubs()).forEach(([hid, hub]) => {
+    (Array.isArray(hub.cards)?hub.cards:Object.values(hub.cards||{})).forEach(card => {
+      if (card?.type==='checklist' && (card.checkedBy||{})[m.name])
         checkedItems.push({ hubTitle: hub.title, text: card.title });
-      }
     });
   });
-  if (!checkedItems.length) { show('member-checked-empty'); }
-  else {
-    hide('member-checked-empty');
+  if (!checkedItems.length) {
+    const empty = el('member-checked-empty');
+    if (empty) { empty.classList.remove('hidden'); empty.textContent = 'Nothing checked yet'; }
+  } else {
     checkedItems.forEach(item => {
       const row = document.createElement('div');
       row.className = 'gc';
@@ -1185,32 +1277,140 @@ function showMemberDetail(code) {
     });
   }
 
-  // Flags
+  // ── Flags ───────────────────────────────────────────────────────────────
   const flagsList = el('member-flags-list');
-  flagsList.innerHTML = '';
+  flagsList.classList.remove('hidden');
+  flagsList.appendChild(mkDivider('Flagged Items'));
   const flagItems = [];
-  Object.entries(TEST_HUBS||{}).forEach(([hid, hub]) => {
-    (hub.cards||[]).forEach(card => {
-      const f = (card.flags||{})[m.name];
+  Object.entries(getAdminHubs()).forEach(([hid, hub]) => {
+    (Array.isArray(hub.cards)?hub.cards:Object.values(hub.cards||{})).forEach(card => {
+      const f = card?.flags?.[m.name];
       if (f?.note) flagItems.push({ hubTitle: hub.title, text: card.title, note: f.note });
     });
   });
-  if (!flagItems.length) { show('member-flags-empty'); }
-  else {
-    hide('member-flags-empty');
+  if (!flagItems.length) {
+    const fe = el('member-flags-empty');
+    if (fe) { fe.classList.remove('hidden'); fe.textContent = 'No flags raised'; }
+  } else {
     flagItems.forEach(item => {
       const row = document.createElement('div');
       row.className = 'gc';
-      row.style.marginBottom = 'var(--margin)';
-      row.style.height = 'auto';
-      row.style.cssText += 'background:var(--c1dd);flex-direction:column;padding:8px 10px;gap:4px;';
+      row.style.cssText = 'background:var(--c1dd);height:auto;min-height:var(--ch);padding:8px 10px;flex-direction:column;gap:4px;align-items:flex-start;';
       row.innerHTML = `
         <div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;">${esc(item.hubTitle)} › ${esc(item.text)}</div>
         <div style="font-size:12px;font-weight:700;font-style:italic;color:var(--white);">"${esc(item.note)}"</div>`;
       flagsList.appendChild(row);
     });
   }
+
+  // Always put delete at very bottom
+  const dz = el('member-delete-zone');
+  dz.innerHTML = '';
+  addDeleteUserCard(dz, code, m.name, m.status);
 }
+
+function appendActionCard(container, label, bg, fn) {
+  const d = document.createElement('div');
+  d.className = 'gc';
+  d.style.cssText = `background:${bg};cursor:pointer;margin-bottom:var(--margin);`;
+  d.innerHTML = `<div class="fill" style="background:${bg};"><div class="fill-in"><div class="fill-t" style="font-size:14px;font-weight:900;">${esc(label)}</div></div></div>`;
+  d.onclick = fn;
+  container.appendChild(d);
+}
+
+function copyMemberCode() {
+  const code = el('member-detail-code')?.textContent?.trim();
+  if (!code) return;
+  // Use multiple clipboard methods for compatibility
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(code).then(() => flashCodeCard()).catch(() => fallbackCopy(code));
+  } else {
+    fallbackCopy(code);
+  }
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand('copy'); flashCodeCard(); } catch(e) {}
+  document.body.removeChild(ta);
+}
+
+function flashCodeCard() {
+  const card = el('member-code-card');
+  if (!card) return;
+  const origBg = card.style.background;
+  card.style.background = 'var(--c4d)';
+  const fill = card.querySelector('.fill');
+  if (fill) fill.style.background = 'var(--c4d)';
+  const sub = card.querySelector('.fill-s');
+  if (sub) sub.textContent = 'Copied!';
+  setTimeout(() => {
+    card.style.background = origBg;
+    if (fill) fill.style.background = origBg;
+    if (sub) sub.textContent = 'Tap to copy to clipboard';
+  }, 1200);
+}
+
+function addDeleteUserCard(container, code, name, status) {
+  container.style.display = 'flex';
+  container.onclick = () => confirmDeleteMember(code, name, status);
+  container.innerHTML = `<span style="font-size:12px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--white);">Delete User</span>`;
+}
+
+function confirmDeleteMember(code, name, status) {
+  document.getElementById('gt-modal')?.remove();
+  const msg = status === 'pending'
+    ? `Deny and remove <span style="color:var(--white);">${esc(name)}</span>'s request?`
+    : status === 'revoked'
+    ? `Remove <span style="color:var(--white);">${esc(name)}</span> from your member list?`
+    : `Remove <span style="color:var(--white);">${esc(name)}</span>? They will lose access immediately.`;
+  const overlay = document.createElement('div');
+  overlay.id = 'gt-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;padding:12px;';
+  overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
+  overlay.innerHTML = `
+    <div style="background:var(--bg2);border:var(--bw) solid var(--bc);border-radius:8px;width:100%;max-width:320px;overflow:hidden;">
+      <div style="height:var(--ch);display:flex;align-items:center;justify-content:center;background:var(--c1d);border-bottom:var(--bw) solid var(--bc);font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--white);">Remove User</div>
+      <div style="padding:16px 12px;font-size:13px;font-weight:600;color:var(--dim);line-height:1.5;text-align:center;">${msg}</div>
+      <div style="display:flex;border-top:var(--bw) solid var(--bc);">
+        <button onclick="document.getElementById('gt-modal').remove()"
+          style="flex:1;height:var(--ch);background:var(--bg4);border:none;border-right:var(--bw) solid var(--bc);color:var(--white);font-family:inherit;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Cancel</button>
+        <button onclick="deleteMemberConfirmed('${code}','${status}')"
+          style="flex:1;height:var(--ch);background:var(--c1d);border:none;color:var(--white);font-family:inherit;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Remove</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+async function deleteMemberConfirmed(code, status) {
+  document.getElementById('gt-modal')?.remove();
+  // Pending: deny (set revoked) then delete
+  // Approved: revoke on their end (set status revoked) then remove from admin
+  // Revoked: just delete
+  if (status === 'pending') {
+    await fbPatch('/admins/'+(adminId||TEST_ADMIN_ID)+'/members/'+code, {status:'revoked'}).catch(()=>{});
+  } else if (status === 'approved') {
+    // Revoke across all hubs so viewer sees revoked state
+    const hubs = dashCache || {};
+    await Promise.all(Object.keys(hubs).map(hid =>
+      fbPatch('/hubs/'+hid+'/members/'+code, {status:'revoked'}).catch(()=>{})
+    ));
+  }
+  // Remove from admin members
+  if (adminId) await fbDel('/admins/'+adminId+'/members/'+code).catch(()=>{});
+  if (dashMembers) delete dashMembers[code];
+  // Return to members tab
+  const dz = el('member-delete-zone'); if(dz) dz.style.display='none';
+  showSection('admin-dash-section');
+  badge('admin','Admin'); hide('back-btn');
+  setDashTab('members');
+  renderDash(); renderDashMembers();
+}
+
 
 function toggleMemberHubAccess(code, hid, rowEl) {
   const m = (dashMembers||{})[code]; if(!m) return;
@@ -1242,6 +1442,7 @@ function _buildApproveCheckboxes(hkeys, hubs) {
 // ─── Hub color cycling ───────────────────────────────────────────────────
 
 const RESET_TIMERS = [
+  'Every 1 Minute',   // index 0 — testing only
   'Daily at Midnight',
   'Daily at 6am',
   'Daily at 8am',
@@ -1250,6 +1451,113 @@ const RESET_TIMERS = [
   'Monthly — 1st',
   'Never',
 ];
+
+// Returns the ms until next reset for a given timer index
+function msUntilNextReset(idx) {
+  const now = new Date();
+  if (idx === 0) {
+    // 1 minute — for testing
+    return 60000 - (now.getTime() % 60000);
+  }
+  const next = new Date(now);
+  if (idx === 1) { // midnight
+    next.setDate(now.getDate()+1); next.setHours(0,0,0,0);
+  } else if (idx === 2) { // 6am
+    next.setHours(6,0,0,0); if (next<=now) next.setDate(next.getDate()+1);
+  } else if (idx === 3) { // 8am
+    next.setHours(8,0,0,0); if (next<=now) next.setDate(next.getDate()+1);
+  } else if (idx === 4) { // weekly Monday
+    const d = (8 - now.getDay()) % 7 || 7;
+    next.setDate(now.getDate()+d); next.setHours(0,0,0,0);
+  } else if (idx === 5) { // weekly Friday
+    const d = (5 - now.getDay() + 7) % 7 || 7;
+    next.setDate(now.getDate()+d); next.setHours(0,0,0,0);
+  } else if (idx === 6) { // monthly 1st
+    next.setMonth(now.getMonth()+1,1); next.setHours(0,0,0,0);
+  } else {
+    return Infinity; // Never
+  }
+  return next.getTime() - now.getTime();
+}
+
+function resetHubCards(hub) {
+  const cards = Array.isArray(hub.cards) ? hub.cards : Object.values(hub.cards||{});
+  cards.forEach(card => {
+    if (!card) return;
+    if (card.type === 'checklist') card.checkedBy = {};
+    if (card.type === 'progress')  card.current   = 0;
+    if (card.flags) card.flags = {};
+  });
+}
+
+let _resetModalCallback = null;
+
+function showResetModal(callback) {
+  _resetModalCallback = callback || null;
+  document.body.style.overflow = 'hidden';
+  show('hub-reset-modal');
+}
+
+function closeResetModal() {
+  hide('hub-reset-modal');
+  document.body.style.overflow = '';
+  const cb = _resetModalCallback;
+  _resetModalCallback = null;
+  if (cb) cb();
+}
+
+// Schedule reset check for a hub
+function scheduleHubReset(hid, hub) {
+  const idx = hub.resetTimerIdx || 0;
+  if (RESET_TIMERS[idx] === 'Never') return;
+  const ms = msUntilNextReset(idx);
+  if (ms === Infinity) return;
+  setTimeout(async () => {
+    // Fetch fresh hub data
+    try {
+      const fresh = normalizeHub(await fbGet('/hubs/'+hid));
+      if (!fresh) return;
+      resetHubCards(fresh);
+      await fbSet('/hubs/'+hid+'/cards', fresh.cards);
+      await fbSet('/hubs/'+hid+'/lastResetAt', Date.now());
+      // Clear activation state
+      _activeHubs.delete(hid);
+      _joinedHubs.delete(hid);
+      _saveActiveHubs();
+      _saveJoinedHubs();
+      // Boot anyone in this hub
+      if (curHubId === hid && document.querySelector('.sec.active')?.id === 'hub-viewer-section') {
+        if (polling) { clearInterval(polling); polling = null; }
+        curHubId = null; hubCache = null;
+        showResetModal(() => startViewerHome());
+      }
+    } catch(e) {}
+    // Schedule next reset
+    scheduleHubReset(hid, hub);
+  }, ms);
+}
+
+// Test mode reset — works directly on TEST_HUBS
+function scheduleTestHubReset(hid, hub) {
+  const idx = hub.resetTimerIdx || 0;
+  if (RESET_TIMERS[idx] === 'Never') return;
+  const ms = msUntilNextReset(idx);
+  if (ms === Infinity) return;
+  setTimeout(() => {
+    resetHubCards(TEST_HUBS[hid]);
+    _activeHubs.delete(hid);
+    _joinedHubs.delete(hid);
+    _saveActiveHubs();
+    _saveJoinedHubs();
+    // Boot anyone inside this hub
+    if (curHubId === hid && document.querySelector('.sec.active')?.id === 'hub-viewer-section') {
+      if (polling) { clearInterval(polling); polling = null; }
+      curHubId = null; hubCache = null;
+      showResetModal(() => showTestSharedDash());
+    }
+    scheduleTestHubReset(hid, hub);
+  }, ms);
+}
 
 function cycleResetTimer() {
   if (!hubCache) return;
@@ -1549,7 +1857,7 @@ async function renderViewerHubSelection() {
       const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
       return '#'+[Math.round(r*.5),Math.round(g*.5),Math.round(b*.5)].map(v=>v.toString(16).padStart(2,'0')).join('');
     }
-    const cardBg = active ? col : darkenHex(col);
+    const cardBg = joined ? col : darkenHex(col);
 
     const div = document.createElement('div');
     div.className = 'gc';
@@ -1610,6 +1918,7 @@ async function openRealViewerHub(hid, hubData) {
   el('hdr-title').textContent = hubCache.title || 'Hub';
   hide('mode-badge');
   show('back-btn');
+  hide('hdr-settings-btn');
   hide('viewer-admin-bar');
   hide('viewer-pending-state');
   hide('viewer-revoked-state');
@@ -1644,16 +1953,7 @@ function renderHubViewer() {
   // Always include current viewer
   if (viewerName) nameSet.add(viewerName);
 
-  const tagColors = ['--c1','--c2','--c3','--c4','--c5','--c6','--c7'];
-  const nameTags  = el('viewer-member-tags');
-  if (nameTags) {
-    nameTags.innerHTML = [...nameSet].map((name, i) => {
-      const cv = tagColors[i % tagColors.length];
-      const isMe = name === viewerName;
-      return `<span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:8px;
-        background:var(${cv});color:#fff;letter-spacing:.5px;">${esc(name)}${isMe?' ✓':''}</span>`;
-    }).join('');
-  }
+
 
   const cards   = hubCache.cards || [];
   const clCards = cards.filter(c=>c.type==='checklist');
@@ -1716,9 +2016,6 @@ function viewChecklistCard(wrap, card, c) {
   const name    = viewerName;
   const checked = !!(card.checkedBy||{})[name];
   const flagged = !!(card.flags||{})[name];
-  const who     = Object.values(card.checkedBy||{});
-  const others  = who.filter(n=>n!==name);
-  const chips   = others.map(n=>`<span style="font-size:9px;padding:1px 5px;border-radius:8px;border:1.5px solid ${c};color:${c};margin-right:2px;">${esc(n)}</span>`).join('');
   const draft   = _vNoteInputs[card.id] !== undefined ? _vNoteInputs[card.id] : ((card.flags||{})[name]?.note||'');
   const saved   = !!_vSavedNotes[card.id];
 
@@ -1731,7 +2028,7 @@ function viewChecklistCard(wrap, card, c) {
     <div class="fill" style="background:var(--bg2);">
       <div class="fill-in" style="align-items:flex-start;padding:0 8px;">
         <div class="fill-t" style="font-size:13px;${checked?'text-decoration:line-through;opacity:.4;':''}">${esc(card.title||'Item')}</div>
-        ${chips?`<div style="margin-top:2px;">${chips}</div>`:''}
+
       </div>
     </div>
     <div class="flg sq ${flagged?'on':'off'} sq-r" onclick="viewerFlagCard('${card.id}')">&#9873;</div>`;
@@ -1982,6 +2279,7 @@ function joinAnotherHub() {
   showSection('open-hub-section'); badge('viewer','Viewer');
   show('back-btn');
   el('room-code-input').value = '';
+  updateJoinDisplay('', false, false);
   hide('join-name-card');
 }
 
@@ -1989,6 +2287,45 @@ function joinAnotherHub() {
 function setNote(id, html, color) {
   const e = el(id); if (!e) return;
   e.innerHTML = html; e.style.color = color || 'var(--dim)';
+}
+
+// ── Viewer color preference ───────────────────────────────────────────────
+let _viewerColorIdx = parseInt(localStorage.getItem('cl_viewer_color')||'4');
+
+function getViewerColor() { return HUB_COLORS[_viewerColorIdx % HUB_COLORS.length]; }
+
+function cycleViewerColor() {
+  _viewerColorIdx = (_viewerColorIdx + 1) % HUB_COLORS.length;
+  localStorage.setItem('cl_viewer_color', _viewerColorIdx);
+  applyViewerColorCard();
+}
+
+function applyViewerColorCard() {
+  const col  = getViewerColor();
+  const card = el('viewer-color-card');
+  if (card) { card.style.background = col; }
+}
+
+function openViewerSettings() {
+  el('hdr-title').textContent = 'Settings';
+  hide('mode-badge');
+  hide('hdr-settings-btn');
+  show('back-btn');
+  const isAdmin = (typeof _testMode !== 'undefined' && _testMode === 'admin') ||
+                  (!curAdminId && adminId && typeof _testMode === 'undefined');
+  if (isAdmin) {
+    const savedCode = localStorage.getItem('cl_room_code_'+adminId);
+    if (savedCode) showRoomCode(savedCode);
+    showSection('admin-settings-section');
+  } else {
+    applyViewerColorCard();
+    showSection('viewer-settings-section');
+  }
+}
+
+function showSettingsBtn(visible) {
+  const btn = el('hdr-settings-btn');
+  if (btn) btn.classList.toggle('hidden', !visible);
 }
 
 // ─── Utilities ────────────────────────────────────────────────────────────
@@ -2030,9 +2367,9 @@ function saveMember(aId, data) { localStorage.setItem('cl_member_'+aId, JSON.str
 function clearSavedMember(aId) { localStorage.removeItem('cl_member_'+(aId||curAdminId)); }
 function copyEl(id, e) { navigator.clipboard.writeText(el(id).textContent).then(()=>flash(e.target,'&#10003; Copied!')); }
 function flash(btn, html) { const o = btn.innerHTML; btn.innerHTML = html; setTimeout(()=>btn.innerHTML=o, 1500); }
-function closeModal(id) { hide(id); }
+function closeModal(id) { hide(id); document.body.style.overflow = ''; }
 document.addEventListener('click', e => {
-  ['new-list-modal','add-item-modal','approve-member-modal','name-modal','activate-hub-modal','join-hub-modal'].forEach(id => {
+  ['new-list-modal','add-item-modal','approve-member-modal','name-modal','activate-hub-modal','join-hub-modal','contributors-modal',].forEach(id => {
     const modal = el(id);
     if (modal && !modal.classList.contains('hidden') && e.target === modal) closeModal(id);
   });
@@ -2156,6 +2493,7 @@ async function createAdmin() {
 // ── ADMIN DASHBOARD ───────────────────────────────────────────────────────
 async function startAdminDash() {
   showSection('admin-dash-section'); badge('admin','Admin'); hide('back-btn');
+  show('hdr-settings-btn');
   setDashTab('hubs');
   if (!location.search.includes('admin=')) _hist('replaceState')({},'',location.pathname+'?admin='+adminId);
   const cachedName=localStorage.getItem('cl_admin_name');
@@ -2209,6 +2547,80 @@ function rcKeyDown(e) {
   if (e.key === 'Enter') { saveCustomRoomCode(); e.preventDefault(); }
   // Hard stop at 4 letters
   if (/^[a-zA-Z]$/.test(e.key) && e.target.value.length >= 4) { e.preventDefault(); }
+}
+
+function showContributorsModal() {
+  document.body.style.overflow = 'hidden';
+  // Build name → join time map from members
+  const memberTimeMap = {};
+  Object.values(hubCache?.members||{}).forEach(m => {
+    if (m.name) {
+      const t = m.approvedAt || m.requested || null;
+      memberTimeMap[m.name] = t ? new Date(t).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',hour12:true}) : '';
+    }
+  });
+  // Add viewer's own join time if available
+  if (viewerName && !memberTimeMap[viewerName]) memberTimeMap[viewerName] = '';
+
+  // Collect all names in order: members first, then checkers not in member list
+  const orderedNames = [];
+  const seen = new Set();
+  Object.values(hubCache?.members||{}).forEach(m => {
+    if (m.name && !seen.has(m.name)) { orderedNames.push(m.name); seen.add(m.name); }
+  });
+  (hubCache?.cards||[]).forEach(card => {
+    Object.values(card.checkedBy||{}).forEach(n => {
+      if (n && !seen.has(n)) { orderedNames.push(n); seen.add(n); }
+    });
+  });
+  if (viewerName && !seen.has(viewerName)) orderedNames.push(viewerName);
+
+  const list = el('contributors-list');
+  list.innerHTML = '';
+
+  if (!orderedNames.length) {
+    list.innerHTML = '<div class="empty-state" style="height:48px;">No contributors yet</div>';
+  } else {
+    orderedNames.forEach((name, i) => {
+      const col = HUB_COLORS[i % HUB_COLORS.length];
+      const timeStr = memberTimeMap[name] || '';
+      const div = document.createElement('div');
+      div.style.cssText = `background:${col};border:var(--bw) solid var(--bc);border-radius:8px;
+        height:var(--ch);min-height:var(--ch);max-height:var(--ch);
+        display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;flex-shrink:0;overflow:hidden;`;
+      div.innerHTML = `
+        <div style="font-size:15px;font-weight:900;color:#fff;">${esc(name)}${name===viewerName?' (you)':''}</div>
+        ${timeStr ? `<div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.55);">Joined ${timeStr}</div>` : ''}`;
+      list.appendChild(div);
+    });
+  }
+  show('contributors-modal');
+}
+
+function joinCodeInput(inp) {
+  inp.value = inp.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4);
+  updateJoinDisplay(inp.value, false);
+}
+function joinRcFocus(inp) { inp.setSelectionRange(inp.value.length,inp.value.length); updateJoinDisplay(inp.value,false,true); }
+function joinRcBlur(inp)  { updateJoinDisplay(inp.value,false,false); }
+function joinRcKeyDown(e) {
+  const ok = /^[a-zA-Z]$/.test(e.key)||['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Enter'].includes(e.key)||e.metaKey||e.ctrlKey;
+  if (!ok) { e.preventDefault(); return; }
+  if (e.key==='Enter') { joinFromCode(); e.preventDefault(); }
+  if (/^[a-zA-Z]$/.test(e.key)&&e.target.value.length>=4) e.preventDefault();
+}
+function updateJoinDisplay(value, isSet, focused) {
+  const slots = document.querySelectorAll('#join-rc-display .rc-slot');
+  const last  = value.length - 1;
+  for (let i=0;i<4;i++) {
+    const s=slots[i]; if(!s) continue;
+    if (i<value.length) {
+      s.textContent = value[i];
+      let cls = 'rc-slot ' + (isSet?'set':'filled');
+      if (focused&&!isSet&&i===last&&value.length>0) cls+=' will-delete';
+      s.className = cls;
+    } else { s.textContent='*'; s.className='rc-slot empty'; }
+  }
 }
 
 function updateRcDisplay(value, isSet, focused) {
@@ -2302,7 +2714,7 @@ async function generateRoomCode() {
 // ── HUB ADMIN ─────────────────────────────────────────────────────────────
 function goHubAdmin(hid) { curHubId=hid; _hist('pushState')({},'',location.pathname+'?hub='+hid+'&manage=1'); startHubAdmin(); }
 async function startHubAdmin() {
-  showSection('hub-admin-section'); badge('admin','Admin'); show('back-btn');
+  showSection('hub-admin-section'); badge('admin','Admin'); show('back-btn'); hide('hdr-settings-btn');
   hide('tab-bar'); show('hdr-dot');
   loadHubAdmin();
 }
@@ -2516,8 +2928,19 @@ function goBack() {
   if (_navStack.length) { _navStack.pop()(); return; }
   // Determine where we are by which section is active
   const active = document.querySelector('.sec.active')?.id;
+  if (active === 'admin-settings-section') {
+    startAdminDash(); return;
+  }
+  if (active === 'viewer-settings-section') {
+    if (curHubId) {
+      hide('hdr-settings-btn');
+      if (_testMode==='shared') openTestSharedHub(curHubId);
+      else { showSection('hub-viewer-section'); show('back-btn'); }
+    } else showTestSharedDash();
+    return;
+  }
   if (active === 'hub-viewer-section') {
-    curHubId = null; hubCache = null;
+        curHubId = null; hubCache = null;
     if (curAdminId || localStorage.getItem('cl_viewer_admin')) startViewerHome();
     else showLanding();
     return;
@@ -2545,7 +2968,7 @@ const TEST_ADMIN_ID = 'test-admin-preview';
 // All test hubs live here — admin creates/edits them, shared reads from them
 const TEST_HUBS = {
   'test-hub-1': {
-    title: 'Team Tasks', colorIdx: 0,
+    title: 'Team Tasks', colorIdx: 0, resetTimerIdx: 0,
     ownerId: TEST_ADMIN_ID,
     cards: [
       { id:'tc1', type:'checklist', title:'Review pull requests',  checkedBy:{ Alice:'Alice', Marcus:'Marcus' }, flags:{} },
@@ -2559,8 +2982,8 @@ const TEST_HUBS = {
       { id:'tn1', type:'note',      title:'Stand-up at 9am daily' },
     ],
     members: {
-      'mbr-alice':  { name:'Alice',   status:'approved' },
-      'mbr-bob':    { name:'Bob',     status:'approved' },
+      'mbr-alice':  { name:'Alice',   status:'approved', approvedAt:1747992800000 },
+      'mbr-bob':    { name:'Bob',     status:'approved', approvedAt:1747996400000 },
       'mbr-carlos': { name:'Carlos',  status:'approved' },
       'mbr-dana':   { name:'Dana',    status:'approved' },
       'mbr-eli':    { name:'Eli',     status:'approved' },
@@ -2573,7 +2996,7 @@ const TEST_HUBS = {
     }
   },
   'test-hub-2': {
-    title: 'Grocery Run', colorIdx: 1,
+    title: 'Grocery Run', colorIdx: 1, resetTimerIdx: 7,
     ownerId: TEST_ADMIN_ID,
     cards: [
       { id:'tg1', type:'checklist', title:'Milk',   checkedBy:{}, flags:{} },
@@ -2607,21 +3030,21 @@ function testTab(mode) {
       Object.entries(TEST_HUBS).map(([hid, h]) => [hid, { title: h.title, listCount: h.cards.length }])
     );
     dashMembers = {
-      'mbr-alice':  { name:'Alice',   status:'approved', hubs:{'test-hub-1':true,'test-hub-2':true} },
-      'mbr-bob':    { name:'Bob',     status:'approved', hubs:{'test-hub-1':true} },
-      'mbr-carlos': { name:'Carlos',  status:'approved', hubs:{'test-hub-1':true} },
-      'mbr-dana':   { name:'Dana',    status:'approved', hubs:{'test-hub-1':true} },
-      'mbr-eli':    { name:'Eli',     status:'approved', hubs:{'test-hub-1':true} },
-      'mbr-fran':   { name:'Fran',    status:'approved', hubs:{'test-hub-1':true} },
-      'mbr-gus':    { name:'Gus',     status:'approved', hubs:{'test-hub-1':true} },
-      'mbr-hana':   { name:'Hana',    status:'approved', hubs:{'test-hub-1':true} },
-      'mbr-marcus': { name:'Marcus',  status:'approved', hubs:{'test-hub-1':true} },
-      'mbr-priya':  { name:'Priya',   status:'approved', hubs:{'test-hub-1':true} },
-      'mbr-yuki':   { name:'Yuki',    status:'approved', hubs:{'test-hub-1':true} },
-      'mbr-carlos2':{ name:'Carlos',  status:'pending',  requested: Date.now()-120000 },
-      'mbr-dana2':  { name:'Dana',    status:'pending',  requested: Date.now()-30000 },
-      'mbr-eli2':   { name:'Eli',     status:'revoked',  hubs:{} },
-    };
+      'a3f9b2c1': { name:'Alice', status:'approved', approvedAt:1748000000000, hubs:{'test-hub-1':true,'test-hub-2':true} },
+      'b7e4d8f2': { name:'Bob', status:'approved', approvedAt:1748000240000, hubs:{'test-hub-1':true} },
+      'c2a1e5g3': { name:'Carlos', status:'approved', approvedAt:1748000540000, hubs:{'test-hub-1':true} },
+      'd9f3h6i4': { name:'Dana', status:'approved', approvedAt:1748000900000, hubs:{'test-hub-1':true} },
+      'e1b8j7k5': { name:'Eli', status:'approved', approvedAt:1748001080000, hubs:{'test-hub-1':true} },
+      'f4c2l9m6': { name:'Fran', status:'approved', approvedAt:1748001380000, hubs:{'test-hub-1':true} },
+      'g7d5n3p7': { name:'Gus', status:'approved', approvedAt:1748001620000, hubs:{'test-hub-1':true} },
+      'h2e8q1r8': { name:'Hana', status:'approved', approvedAt:1748001860000, hubs:{'test-hub-1':true} },
+      'm5f4s6t9': { name:'Marcus', status:'approved', approvedAt:1748002100000, hubs:{'test-hub-1':true} },
+      'p9g7u2v1': { name:'Priya', status:'approved', approvedAt:1748002400000, hubs:{'test-hub-1':true} },
+      'y3h1w8x2': { name:'Yuki', status:'approved', approvedAt:1748002640000, hubs:{'test-hub-1':true} },
+      'c3p2r1s0': { name:'Carlos',  status:'pending',  requested: Date.now()-120000 },
+      'd4q3s2t1': { name:'Dana',    status:'pending',  requested: Date.now()-30000 },
+      'e5r4t3u2': { name:'Eli',     status:'revoked',  hubs:{} },
+    };;;
     showSection('admin-dash-section');
     badge('admin','Admin');
     hide('back-btn');
@@ -2645,12 +3068,19 @@ function showTestSharedDash() {
   if (polling) { clearInterval(polling); polling = null; }
   curHubId = null; hubCache = null;
   el('hdr-title').textContent = 'CheckList';
-  showSection('hub-selection-section');
+    showSection('hub-selection-section');
   badge('viewer','Viewer');
   show('mode-badge');
   hide('back-btn');
+  show('hdr-settings-btn');
   el('hub-sel-sub').textContent = Object.keys(TEST_HUBS).length + ' hub' + (Object.keys(TEST_HUBS).length!==1?'s':'') + ' available';
   el('hub-sel-name').textContent = 'you: ' + viewerName;
+
+  // Schedule resets for all test hubs (only once — guard with flag)
+  if (!window._testResetsScheduled) {
+    window._testResetsScheduled = true;
+    Object.entries(TEST_HUBS).forEach(([hid, hub]) => scheduleTestHubReset(hid, hub));
+  }
 
   const container = el('viewer-hub-cards');
   container.innerHTML = '';
@@ -2671,7 +3101,7 @@ function showTestSharedDash() {
       const dr=Math.round(r*0.5), dg=Math.round(g*0.5), db=Math.round(b*0.5);
       return '#'+[dr,dg,db].map(v=>v.toString(16).padStart(2,'0')).join('');
     }
-    const cardBg = active ? c : darkenHex(c);
+    const cardBg = joined ? c : darkenHex(c);
 
     const div = document.createElement('div');
     div.className = 'gc';
@@ -2750,6 +3180,7 @@ function openTestSharedHub(hid) {
   el('hdr-title').textContent = TEST_HUBS[hid]?.title || 'Hub';
   hide('mode-badge');
   show('back-btn');
+  hide('hdr-settings-btn');
   hide('viewer-admin-bar');
   hide('viewer-pending-state');
   hide('viewer-revoked-state');
@@ -2796,6 +3227,7 @@ goBack = function() {
     updateFlagBadge();
     return;
   }
+  const dz2 = el('member-delete-zone'); if(dz2) dz2.style.display='none';
   if (_testMode === 'admin' && document.getElementById('admin-member-section')?.classList.contains('active')) {
     _curMemberCode = null;
     showSection('admin-dash-section');
